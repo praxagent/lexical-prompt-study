@@ -12,15 +12,14 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
-**Locked study charter, outcome-free for the raw checkpoint, not yet a
-confirmatory freeze.**
+**Study v1 is frozen and outcome-free for the raw checkpoint. Gate 0
+implementation is complete; paid artifact preparation is in progress.**
 
-The first commit fixes the claim boundary, threat model, stage gates,
-independent unit, controls, primary estimands, safety boundary, and change
-process. It does not claim that the final machine plan, prompt corpus, artifact
-revisions, or compute budget have been frozen. Those require implementation,
-outcome-masked validation, an adversarial plan review, and an explicit costed
-go-ahead.
+The public plan, restricted companion plan, artifact inventory, category-balanced
+splits, four tokenizer-matched arms, evaluator, thresholds, probe sets, decoding,
+resume rules, and compute policy are fixed. The Gate 1 discovery outcome has not
+been inspected. Implementation corrections made before that outcome are recorded
+in [docs/AMENDMENTS.md](docs/AMENDMENTS.md).
 
 Prior OpenRouter observations described in the source proposal are exploratory
 and are not evidence about the raw checkpoint used by this study.
@@ -47,15 +46,39 @@ in [docs/FIGURE_CONTRACT.md](docs/FIGURE_CONTRACT.md). Compute authorization,
 checkpointing, and persistent-volume rules are in
 [docs/COMPUTE_POLICY.md](docs/COMPUTE_POLICY.md).
 
-## Public artifact candidates
+## Pinned public artifacts
 
-These are feasibility anchors, not frozen revisions:
+The complete file-level hashes and licenses are in
+[plans/artifacts.v1.json](plans/artifacts.v1.json). Principal revisions are:
 
-- [Meta Llama 3.3 70B Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct)
-- [Neuronpedia Jacobian lens for Llama 3.3 70B Instruct](https://huggingface.co/neuronpedia/jacobian-lens/tree/main/llama3.3-70b-it/jlens)
-- [Goodfire Llama 3.3 70B layer-50 SAE](https://huggingface.co/Goodfire/Llama-3.3-70B-Instruct-SAE-l50)
+- [Meta Llama 3.3 70B Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct),
+  revision `6f6073b423013f6a7d4d9f39144961bfbfbc386b`;
+- [Neuronpedia Jacobian lens](https://huggingface.co/neuronpedia/jacobian-lens/tree/main/llama3.3-70b-it/jlens),
+  revision `a4114d7752d11eb546e6cf372213d7e75526d3a1`;
+- [Goodfire layer-50 SAE](https://huggingface.co/Goodfire/Llama-3.3-70B-Instruct-SAE-l50),
+  revision `128ee921ecd1b8b3a87d776cbcc357c0855da134`;
+- [HarmBench Llama-2 13B classifier](https://huggingface.co/cais/HarmBench-Llama-2-13b-cls),
+  revision `bda705349d1144fa618770bea64d99ce54e3835b`.
 
-The model revision observed during planning was
-`6f6073b423013f6a7d4d9f39144961bfbfbc386b`. All three artifacts must be
-resolved to immutable revisions and verified as mutually compatible before a
-paid run.
+The machine-readable public plan has SHA-256
+`a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e`;
+the artifact manifest has SHA-256
+`7da57a4047175fc2896a623dbb87566ec6abad394ce965026567efcb73946308`.
+
+## Local verification
+
+Use the frozen uv environment:
+
+```bash
+uv sync --frozen --extra dev
+uv run lexical-study validate-plan \
+  --public plans/study_v1.public.json \
+  --private private/plans/study_v1.private.json \
+  --artifacts plans/artifacts.v1.json
+uv run ruff check .
+uv run pytest -q
+```
+
+The private plan is intentionally ignored and is required only for authorized
+execution. Public plan validation, schemas, analysis code, and tests remain
+reviewable without publishing attack strings or unrestricted generations.
