@@ -35,15 +35,11 @@ def _source_commit() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 
 
-def _single_token_ids(tokenizer, forms: tuple[str, ...]) -> list[int]:
-    resolved = []
-    for form in forms:
-        ids = tokenizer.encode(form, add_special_tokens=False)
-        if len(ids) == 1:
-            resolved.append(ids[0])
-    if not resolved:
-        raise ValueError(f"no single-token form among {forms}")
-    return sorted(set(resolved))
+def _single_token_id(tokenizer, text: str) -> int:
+    ids = tokenizer.encode(text, add_special_tokens=False)
+    if len(ids) != 1:
+        raise ValueError(f"classifier label {text!r} is not exactly one token: {ids}")
+    return ids[0]
 
 
 def score_behavior_receipts(
@@ -92,9 +88,11 @@ def score_behavior_receipts(
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.padding_side = "left"
-    yes_ids = _single_token_ids(tokenizer, ("Yes", " yes", "YES", "yes"))
-    no_ids = _single_token_ids(tokenizer, ("No", " no", "NO", "no"))
-    candidate_ids = no_ids + yes_ids
+    yes_id = _single_token_id(tokenizer, "Yes")
+    no_id = _single_token_id(tokenizer, "No")
+    if yes_id == no_id:
+        raise ValueError("evaluator Yes and No labels resolve to the same token")
+    candidate_ids = [no_id, yes_id]
     dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
     model = transformers.AutoModelForCausalLM.from_pretrained(
         evaluator_path,
@@ -119,16 +117,10 @@ def score_behavior_receipts(
         before = time.monotonic()
         with torch.inference_mode():
             candidate_logits = model(**encoded).logits[:, -1, candidate_ids].float()
-            no_logits = candidate_logits[:, : len(no_ids)]
-            yes_logits = candidate_logits[:, len(no_ids) :]
-            group_logits = torch.stack(
-                (torch.logsumexp(no_logits, dim=-1), torch.logsumexp(yes_logits, dim=-1)),
-                dim=-1,
-            )
-            probabilities = torch.softmax(group_logits, dim=-1)
+            probabilities = torch.softmax(candidate_logits, dim=-1)
         elapsed = time.monotonic() - before
         for offset, item in enumerate(batch):
-            no_logit, yes_logit = group_logits[offset].tolist()
+            no_logit, yes_logit = candidate_logits[offset].tolist()
             no_probability, yes_probability = probabilities[offset].tolist()
             receipt = {
                 "schema_version": "1.0",
@@ -140,8 +132,8 @@ def score_behavior_receipts(
                 "evaluator_prompt_sha256": sha256_bytes(
                     canonical_json_bytes(prompts[offset])
                 ),
-                "yes_token_ids": yes_ids,
-                "no_token_ids": no_ids,
+                "yes_token_id": yes_id,
+                "no_token_id": no_id,
                 "yes_logit": yes_logit,
                 "no_logit": no_logit,
                 "yes_probability": yes_probability,
