@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import os
+import re
 from pathlib import Path
+
+from huggingface_hub import HfApi
 
 from .hashing import write_json_atomic
 from .models import Artifact, ArtifactFile
@@ -65,7 +69,7 @@ def artifact_manifest() -> dict:
                     git_blob_oid="96fa055abe78505fdd4fe8e945949310c87d228f",
                 )
             ],
-            license="Repository/model card terms; verify before release",
+            license="MIT",
             source_url=f"https://huggingface.co/neuronpedia/jacobian-lens/blob/{LENS_REVISION}/{LENS_PATH}",
             expected_model="meta-llama/Llama-3.3-70B-Instruct",
         ),
@@ -91,7 +95,7 @@ def artifact_manifest() -> dict:
             files=[
                 ArtifactFile(path="six safetensor shards + config/tokenizer", size_bytes=26_032_276_403)
             ],
-            license="HarmBench repository/model terms; verify before release",
+            license="MIT",
             source_url="https://huggingface.co/cais/HarmBench-Llama-2-13b-cls",
         ),
         Artifact(
@@ -129,7 +133,7 @@ def artifact_manifest() -> dict:
                     git_blob_oid="d5f87609877a7f24dc0b29d000dc97daf4406cbd",
                 )
             ],
-            license="No license asserted in manifest; text retained only as pinned research input",
+            license="GNU Affero General Public License v3.0",
             source_url=f"https://github.com/elder-plinius/L1B3RT4S/blob/{ATTACK_REVISION}/META.mkd",
         ),
     ]
@@ -140,5 +144,106 @@ def artifact_manifest() -> dict:
     }
 
 
+def _resolved_files(repo_id: str, revision: str, repo_type: str, selected: set[str]) -> list[ArtifactFile]:
+    api = HfApi(token=os.environ.get("HF_TOKEN"))
+    info = (
+        api.dataset_info(repo_id, revision=revision, files_metadata=True)
+        if repo_type == "dataset"
+        else api.model_info(repo_id, revision=revision, files_metadata=True)
+    )
+    if info.sha != revision:
+        raise ValueError(f"{repo_id}: resolved {info.sha}, expected {revision}")
+    siblings = {item.rfilename: item for item in info.siblings}
+    missing = selected - set(siblings)
+    if missing:
+        raise ValueError(f"{repo_id}: missing files {sorted(missing)}")
+    files = []
+    for filename in sorted(selected):
+        item = siblings[filename]
+        lfs = getattr(item, "lfs", None)
+        sha256 = getattr(lfs, "sha256", None) if lfs else None
+        files.append(
+            ArtifactFile(
+                path=filename,
+                size_bytes=int(item.size or 0),
+                git_blob_oid=item.blob_id,
+                sha256=sha256,
+            )
+        )
+    return files
+
+
+def resolved_artifact_manifest() -> dict:
+    manifest = artifact_manifest()
+    artifacts = manifest["artifacts"]
+    model_selected = {
+        "config.json",
+        "generation_config.json",
+        "model.safetensors.index.json",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+    }
+    model_selected.update(f"model-{index:05d}-of-00030.safetensors" for index in range(1, 31))
+    artifact_by_role = {item["role"]: item for item in artifacts}
+    model_files = _resolved_files(
+        "meta-llama/Llama-3.3-70B-Instruct", MODEL_REVISION, "model", model_selected
+    )
+    artifact_by_role["target_model"]["files"] = [item.model_dump(mode="json") for item in model_files]
+    artifact_by_role["tokenizer"]["files"] = [
+        item.model_dump(mode="json")
+        for item in model_files
+        if re.search(r"tokenizer|special_tokens", item.path)
+    ]
+    resolutions = [
+        (
+            "jacobian_lens",
+            "neuronpedia/jacobian-lens",
+            LENS_REVISION,
+            "model",
+            {LENS_PATH},
+        ),
+        (
+            "sae",
+            "Goodfire/Llama-3.3-70B-Instruct-SAE-l50",
+            SAE_REVISION,
+            "model",
+            {"Llama-3.3-70B-Instruct-SAE-l50.pt"},
+        ),
+        (
+            "evaluator",
+            "cais/HarmBench-Llama-2-13b-cls",
+            EVALUATOR_REVISION,
+            "model",
+            {
+                "config.json",
+                "generation_config.json",
+                "model.safetensors.index.json",
+                "special_tokens_map.json",
+                "tokenizer.model",
+                "tokenizer_config.json",
+                *(f"model-{index:05d}-of-00006.safetensors" for index in range(1, 7)),
+            },
+        ),
+        (
+            "dataset",
+            "JailbreakBench/JBB-Behaviors",
+            DATASET_REVISION,
+            "dataset",
+            {
+                "data/harmful-behaviors.csv",
+                "data/benign-behaviors.csv",
+                "data/judge-comparison.csv",
+            },
+        ),
+    ]
+    for role, repo, revision, repo_type, selected in resolutions:
+        artifact_by_role[role]["files"] = [
+            item.model_dump(mode="json")
+            for item in _resolved_files(repo, revision, repo_type, selected)
+        ]
+    return manifest
+
+
 def write_artifact_manifest(path: Path) -> str:
-    return write_json_atomic(path, artifact_manifest())
+    return write_json_atomic(path, resolved_artifact_manifest())

@@ -5,7 +5,10 @@ import json
 from pathlib import Path
 
 from .artifacts import write_artifact_manifest
+from .evaluator_validation import validate_published_judges
+from .models import StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
+from .hashing import write_json_atomic
 from .synthetic import run_synthetic
 
 
@@ -26,6 +29,17 @@ def main() -> None:
     validate.add_argument("--public", type=Path, default=Path("plans/study_v1.public.json"))
     validate.add_argument("--private", type=Path, default=Path("private/plans/study_v1.private.json"))
     validate.add_argument("--artifacts", type=Path, default=Path("plans/artifacts.v1.json"))
+    judges = sub.add_parser("validate-published-judges")
+    judges.add_argument(
+        "--source",
+        type=Path,
+        default=Path("private/source/JBB-Behaviors/data/judge-comparison.csv"),
+    )
+    judges.add_argument(
+        "--out", type=Path, default=Path("validation/evaluator_validation.v1.json")
+    )
+    schemas = sub.add_parser("write-schemas")
+    schemas.add_argument("--out", type=Path, default=Path("schemas"))
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -36,3 +50,11 @@ def main() -> None:
         print(json.dumps(build_plan(args.public, args.private_root, args.artifacts), sort_keys=True))
     elif args.command == "validate-plan":
         print(json.dumps(validate_plan(args.public, args.private, args.artifacts), sort_keys=True))
+    elif args.command == "validate-published-judges":
+        print(json.dumps(validate_published_judges(args.source, args.out), sort_keys=True))
+    elif args.command == "write-schemas":
+        outputs = {}
+        for name, model in (("study-plan", StudyPlan), ("trial-receipt", TrialReceipt)):
+            path = args.out / f"{name}.schema.json"
+            outputs[name] = write_json_atomic(path, model.model_json_schema())
+        print(json.dumps(outputs, sort_keys=True))

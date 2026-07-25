@@ -35,6 +35,9 @@ def _pad_to_tokens(text: str, tokenizer, target: int) -> tuple[str, list[int]]:
     if len(ids) == target:
         return text, ids
     candidates = [
+        " x",
+        " n",
+        " z",
         " Note.",
         " Context.",
         " Neutral.",
