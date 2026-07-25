@@ -134,6 +134,44 @@ def _turn_receipt(
     )
 
 
+def _write_run_summary(
+    *,
+    output_root: Path,
+    run_id: str,
+    split: str,
+    behaviors: int,
+    trials: int,
+    plan_sha256: str,
+    source_commit: str,
+    call_started: float,
+    trials_written: int,
+    model_loaded: bool,
+) -> dict:
+    summary_path = output_root / "summary.json"
+    previous = json.loads(summary_path.read_text()) if summary_path.exists() else {}
+    elapsed_this_call = time.monotonic() - call_started
+    previous_cumulative = float(
+        previous.get("cumulative_elapsed_seconds", previous.get("elapsed_seconds", 0.0))
+    )
+    summary = {
+        "schema_version": "1.0",
+        "status": "complete",
+        "run_id": run_id,
+        "split": split,
+        "behaviors": behaviors,
+        "trials": trials,
+        "trials_written_this_call": trials_written,
+        "model_loaded_this_call": model_loaded,
+        "invocations": int(previous.get("invocations", 0)) + 1,
+        "elapsed_this_call_seconds": elapsed_this_call,
+        "cumulative_elapsed_seconds": previous_cumulative + elapsed_this_call,
+        "plan_sha256": plan_sha256,
+        "source_commit": source_commit,
+    }
+    write_json_atomic(summary_path, summary)
+    return summary
+
+
 def run_behavior(
     *,
     private_plan_path: Path,
@@ -145,9 +183,7 @@ def run_behavior(
     max_new_tokens: int | None = None,
     run_id: str,
 ) -> dict:
-    import torch
-    import transformers
-
+    call_started = time.monotonic()
     private_plan = json.loads(private_plan_path.read_text())
     public_plan = json.loads(public_plan_path.read_text())
     if private_plan["public_plan_sha256"] != sha256_file(public_plan_path):
@@ -164,6 +200,43 @@ def run_behavior(
         max_new_tokens = planned_max
     if max_behaviors is None and max_new_tokens != planned_max:
         raise ValueError("full split runs must use the frozen max_new_tokens")
+
+    store = ReceiptStore(output_root / "receipts")
+    restricted = output_root / "restricted"
+    restricted.mkdir(parents=True, exist_ok=True)
+    source_commit = _source_commit()
+    plan_sha256 = sha256_file(public_plan_path)
+    completed = store.completed_ids()
+    planned_ids = []
+    for behavior in selected:
+        for arm in ("base", "full", "structural_sham", "inert_length"):
+            for turn in (1, 2):
+                planned_ids.append(
+                    stable_trial_id(
+                        public_plan["study_id"], behavior["behavior_id"], arm, turn, 0
+                    )
+                )
+    if set(planned_ids).issubset(completed):
+        for trial_id in planned_ids:
+            _load_completed_generation(
+                store, trial_id, restricted / f"{trial_id}.json"
+            )
+        store.validate_expected(planned_ids)
+        return _write_run_summary(
+            output_root=output_root,
+            run_id=run_id,
+            split=split,
+            behaviors=len(selected),
+            trials=len(planned_ids),
+            plan_sha256=plan_sha256,
+            source_commit=source_commit,
+            call_started=call_started,
+            trials_written=0,
+            model_loaded=False,
+        )
+
+    import torch
+    import transformers
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_path)
     if tokenizer.pad_token_id is None:
@@ -189,20 +262,8 @@ def run_behavior(
     }
     eos_ids.discard(None)
     eos_ids.discard(tokenizer.unk_token_id)
-    store = ReceiptStore(output_root / "receipts")
-    restricted = output_root / "restricted"
-    restricted.mkdir(parents=True, exist_ok=True)
-    source_commit = _source_commit()
     software = _software(torch, transformers)
-    completed = store.completed_ids()
-    planned_ids = []
-    for behavior in selected:
-        for arm in ("base", "full", "structural_sham", "inert_length"):
-            for turn in (1, 2):
-                planned_ids.append(
-                    stable_trial_id(public_plan["study_id"], behavior["behavior_id"], arm, turn, 0)
-                )
-    started = time.monotonic()
+    trials_written = 0
     for behavior in selected:
         for arm in ("base", "full", "structural_sham", "inert_length"):
             turn1_id = stable_trial_id(
@@ -277,6 +338,7 @@ def run_behavior(
                     eos=bool(generated1 and generated1[-1] in eos_ids),
                 )
                 store.write(receipt1)
+                trials_written += 1
                 completed.add(turn1_id)
             if turn2_id in completed:
                 _load_completed_generation(
@@ -349,6 +411,7 @@ def run_behavior(
                 eos=bool(generated2 and generated2[-1] in eos_ids),
             )
             store.write(receipt2)
+            trials_written += 1
             completed.add(turn2_id)
             print(
                 f"completed {behavior['behavior_id']} {arm} turn2 "
@@ -356,16 +419,15 @@ def run_behavior(
                 flush=True,
             )
     store.validate_expected(planned_ids)
-    summary = {
-        "schema_version": "1.0",
-        "status": "complete",
-        "run_id": run_id,
-        "split": split,
-        "behaviors": len(selected),
-        "trials": len(planned_ids),
-        "elapsed_seconds": time.monotonic() - started,
-        "plan_sha256": sha256_file(public_plan_path),
-        "source_commit": source_commit,
-    }
-    write_json_atomic(output_root / "summary.json", summary)
-    return summary
+    return _write_run_summary(
+        output_root=output_root,
+        run_id=run_id,
+        split=split,
+        behaviors=len(selected),
+        trials=len(planned_ids),
+        plan_sha256=plan_sha256,
+        source_commit=source_commit,
+        call_started=call_started,
+        trials_written=trials_written,
+        model_loaded=True,
+    )
