@@ -8,7 +8,6 @@ from .artifacts import write_artifact_manifest
 from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
-from .figures import generate_behavior_figures, verify_behavior_figures
 from .evaluator_validation import validate_published_judges
 from .models import StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
@@ -157,6 +156,10 @@ def main() -> None:
             )
         )
     elif args.command == "figures-behavior":
+        from .figures import generate_behavior_figures
+
         print(json.dumps(generate_behavior_figures(args.gate, args.out), sort_keys=True))
     elif args.command == "verify-figures":
+        from .figures import verify_behavior_figures
+
         print(json.dumps(verify_behavior_figures(args.gate, args.out), sort_keys=True))
