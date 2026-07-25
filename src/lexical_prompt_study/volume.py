@@ -59,6 +59,8 @@ def prepare_volume(manifest_path: Path, root: Path, include_evaluator: bool = Tr
             actual_sha256 = sha256_file(path)
             expected_sha256 = expected[relative].get("sha256")
             expected_git_blob_oid = expected[relative].get("git_blob_oid")
+            if expected_sha256 is None and expected_git_blob_oid is None:
+                raise ValueError(f"{role}/{relative}: manifest has no pinned content digest")
             actual_git_blob_oid = (
                 git_blob_oid_file(path) if expected_sha256 is None else None
             )
@@ -94,6 +96,10 @@ def prepare_volume(manifest_path: Path, root: Path, include_evaluator: bool = Tr
                     "expected_git_blob_oid": expected_git_blob_oid,
                     "verified": verified,
                 }
+            )
+            print(
+                f"verified {role}/{relative} bytes={path.stat().st_size}",
+                flush=True,
             )
     result = {
         "schema_version": "1.0",
