@@ -170,8 +170,14 @@ def run_behavior(
         tokenizer.pad_token_id = tokenizer.eos_token_id
     runtime_dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
     kwargs = {"dtype": runtime_dtype, "attn_implementation": "eager"}
+    max_memory = None
     if torch.cuda.device_count() > 1:
         kwargs["device_map"] = "auto"
+        max_memory = {
+            device_index: "125GiB"
+            for device_index in range(torch.cuda.device_count())
+        }
+        kwargs["max_memory"] = max_memory
     model = transformers.AutoModelForCausalLM.from_pretrained(model_path, **kwargs).eval()
     if torch.cuda.device_count() <= 1:
         model = model.to("cuda" if torch.cuda.is_available() else "cpu")
@@ -245,6 +251,7 @@ def run_behavior(
                 runtime = {
                     "device_count": torch.cuda.device_count(),
                     "device_map": str(getattr(model, "hf_device_map", None)),
+                    "max_memory": max_memory,
                     "dtype": str(runtime_dtype),
                     "attention": "eager",
                     "peak_memory_bytes": _peak_memory(torch),
@@ -316,6 +323,7 @@ def run_behavior(
             runtime = {
                 "device_count": torch.cuda.device_count(),
                 "device_map": str(getattr(model, "hf_device_map", None)),
+                "max_memory": max_memory,
                 "dtype": str(runtime_dtype),
                 "attention": "eager",
                 "peak_memory_bytes": _peak_memory(torch),
