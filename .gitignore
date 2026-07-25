@@ -1,0 +1,30 @@
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+# Python and local tooling
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Model weights, caches, and paid-run scratch
+models/
+.cache/
+local-runs/
+private/
+data/restricted/
+*.safetensors
+*.pt
+*.pth
+*.gguf
+
+# Operating-system and editor files
+.DS_Store
+*.swp
+*~
