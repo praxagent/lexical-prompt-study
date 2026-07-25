@@ -41,6 +41,7 @@ def run_synthetic(root: Path, n: int = 8, stop_after: int | None = None) -> dict
                 generated_token_ids=[index, len(arm)],
                 generated_text_sha256=sha256_text(text),
                 restricted_text_path=None,
+                restricted_artifact_sha256=None,
                 finish_reason="eos",
                 generated_token_count=2,
                 refusal_detected=arm in {"structural_sham", "inert_length"},

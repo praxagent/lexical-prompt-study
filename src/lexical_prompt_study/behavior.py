@@ -41,9 +41,27 @@ def _peak_memory(torch) -> int | None:
     return max(torch.cuda.max_memory_allocated(index) for index in range(torch.cuda.device_count()))
 
 
-def _save_restricted(path: Path, payload: dict) -> None:
-    write_json_atomic(path, payload)
+def _save_restricted(path: Path, payload: dict) -> str:
+    digest = write_json_atomic(path, payload)
     path.chmod(0o600)
+    return digest
+
+
+def _load_completed_generation(
+    store: ReceiptStore, trial_id: str, restricted_path: Path
+) -> dict:
+    receipt_path = store.trials / f"{trial_id}.json"
+    receipt = TrialReceipt.model_validate_json(receipt_path.read_text())
+    if receipt.restricted_text_path != str(restricted_path):
+        raise ValueError(f"{trial_id}: restricted path drift")
+    if receipt.restricted_artifact_sha256 != sha256_file(restricted_path):
+        raise ValueError(f"{trial_id}: restricted artifact hash mismatch")
+    raw = json.loads(restricted_path.read_text())
+    if sha256_text(raw["generated_text"]) != receipt.generated_text_sha256:
+        raise ValueError(f"{trial_id}: restricted text hash mismatch")
+    if raw["generated_token_ids"] != receipt.generated_token_ids:
+        raise ValueError(f"{trial_id}: restricted token IDs mismatch")
+    return raw
 
 
 def _as_token_ids(value) -> list[int]:
@@ -69,6 +87,7 @@ def _turn_receipt(
     generated_ids: list[int],
     generated_text: str,
     restricted_path: Path,
+    restricted_artifact_sha256: str,
     elapsed: float,
     model_revision: str,
     source_commit: str,
@@ -96,6 +115,7 @@ def _turn_receipt(
         generated_token_ids=generated_ids,
         generated_text_sha256=sha256_text(generated_text),
         restricted_text_path=str(restricted_path),
+        restricted_artifact_sha256=restricted_artifact_sha256,
         finish_reason="eos" if eos else "length",
         generated_token_count=len(generated_ids),
         refusal_detected=bool(REFUSAL_PATTERN.search(generated_text)),
@@ -187,7 +207,7 @@ def run_behavior(
             )
             raw1 = restricted / f"{turn1_id}.json"
             if turn1_id in completed:
-                first = json.loads(raw1.read_text())
+                first = _load_completed_generation(store, turn1_id, raw1)
                 response1 = first["generated_text"]
             else:
                 messages = [{"role": "user", "content": behavior["rendered_arms"][arm]["text"]}]
@@ -212,7 +232,7 @@ def run_behavior(
                 elapsed1 = time.monotonic() - before
                 generated1 = output1[0, tensor1.shape[1] :].tolist()
                 response1 = tokenizer.decode(generated1, skip_special_tokens=True)
-                _save_restricted(
+                restricted1_sha256 = _save_restricted(
                     raw1,
                     {
                         "behavior_id": behavior["behavior_id"],
@@ -241,6 +261,7 @@ def run_behavior(
                     generated_ids=generated1,
                     generated_text=response1,
                     restricted_path=raw1,
+                    restricted_artifact_sha256=restricted1_sha256,
                     elapsed=elapsed1,
                     model_revision=runtime_model_revision,
                     source_commit=source_commit,
@@ -251,6 +272,9 @@ def run_behavior(
                 store.write(receipt1)
                 completed.add(turn1_id)
             if turn2_id in completed:
+                _load_completed_generation(
+                    store, turn2_id, restricted / f"{turn2_id}.json"
+                )
                 continue
             messages = [
                 {"role": "user", "content": behavior["rendered_arms"][arm]["text"]},
@@ -279,7 +303,7 @@ def run_behavior(
             generated2 = output2[0, tensor2.shape[1] :].tolist()
             response2 = tokenizer.decode(generated2, skip_special_tokens=True)
             raw2 = restricted / f"{turn2_id}.json"
-            _save_restricted(
+            restricted2_sha256 = _save_restricted(
                 raw2,
                 {
                     "behavior_id": behavior["behavior_id"],
@@ -308,6 +332,7 @@ def run_behavior(
                 generated_ids=generated2,
                 generated_text=response2,
                 restricted_path=raw2,
+                restricted_artifact_sha256=restricted2_sha256,
                 elapsed=elapsed2,
                 model_revision=runtime_model_revision,
                 source_commit=source_commit,

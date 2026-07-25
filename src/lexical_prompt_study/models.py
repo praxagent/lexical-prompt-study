@@ -77,6 +77,7 @@ class TrialReceipt(StrictModel):
     generated_token_ids: list[int]
     generated_text_sha256: str
     restricted_text_path: str | None
+    restricted_artifact_sha256: str | None
     finish_reason: str
     generated_token_count: int
     refusal_detected: bool

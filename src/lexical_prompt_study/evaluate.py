@@ -71,6 +71,8 @@ def score_behavior_receipts(
             if existing["generation_receipt_sha256"] == sha256_file(path):
                 continue
         raw_path = Path(receipt["restricted_text_path"])
+        if sha256_file(raw_path) != receipt["restricted_artifact_sha256"]:
+            raise ValueError(f"{path}: restricted artifact hash mismatch")
         raw = json.loads(raw_path.read_text())
         if sha256_bytes(raw["generated_text"].encode()) != receipt["generated_text_sha256"]:
             raise ValueError(f"{path}: raw generation hash mismatch")
