@@ -1,0 +1,50 @@
+[project]
+name = "lexical-prompt-study"
+version = "0.1.0"
+description = "Receipt-first mechanism study of structured lexical scaffolds"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "huggingface-hub>=0.34,<2",
+    "jsonschema>=4.24,<5",
+    "matplotlib>=3.10,<4",
+    "numpy>=2.2,<3",
+    "pydantic>=2.11,<3",
+    "transformers>=4.53,<6",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "accelerate>=1.9,<2",
+    "jlens @ git+https://github.com/anthropics/jacobian-lens@581d398613e5602a5af361e1c34d3a92ea82ba8e",
+    "safetensors>=0.5,<1",
+    "torch>=2.7,<3",
+]
+dev = [
+    "pytest>=8.4,<9",
+    "ruff>=0.12,<1",
+]
+
+[project.scripts]
+lexical-study = "lexical_prompt_study.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lexical_prompt_study"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.uv]
+exclude-newer = "7 days"
