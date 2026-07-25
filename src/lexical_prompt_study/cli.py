@@ -8,6 +8,7 @@ from .artifacts import write_artifact_manifest
 from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
+from .figures import generate_behavior_figures, verify_behavior_figures
 from .evaluator_validation import validate_published_judges
 from .models import StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
@@ -75,6 +76,12 @@ def main() -> None:
     analyze.add_argument("--score-root", type=Path, required=True)
     analyze.add_argument("--out", type=Path, required=True)
     analyze.add_argument("--split", choices=["discovery", "confirmatory"], required=True)
+    figures = sub.add_parser("figures-behavior")
+    figures.add_argument("--gate", type=Path, required=True)
+    figures.add_argument("--out", type=Path, required=True)
+    verify_figures = sub.add_parser("verify-figures")
+    verify_figures.add_argument("--gate", type=Path, required=True)
+    verify_figures.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -149,3 +156,7 @@ def main() -> None:
                 sort_keys=True,
             )
         )
+    elif args.command == "figures-behavior":
+        print(json.dumps(generate_behavior_figures(args.gate, args.out), sort_keys=True))
+    elif args.command == "verify-figures":
+        print(json.dumps(verify_behavior_figures(args.gate, args.out), sort_keys=True))
