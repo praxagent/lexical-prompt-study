@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+from lexical_prompt_study import evaluate
+from lexical_prompt_study.artifacts import EVALUATOR_REVISION
 from lexical_prompt_study.evaluate import _single_token_id, score_behavior_receipts
 from lexical_prompt_study.hashing import sha256_file
 
@@ -35,7 +37,13 @@ def test_complete_scoring_resume_does_not_load_model(tmp_path: Path) -> None:
     score_path = tmp_path / "scores" / "trials" / "trial.json"
     score_path.parent.mkdir(parents=True)
     score_path.write_text(
-        json.dumps({"generation_receipt_sha256": sha256_file(generation_path)})
+        json.dumps(
+            {
+                "generation_receipt_sha256": sha256_file(generation_path),
+                "evaluator_revision": EVALUATOR_REVISION,
+                "scoring_implementation_sha256": sha256_file(Path(evaluate.__file__)),
+            }
+        )
     )
 
     summary = score_behavior_receipts(

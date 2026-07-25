@@ -54,6 +54,7 @@ def _load_completed_generation(
     *,
     expected_plan_sha256: str,
     expected_run_id: str,
+    expected_source_commit: str,
 ) -> dict:
     receipt_path = store.trials / f"{trial_id}.json"
     receipt = TrialReceipt.model_validate_json(receipt_path.read_text())
@@ -61,6 +62,8 @@ def _load_completed_generation(
         raise ValueError(f"{trial_id}: plan hash drift")
     if receipt.run_id != expected_run_id:
         raise ValueError(f"{trial_id}: run ID drift")
+    if receipt.source_commit != expected_source_commit:
+        raise ValueError(f"{trial_id}: source commit drift")
     if receipt.restricted_text_path != str(restricted_path):
         raise ValueError(f"{trial_id}: restricted path drift")
     if receipt.restricted_artifact_sha256 != sha256_file(restricted_path):
@@ -233,6 +236,7 @@ def run_behavior(
                 restricted / f"{trial_id}.json",
                 expected_plan_sha256=plan_sha256,
                 expected_run_id=run_id,
+                expected_source_commit=source_commit,
             )
         store.validate_expected(planned_ids)
         return _write_run_summary(
@@ -293,6 +297,7 @@ def run_behavior(
                     raw1,
                     expected_plan_sha256=plan_sha256,
                     expected_run_id=run_id,
+                    expected_source_commit=source_commit,
                 )
                 response1 = first["generated_text"]
             else:
@@ -366,6 +371,7 @@ def run_behavior(
                     restricted / f"{turn2_id}.json",
                     expected_plan_sha256=plan_sha256,
                     expected_run_id=run_id,
+                    expected_source_commit=source_commit,
                 )
                 continue
             messages = [

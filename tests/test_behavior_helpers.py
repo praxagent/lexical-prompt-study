@@ -46,6 +46,7 @@ def test_completed_generation_is_bound_to_restricted_artifact(tmp_path: Path) ->
             raw_path,
             expected_plan_sha256=receipt.plan_sha256,
             expected_run_id=receipt.run_id,
+            expected_source_commit=receipt.source_commit,
         )
         == payload
     )
@@ -56,6 +57,7 @@ def test_completed_generation_is_bound_to_restricted_artifact(tmp_path: Path) ->
             raw_path,
             expected_plan_sha256="f" * 64,
             expected_run_id=receipt.run_id,
+            expected_source_commit=receipt.source_commit,
         )
     raw_path.write_text('{"generated_text":"drift","generated_token_ids":[]}\n')
     with pytest.raises(ValueError, match="restricted artifact hash mismatch"):
@@ -65,4 +67,5 @@ def test_completed_generation_is_bound_to_restricted_artifact(tmp_path: Path) ->
             raw_path,
             expected_plan_sha256=receipt.plan_sha256,
             expected_run_id=receipt.run_id,
+            expected_source_commit=receipt.source_commit,
         )

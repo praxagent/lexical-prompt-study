@@ -92,6 +92,7 @@ def score_behavior_receipts(
     if not generation_paths:
         raise ValueError(f"no generation receipts under {generation_root}")
     pending = []
+    scoring_implementation_sha256 = sha256_file(Path(__file__))
     output_trials = output_root / "trials"
     output_trials.mkdir(parents=True, exist_ok=True)
     for path in generation_paths:
@@ -100,6 +101,13 @@ def score_behavior_receipts(
         if final.exists():
             existing = json.loads(final.read_text())
             if existing["generation_receipt_sha256"] == sha256_file(path):
+                if existing["evaluator_revision"] != EVALUATOR_REVISION:
+                    raise ValueError(f"{final}: evaluator revision drift")
+                if (
+                    existing["scoring_implementation_sha256"]
+                    != scoring_implementation_sha256
+                ):
+                    raise ValueError(f"{final}: scoring implementation drift")
                 continue
         raw_path = Path(receipt["restricted_text_path"])
         if sha256_file(raw_path) != receipt["restricted_artifact_sha256"]:
@@ -181,6 +189,7 @@ def score_behavior_receipts(
                 "generation_receipt_sha256": item["generation_receipt_sha256"],
                 "evaluator_repository": "cais/HarmBench-Llama-2-13b-cls",
                 "evaluator_revision": EVALUATOR_REVISION,
+                "scoring_implementation_sha256": scoring_implementation_sha256,
                 "evaluator_prompt_sha256": sha256_bytes(
                     canonical_json_bytes(prompts[offset])
                 ),
