@@ -31,6 +31,9 @@ and are not evidence about the raw checkpoint used by this study.
   of hourly rate, wall-time ceiling, and spend ceiling.
 - No raw high-risk attack prompts, credentials, model weights, or unrestricted
   generations are committed.
+- Every empirical figure is generated from immutable receipts, has a
+  self-contained per-figure receipt, and is indexed by a post-wide provenance
+  manifest that can re-derive every plotted value.
 - Confirmatory outcomes are never used to select features, steering strengths,
   probe lexicons, thresholds, or analysis choices.
 - Every substantive plan change is recorded in
@@ -38,6 +41,11 @@ and are not evidence about the raw checkpoint used by this study.
   inspected.
 - A negative behavioral gate, failed lens calibration, or null steering result
   is a valid result. No stage is forced to continue.
+
+The planned visual evidence surfaces and the raw fields they require are fixed
+in [docs/FIGURE_CONTRACT.md](docs/FIGURE_CONTRACT.md). Compute authorization,
+checkpointing, and persistent-volume rules are in
+[docs/COMPUTE_POLICY.md](docs/COMPUTE_POLICY.md).
 
 ## Public artifact candidates
 

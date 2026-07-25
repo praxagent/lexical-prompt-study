@@ -19,6 +19,7 @@ models/
 local-runs/
 private/
 data/restricted/
+/checkpoint.md
 *.safetensors
 *.pt
 *.pth
