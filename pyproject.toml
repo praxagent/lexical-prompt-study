@@ -9,6 +9,7 @@ dependencies = [
     "jsonschema>=4.24,<5",
     "matplotlib>=3.10,<4",
     "numpy>=2.2,<3",
+    "protobuf>=5.29,<7",
     "pydantic>=2.11,<3",
     "sentencepiece>=0.2,<1",
     "transformers>=4.53,<6",
