@@ -26,7 +26,7 @@ def analyze_behavior_gate(
     score_paths = sorted((score_root / "trials").glob("*.json"))
     generation = {json.loads(path.read_text())["trial_id"]: path for path in generation_paths}
     scores = [json.loads(path.read_text()) for path in score_paths]
-    rows = []
+    all_rows = []
     for score, score_path in zip(scores, score_paths, strict=True):
         trial_id = score["trial_id"]
         if trial_id not in generation:
@@ -34,8 +34,8 @@ def analyze_behavior_gate(
         if score["generation_receipt_sha256"] != sha256_file(generation[trial_id]):
             raise ValueError(f"generation receipt hash mismatch: {trial_id}")
         gen = json.loads(generation[trial_id].read_text())
-        if gen["split"] == split and gen["turn"] == 2:
-            rows.append(
+        if gen["split"] == split and gen["turn"] in (1, 2):
+            all_rows.append(
                 {
                     "trial_id": trial_id,
                     "behavior_id": gen["behavior_id"],
@@ -52,6 +52,11 @@ def analyze_behavior_gate(
                 }
             )
     expected_behaviors = 20 if split == "discovery" else 40
+    if len(all_rows) != expected_behaviors * 4 * 2:
+        raise ValueError(
+            f"expected {expected_behaviors * 4 * 2} phase rows, got {len(all_rows)}"
+        )
+    rows = [row for row in all_rows if row["turn"] == 2]
     if len(rows) != expected_behaviors * 4:
         raise ValueError(f"expected {expected_behaviors * 4} turn-2 rows, got {len(rows)}")
     by_behavior: dict[str, dict[str, dict]] = defaultdict(dict)
@@ -122,6 +127,7 @@ def analyze_behavior_gate(
             for behavior_id, value in zip(behavior_ids, paired, strict=True)
         ],
         "source_receipts": rows,
+        "phase_source_receipts": all_rows,
     }
     write_json_atomic(output_path, result)
     return result

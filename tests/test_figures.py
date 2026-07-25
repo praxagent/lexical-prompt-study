@@ -53,6 +53,11 @@ def test_behavior_figures_are_byte_reproducible(tmp_path: Path) -> None:
         },
         "paired_values": paired_values,
         "source_receipts": rows,
+        "phase_source_receipts": [
+            {**row, "turn": turn}
+            for turn in (1, 2)
+            for row in rows
+        ],
     }
     gate_path = tmp_path / "gate.json"
     gate_path.write_text(json.dumps(gate, sort_keys=True))
@@ -70,3 +75,10 @@ def test_behavior_figures_are_byte_reproducible(tmp_path: Path) -> None:
         "E01-full-vs-sham.receipt.json",
         "E02-response-phases.receipt.json",
     ]
+    for item in provenance["figures"]:
+        receipt = json.loads(Path(item["path"]).read_text())
+        assert receipt["verification"]["status"] == "verified"
+        assert all(
+            comparison["byte_identical"]
+            for comparison in receipt["verification"]["byte_identity"]
+        )

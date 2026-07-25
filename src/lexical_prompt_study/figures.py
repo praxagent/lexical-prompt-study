@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import matplotlib
@@ -144,6 +145,7 @@ def generate_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
         "figure_id": "E01",
         "title": "Full scaffold versus structural sham",
         "question": "Does the scaffold change turn-2 harmful compliance?",
+        "description": "Arm-level scores and the paired full-minus-sham contrast.",
         "alt_text": (
             f"Two-panel chart across {gate['n_behaviors']} behavior IDs. The left panel "
             "shows every arm score and its cluster-bootstrap mean interval. The right "
@@ -157,7 +159,18 @@ def generate_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
         "independent_unit": "base behavior ID",
         "uncertainty": "10,000-replicate cluster bootstrap over behavior IDs",
         "derived_data": {"arm_summaries": plotted, "primary_contrast": gate["primary_contrast"]},
-        "generator": {"path": str(Path(__file__)), "sha256": generator_hash},
+        "counts": {
+            "expected_rows": gate["n_behaviors"] * 4,
+            "realized_rows": len(rows),
+            "expected_clusters": gate["n_behaviors"],
+            "realized_clusters": len({row["behavior_id"] for row in rows}),
+        },
+        "generator": {
+            "path": str(Path(__file__)),
+            "sha256": generator_hash,
+            "plotting_library": f"matplotlib {matplotlib.__version__}",
+            "command": f"lexical-study figures-behavior --gate {gate_path} --out {output_dir}",
+        },
         "outputs": {
             name: {"path": str(stem.with_suffix(f".{name}")), "sha256": digest}
             for name, digest in hashes.items()
@@ -166,41 +179,52 @@ def generate_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
             "non_color_encodings": "distinct marker shapes, direct arm labels, zero reference line",
             "text_equivalent": "alt_text plus derived_data",
         },
+        "verification": {
+            "status": "pending",
+            "verified_utc": None,
+            "byte_identity": None,
+        },
     }
     receipt_path = stem.with_suffix(".receipt.json")
     write_json_atomic(receipt_path, receipt)
     receipts.append({"path": str(receipt_path), "sha256": sha256_file(receipt_path)})
 
     # E02: response phase outcomes.
+    rows = gate["phase_source_receipts"]
     metrics = ("refusal", "divider", "post_divider", "truncated")
     metric_labels = ("Refusal", "Divider", "Post-divider body", "Truncated")
-    fig, ax = plt.subplots(figsize=(10.5, 4.5), constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.5), constrained_layout=True)
     width = 0.18
     x = np.arange(len(metrics))
     derived = []
-    for arm_index, arm in enumerate(ARM_ORDER):
-        arm_rows = [row for row in rows if row["arm"] == arm]
-        values = [float(np.mean([row[metric] for row in arm_rows])) for metric in metrics]
-        positions = x + (arm_index - 1.5) * width
-        ax.bar(
-            positions,
-            values,
-            width,
-            label=ARM_LABELS[arm],
-            color=COLORS[arm],
-            hatch=("", "..", "//", "xx")[arm_index],
-            edgecolor="white",
-            linewidth=0.7,
-        )
-        derived.extend(
-            {"arm": arm, "metric": metric, "proportion": value}
-            for metric, value in zip(metrics, values, strict=True)
-        )
-    ax.set_xticks(x, metric_labels)
-    ax.set_ylim(0, 1.03)
-    ax.set_ylabel("Proportion of behavior IDs")
-    ax.set_title("Turn-2 response phases by arm")
-    ax.legend(frameon=False, ncol=2)
+    for turn, ax in zip((1, 2), axes, strict=True):
+        for arm_index, arm in enumerate(ARM_ORDER):
+            arm_rows = [
+                row for row in rows if row["arm"] == arm and row["turn"] == turn
+            ]
+            values = [
+                float(np.mean([row[metric] for row in arm_rows])) for metric in metrics
+            ]
+            positions = x + (arm_index - 1.5) * width
+            ax.bar(
+                positions,
+                values,
+                width,
+                label=ARM_LABELS[arm],
+                color=COLORS[arm],
+                hatch=("", "..", "//", "xx")[arm_index],
+                edgecolor="white",
+                linewidth=0.7,
+            )
+            derived.extend(
+                {"turn": turn, "arm": arm, "metric": metric, "proportion": value}
+                for metric, value in zip(metrics, values, strict=True)
+            )
+        ax.set_xticks(x, metric_labels)
+        ax.set_ylim(0, 1.03)
+        ax.set_title(f"Turn {turn}")
+    axes[0].set_ylabel("Proportion of behavior IDs")
+    axes[1].legend(frameon=False, ncol=2)
     stem = output_dir / "E02-response-phases"
     hashes = _save_all(fig, stem)
     plt.close(fig)
@@ -208,17 +232,30 @@ def generate_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
         "figure_id": "E02",
         "title": "Response-phase outcomes",
         "question": "Is the effect refusal, divider production, a post-divider body, or truncation?",
+        "description": "Condition-aligned response-phase rates, separated by turn.",
         "alt_text": (
-            f"Grouped bar chart for {gate['n_behaviors']} behavior IDs showing refusal, "
-            "divider, post-divider-body, and truncation proportions for all four arms."
+            f"Two-panel grouped bar chart for {gate['n_behaviors']} behavior IDs. Turn 1 "
+            "and turn 2 each show refusal, divider, post-divider-body, and truncation "
+            "proportions for all four arms."
         ),
         "permitted_inference": "descriptive phase rates on the pinned split",
         "non_claims": ["divider production is not harmful compliance"],
         "source_receipts": [{"path": str(gate_path), "sha256": source_hash}],
-        "row_filter": f"split={gate['split']}, turn=2, all four arms",
+        "row_filter": f"split={gate['split']}, turns=1,2, all four arms",
         "independent_unit": "base behavior ID",
         "derived_data": derived,
-        "generator": {"path": str(Path(__file__)), "sha256": generator_hash},
+        "counts": {
+            "expected_rows": gate["n_behaviors"] * 4 * 2,
+            "realized_rows": len(rows),
+            "expected_clusters": gate["n_behaviors"],
+            "realized_clusters": len({row["behavior_id"] for row in rows}),
+        },
+        "generator": {
+            "path": str(Path(__file__)),
+            "sha256": generator_hash,
+            "plotting_library": f"matplotlib {matplotlib.__version__}",
+            "command": f"lexical-study figures-behavior --gate {gate_path} --out {output_dir}",
+        },
         "outputs": {
             name: {"path": str(stem.with_suffix(f".{name}")), "sha256": digest}
             for name, digest in hashes.items()
@@ -226,6 +263,11 @@ def generate_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
         "accessibility": {
             "non_color_encodings": "distinct hatch patterns and direct metric labels",
             "text_equivalent": "alt_text plus derived_data",
+        },
+        "verification": {
+            "status": "pending",
+            "verified_utc": None,
+            "byte_identity": None,
         },
     }
     receipt_path = stem.with_suffix(".receipt.json")
@@ -264,4 +306,19 @@ def verify_behavior_figures(gate_path: Path, output_dir: Path) -> dict:
                 )
         if not all(item["byte_identical"] for item in comparisons):
             raise ValueError(f"figure byte verification failed: {comparisons}")
+        verified_utc = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        for figure in expected["figures"]:
+            receipt_path = Path(figure["path"])
+            receipt = json.loads(receipt_path.read_text())
+            figure_comparisons = [
+                item for item in comparisons if item["figure_id"] == receipt["figure_id"]
+            ]
+            receipt["verification"] = {
+                "status": "verified",
+                "verified_utc": verified_utc,
+                "byte_identity": figure_comparisons,
+            }
+            write_json_atomic(receipt_path, receipt)
+            figure["sha256"] = sha256_file(receipt_path)
+        write_json_atomic(output_dir / "provenance.json", expected)
     return {"status": "verified", "comparisons": comparisons}

@@ -27,7 +27,7 @@ def test_analysis_fails_closed_on_missing_receipts(tmp_path: Path) -> None:
     scores = tmp_path / "scores"
     (generation / "receipts" / "trials").mkdir(parents=True)
     (scores / "trials").mkdir(parents=True)
-    with pytest.raises(ValueError, match="expected 80 turn-2 rows"):
+    with pytest.raises(ValueError, match="expected 160 phase rows"):
         analyze_behavior_gate(
             public_plan_path=public,
             generation_root=generation,
