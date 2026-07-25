@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 
 from .artifacts import write_artifact_manifest
+from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
+from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
 from .models import StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
@@ -61,6 +63,18 @@ def main() -> None:
         "--out", type=Path, default=Path("private/fixtures/engineering.private.json")
     )
     fixture.add_argument("--tokenizer", default="HuggingFaceTB/SmolLM2-135M-Instruct")
+    score = sub.add_parser("score-behavior")
+    score.add_argument("--private-plan", type=Path, required=True)
+    score.add_argument("--generation-root", type=Path, required=True)
+    score.add_argument("--evaluator-path", required=True)
+    score.add_argument("--out", type=Path, required=True)
+    score.add_argument("--batch-size", type=int, default=4)
+    analyze = sub.add_parser("analyze-gate")
+    analyze.add_argument("--public-plan", type=Path, default=Path("plans/study_v1.public.json"))
+    analyze.add_argument("--generation-root", type=Path, required=True)
+    analyze.add_argument("--score-root", type=Path, required=True)
+    analyze.add_argument("--out", type=Path, required=True)
+    analyze.add_argument("--split", choices=["discovery", "confirmatory"], required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -106,6 +120,32 @@ def main() -> None:
         print(
             json.dumps(
                 build_engineering_fixture(args.public_plan, args.out, args.tokenizer),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "score-behavior":
+        print(
+            json.dumps(
+                score_behavior_receipts(
+                    private_plan_path=args.private_plan,
+                    generation_root=args.generation_root,
+                    evaluator_path=args.evaluator_path,
+                    output_root=args.out,
+                    batch_size=args.batch_size,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-gate":
+        print(
+            json.dumps(
+                analyze_behavior_gate(
+                    public_plan_path=args.public_plan,
+                    generation_root=args.generation_root,
+                    score_root=args.score_root,
+                    output_path=args.out,
+                    split=args.split,
+                ),
                 sort_keys=True,
             )
         )
