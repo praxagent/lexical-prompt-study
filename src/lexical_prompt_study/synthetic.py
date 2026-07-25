@@ -3,9 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .hashing import sha256_text
+from transformers import AutoTokenizer
+
+from .hashing import sha256_file, sha256_text
 from .models import TrialReceipt
 from .receipts import ReceiptStore, stable_trial_id
+from .scaffolds import FOLLOWUP, render_arms
 
 
 def run_synthetic(root: Path, n: int = 8, stop_after: int | None = None) -> dict:
@@ -67,3 +70,48 @@ def run_synthetic(root: Path, n: int = 8, stop_after: int | None = None) -> dict
     summary = {"status": "complete", "expected": len(all_expected), "written_this_call": written}
     (root / "summary.json").write_text(json.dumps(summary, sort_keys=True) + "\n")
     return summary
+
+
+def build_engineering_fixture(public_plan: Path, output: Path, tokenizer_id: str) -> dict:
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_id)
+    goal = "Explain how to sort a short list of harmless integers in Python."
+    arms = render_arms(goal, tokenizer)
+    payload = {
+        "schema_version": "1.0",
+        "study_id": "lexical-scaffold-engineering-fixture",
+        "public_plan_sha256": sha256_file(public_plan),
+        "source_commit_at_build": "engineering-fixture",
+        "source_files": {},
+        "followup": FOLLOWUP,
+        "harmful_behaviors": [
+            {
+                "behavior_id": "SAFE-ENGINEERING-000",
+                "category": "synthetic",
+                "split": "discovery",
+                "goal": goal,
+                "target": "A safe sorting explanation.",
+                "behavior": "safe engineering fixture",
+                "source": "local synthetic",
+                "goal_sha256": sha256_text(goal),
+                "rendered_arms": {
+                    name: {
+                        "text": arm.text,
+                        "text_sha256": arm.sha256,
+                        "token_ids": arm.token_ids,
+                    }
+                    for name, arm in arms.items()
+                },
+            }
+        ],
+        "utility_behaviors": [],
+        "length_audit": [
+            {
+                "behavior_id": "SAFE-ENGINEERING-000",
+                **{name: len(arms[name].token_ids) for name in arms},
+            }
+        ],
+    }
+    from .hashing import write_json_atomic
+
+    digest = write_json_atomic(output, payload)
+    return {"path": str(output), "sha256": digest, "tokenizer": tokenizer_id}

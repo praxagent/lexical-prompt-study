@@ -5,11 +5,13 @@ import json
 from pathlib import Path
 
 from .artifacts import write_artifact_manifest
+from .behavior import run_behavior
 from .evaluator_validation import validate_published_judges
 from .models import StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
 from .hashing import write_json_atomic
-from .synthetic import run_synthetic
+from .synthetic import build_engineering_fixture, run_synthetic
+from .volume import prepare_volume
 
 
 def main() -> None:
@@ -40,6 +42,25 @@ def main() -> None:
     )
     schemas = sub.add_parser("write-schemas")
     schemas.add_argument("--out", type=Path, default=Path("schemas"))
+    volume = sub.add_parser("prepare-volume")
+    volume.add_argument("--manifest", type=Path, default=Path("plans/artifacts.v1.json"))
+    volume.add_argument("--root", type=Path, default=Path("/workspace/artifacts"))
+    volume.add_argument("--skip-evaluator", action="store_true")
+    behavior = sub.add_parser("run-behavior")
+    behavior.add_argument("--private-plan", type=Path, required=True)
+    behavior.add_argument("--public-plan", type=Path, default=Path("plans/study_v1.public.json"))
+    behavior.add_argument("--model-path", required=True)
+    behavior.add_argument("--out", type=Path, required=True)
+    behavior.add_argument("--split", choices=["discovery", "confirmatory"], required=True)
+    behavior.add_argument("--max-behaviors", type=int)
+    behavior.add_argument("--max-new-tokens", type=int)
+    behavior.add_argument("--run-id", required=True)
+    fixture = sub.add_parser("build-engineering-fixture")
+    fixture.add_argument("--public-plan", type=Path, default=Path("plans/study_v1.public.json"))
+    fixture.add_argument(
+        "--out", type=Path, default=Path("private/fixtures/engineering.private.json")
+    )
+    fixture.add_argument("--tokenizer", default="HuggingFaceTB/SmolLM2-135M-Instruct")
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -58,3 +79,33 @@ def main() -> None:
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())
         print(json.dumps(outputs, sort_keys=True))
+    elif args.command == "prepare-volume":
+        print(
+            json.dumps(
+                prepare_volume(args.manifest, args.root, not args.skip_evaluator),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-behavior":
+        print(
+            json.dumps(
+                run_behavior(
+                    private_plan_path=args.private_plan,
+                    public_plan_path=args.public_plan,
+                    model_path=args.model_path,
+                    output_root=args.out,
+                    split=args.split,
+                    max_behaviors=args.max_behaviors,
+                    max_new_tokens=args.max_new_tokens,
+                    run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-engineering-fixture":
+        print(
+            json.dumps(
+                build_engineering_fixture(args.public_plan, args.out, args.tokenizer),
+                sort_keys=True,
+            )
+        )
