@@ -48,10 +48,19 @@ def _save_restricted(path: Path, payload: dict) -> str:
 
 
 def _load_completed_generation(
-    store: ReceiptStore, trial_id: str, restricted_path: Path
+    store: ReceiptStore,
+    trial_id: str,
+    restricted_path: Path,
+    *,
+    expected_plan_sha256: str,
+    expected_run_id: str,
 ) -> dict:
     receipt_path = store.trials / f"{trial_id}.json"
     receipt = TrialReceipt.model_validate_json(receipt_path.read_text())
+    if receipt.plan_sha256 != expected_plan_sha256:
+        raise ValueError(f"{trial_id}: plan hash drift")
+    if receipt.run_id != expected_run_id:
+        raise ValueError(f"{trial_id}: run ID drift")
     if receipt.restricted_text_path != str(restricted_path):
         raise ValueError(f"{trial_id}: restricted path drift")
     if receipt.restricted_artifact_sha256 != sha256_file(restricted_path):
@@ -219,7 +228,11 @@ def run_behavior(
     if set(planned_ids).issubset(completed):
         for trial_id in planned_ids:
             _load_completed_generation(
-                store, trial_id, restricted / f"{trial_id}.json"
+                store,
+                trial_id,
+                restricted / f"{trial_id}.json",
+                expected_plan_sha256=plan_sha256,
+                expected_run_id=run_id,
             )
         store.validate_expected(planned_ids)
         return _write_run_summary(
@@ -274,7 +287,13 @@ def run_behavior(
             )
             raw1 = restricted / f"{turn1_id}.json"
             if turn1_id in completed:
-                first = _load_completed_generation(store, turn1_id, raw1)
+                first = _load_completed_generation(
+                    store,
+                    turn1_id,
+                    raw1,
+                    expected_plan_sha256=plan_sha256,
+                    expected_run_id=run_id,
+                )
                 response1 = first["generated_text"]
             else:
                 messages = [{"role": "user", "content": behavior["rendered_arms"][arm]["text"]}]
@@ -342,7 +361,11 @@ def run_behavior(
                 completed.add(turn1_id)
             if turn2_id in completed:
                 _load_completed_generation(
-                    store, turn2_id, restricted / f"{turn2_id}.json"
+                    store,
+                    turn2_id,
+                    restricted / f"{turn2_id}.json",
+                    expected_plan_sha256=plan_sha256,
+                    expected_run_id=run_id,
                 )
                 continue
             messages = [

@@ -39,7 +39,30 @@ def test_completed_generation_is_bound_to_restricted_artifact(tmp_path: Path) ->
     store = ReceiptStore(receipt_root)
     store.write(receipt)
 
-    assert _load_completed_generation(store, receipt.trial_id, raw_path) == payload
+    assert (
+        _load_completed_generation(
+            store,
+            receipt.trial_id,
+            raw_path,
+            expected_plan_sha256=receipt.plan_sha256,
+            expected_run_id=receipt.run_id,
+        )
+        == payload
+    )
+    with pytest.raises(ValueError, match="plan hash drift"):
+        _load_completed_generation(
+            store,
+            receipt.trial_id,
+            raw_path,
+            expected_plan_sha256="f" * 64,
+            expected_run_id=receipt.run_id,
+        )
     raw_path.write_text('{"generated_text":"drift","generated_token_ids":[]}\n')
     with pytest.raises(ValueError, match="restricted artifact hash mismatch"):
-        _load_completed_generation(store, receipt.trial_id, raw_path)
+        _load_completed_generation(
+            store,
+            receipt.trial_id,
+            raw_path,
+            expected_plan_sha256=receipt.plan_sha256,
+            expected_run_id=receipt.run_id,
+        )
