@@ -42,6 +42,39 @@ def _single_token_id(tokenizer, text: str) -> int:
     return ids[0]
 
 
+def _write_score_summary(
+    *,
+    output_root: Path,
+    generated: int,
+    scored: int,
+    written: int,
+    source_commit: str,
+    call_started: float,
+    model_loaded: bool,
+) -> dict:
+    path = output_root / "summary.json"
+    previous = json.loads(path.read_text()) if path.exists() else {}
+    elapsed = time.monotonic() - call_started
+    prior = float(
+        previous.get("cumulative_elapsed_seconds", previous.get("elapsed_seconds", 0.0))
+    )
+    summary = {
+        "schema_version": "1.0",
+        "status": "complete",
+        "generation_receipts": generated,
+        "scored_receipts": scored,
+        "written_this_call": written,
+        "model_loaded_this_call": model_loaded,
+        "invocations": int(previous.get("invocations", 0)) + 1,
+        "elapsed_this_call_seconds": elapsed,
+        "cumulative_elapsed_seconds": prior + elapsed,
+        "evaluator_revision": EVALUATOR_REVISION,
+        "source_commit": source_commit,
+    }
+    write_json_atomic(path, summary)
+    return summary
+
+
 def score_behavior_receipts(
     *,
     private_plan_path: Path,
@@ -50,9 +83,7 @@ def score_behavior_receipts(
     output_root: Path,
     batch_size: int = 4,
 ) -> dict:
-    import torch
-    import transformers
-
+    call_started = time.monotonic()
     private_plan = json.loads(private_plan_path.read_text())
     behavior_by_id = {
         item["behavior_id"]: item for item in private_plan["harmful_behaviors"]
@@ -86,6 +117,27 @@ def score_behavior_receipts(
                 "output_path": final,
             }
         )
+    source_commit = _source_commit()
+    if not pending:
+        all_scored = list(output_trials.glob("*.json"))
+        if len(all_scored) != len(generation_paths):
+            raise ValueError(
+                f"score count mismatch: generated={len(generation_paths)} "
+                f"scored={len(all_scored)}"
+            )
+        return _write_score_summary(
+            output_root=output_root,
+            generated=len(generation_paths),
+            scored=len(all_scored),
+            written=0,
+            source_commit=source_commit,
+            call_started=call_started,
+            model_loaded=False,
+        )
+
+    import torch
+    import transformers
+
     tokenizer = transformers.AutoTokenizer.from_pretrained(evaluator_path)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
@@ -103,8 +155,6 @@ def score_behavior_receipts(
         attn_implementation="eager",
     ).eval()
     device = next(model.parameters()).device
-    source_commit = _source_commit()
-    started = time.monotonic()
     written = 0
     for start in range(0, len(pending), batch_size):
         batch = pending[start : start + batch_size]
@@ -160,15 +210,12 @@ def score_behavior_receipts(
         raise ValueError(
             f"score count mismatch: generated={len(generation_paths)} scored={len(all_scored)}"
         )
-    summary = {
-        "schema_version": "1.0",
-        "status": "complete",
-        "generation_receipts": len(generation_paths),
-        "scored_receipts": len(all_scored),
-        "written_this_call": written,
-        "elapsed_seconds": time.monotonic() - started,
-        "evaluator_revision": EVALUATOR_REVISION,
-        "source_commit": source_commit,
-    }
-    write_json_atomic(output_root / "summary.json", summary)
-    return summary
+    return _write_score_summary(
+        output_root=output_root,
+        generated=len(generation_paths),
+        scored=len(all_scored),
+        written=written,
+        source_commit=source_commit,
+        call_started=call_started,
+        model_loaded=True,
+    )
