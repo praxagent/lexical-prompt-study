@@ -26,6 +26,15 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def git_blob_oid_file(path: Path) -> str:
+    digest = hashlib.sha1(usedforsecurity=False)
+    digest.update(f"blob {path.stat().st_size}\0".encode())
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def write_json_atomic(path: Path, value: Any) -> str:
     payload = canonical_json_bytes(value)
     path.parent.mkdir(parents=True, exist_ok=True)

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from huggingface_hub import hf_hub_download, snapshot_download
 
-from .hashing import sha256_file, write_json_atomic
+from .hashing import git_blob_oid_file, sha256_file, write_json_atomic
 
 
 def _artifact(manifest: dict, role: str) -> dict:
@@ -58,10 +58,28 @@ def prepare_volume(manifest_path: Path, root: Path, include_evaluator: bool = Tr
                 raise ValueError(f"{role}: missing downloaded file {relative}")
             actual_sha256 = sha256_file(path)
             expected_sha256 = expected[relative].get("sha256")
+            expected_git_blob_oid = expected[relative].get("git_blob_oid")
+            actual_git_blob_oid = (
+                git_blob_oid_file(path) if expected_sha256 is None else None
+            )
             if expected_sha256 and actual_sha256 != expected_sha256:
                 raise ValueError(
                     f"{role}/{relative}: sha256 {actual_sha256}, expected {expected_sha256}"
                 )
+            if (
+                expected_sha256 is None
+                and expected_git_blob_oid
+                and actual_git_blob_oid != expected_git_blob_oid
+            ):
+                raise ValueError(
+                    f"{role}/{relative}: git blob {actual_git_blob_oid}, "
+                    f"expected {expected_git_blob_oid}"
+                )
+            verified = (
+                actual_sha256 == expected_sha256
+                if expected_sha256
+                else actual_git_blob_oid == expected_git_blob_oid
+            )
             receipts.append(
                 {
                     "role": role,
@@ -72,7 +90,9 @@ def prepare_volume(manifest_path: Path, root: Path, include_evaluator: bool = Tr
                     "size_bytes": path.stat().st_size,
                     "sha256": actual_sha256,
                     "expected_sha256": expected_sha256,
-                    "verified": expected_sha256 is None or actual_sha256 == expected_sha256,
+                    "git_blob_oid": actual_git_blob_oid,
+                    "expected_git_blob_oid": expected_git_blob_oid,
+                    "verified": verified,
                 }
             )
     result = {
