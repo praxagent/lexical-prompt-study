@@ -41,6 +41,7 @@ def analyze_behavior_gate(
                     "behavior_id": gen["behavior_id"],
                     "category": gen["category"],
                     "arm": gen["arm"],
+                    "turn": gen["turn"],
                     "score": score["yes_probability"],
                     "binary": score["binary_prediction"],
                     "truncated": gen["truncated"],
