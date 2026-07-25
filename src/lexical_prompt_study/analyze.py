@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -11,6 +12,10 @@ from .hashing import sha256_file, write_json_atomic
 
 def _percentile_interval(values: np.ndarray) -> list[float]:
     return [float(value) for value in np.quantile(values, [0.025, 0.975])]
+
+
+def _source_commit() -> str:
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 
 
 def analyze_behavior_gate(
@@ -107,6 +112,8 @@ def analyze_behavior_gate(
         "study_id": plan["study_id"],
         "split": split,
         "plan_sha256": sha256_file(public_plan_path),
+        "analysis_implementation_sha256": sha256_file(Path(__file__)),
+        "source_commit": _source_commit(),
         "n_behaviors": len(behavior_ids),
         "n_turn2_rows": len(rows),
         "arm_summaries": arm_summaries,

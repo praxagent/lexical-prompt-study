@@ -104,3 +104,5 @@ def test_analysis_retains_turn_when_joining_receipts(tmp_path: Path) -> None:
     assert all(row["turn"] in (1, 2) for row in result["phase_source_receipts"])
     assert all(row["turn"] == 2 for row in result["source_receipts"])
     assert result["primary_contrast"]["continuation_gate_passed"] is True
+    assert len(result["analysis_implementation_sha256"]) == 64
+    assert len(result["source_commit"]) == 40
