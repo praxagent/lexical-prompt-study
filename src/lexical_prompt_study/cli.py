@@ -222,6 +222,20 @@ def main() -> None:
     followup_behavior_analysis.add_argument(
         "--partition", choices=["discovery", "calibration"], required=True
     )
+    followup_mechanism = sub.add_parser("run-followup-mechanism-analysis")
+    followup_mechanism.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_mechanism.add_argument(
+        "--probe-plan", type=Path, default=Path("plans/study_v1.public.json")
+    )
+    followup_mechanism.add_argument("--discovery-root", type=Path, required=True)
+    followup_mechanism.add_argument("--calibration-root", type=Path, required=True)
+    followup_mechanism.add_argument("--model-path", required=True)
+    followup_mechanism.add_argument("--lens-path", type=Path, required=True)
+    followup_mechanism.add_argument("--sae-path", type=Path, required=True)
+    followup_mechanism.add_argument("--out", type=Path, required=True)
+    followup_mechanism.add_argument("--run-id", required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -531,6 +545,25 @@ def main() -> None:
                     generation_root=args.generation_root,
                     score_root=args.score_root,
                     output_path=args.out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-followup-mechanism-analysis":
+        from .followup_mechanism_analysis import run_followup_mechanism_analysis
+
+        print(
+            json.dumps(
+                run_followup_mechanism_analysis(
+                    public_plan_path=args.public_plan,
+                    probe_plan_path=args.probe_plan,
+                    discovery_root=args.discovery_root,
+                    calibration_root=args.calibration_root,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    run_id=args.run_id,
                 ),
                 sort_keys=True,
             )

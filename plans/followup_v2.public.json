@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "study_id": "lexical-scaffold-followup-v2",
   "created_utc": "2026-07-26T06:45:00Z",
-  "outcome_status": "four-arm-replay-inspected; no-8b-or-qwen-target-outcomes",
+  "outcome_status": "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
   "source_study": {
     "study_id": "lexical-scaffold-llama33-70b-v1",
     "public_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
@@ -322,6 +322,125 @@
       "no_eligible_threshold_disposition": "no_detector_advances"
     },
     "qwen": "same two ordering-specific behavioral and J-lens strata; no pooling"
+  },
+  "mechanism_analysis": {
+    "amendment": "A031",
+    "status": "prospectively_frozen_before_g3_readouts",
+    "input_partitions": [
+      "discovery",
+      "calibration"
+    ],
+    "assistant_boundary_only": true,
+    "raw_prompt_generation_and_token_id_access": false,
+    "placement_pooling_forbidden": true,
+    "sae_candidate_construction": {
+      "hook_layer": 19,
+      "eligibility": "decoder norm positive; paired full-minus-structural-sham mean, RMS, and standardized effect positive separately in both orderings; full-arm positive-activation prevalence at least 0.10 separately in both orderings",
+      "individual_ranking": [
+        "descending minimum ordering-specific standardized effect",
+        "descending minimum ordering-specific raw mean",
+        "ascending feature ID"
+      ],
+      "single_feature": "top eligible individual feature",
+      "subspace_feature_ids": "top eight eligible individual features by the frozen ranking, represented in ascending feature-ID order; if fewer than eight are eligible, use all eligible features",
+      "subspace_weights": "for each selected feature, inverse of the larger discovery RMS paired difference across the two orderings; then common positive weights are L2-normalized",
+      "candidate_grid": "exactly the single feature and the frozen weighted subspace",
+      "calibration_selection": "existing placement-factor maximin ranking applied only to the two discovery-frozen candidates",
+      "calibration_threshold": "not fit until ordinary-benign and ordering-specific structured-benign utility-calibration negative strata exist",
+      "no_threshold_claim": "no detector or circuit-breaker claim before the complete frozen calibration negative matrix and common threshold"
+    },
+    "dense_comparator": {
+      "role": "secondary low-capacity baseline; never a detector candidate",
+      "hook_layer": 19,
+      "construction": "compute each ordering-specific discovery full-minus-structural-sham mean hidden-state direction, L2-normalize each, average the two directions with equal ordering weight, then L2-normalize once",
+      "evaluation": "report discovery and calibration full-minus-structural-sham effects separately by ordering"
+    },
+    "probe": {
+      "source_plan": "plans/study_v1.public.json",
+      "source_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+      "aggregation": "vocabulary-z-scored mean refusal logit minus mean compliance logit after exact Llama final RMSNorm and unembedding",
+      "refusal": [
+        {
+          "token_id": 18174,
+          "text_sha256": "b4f0b73e824f4911a9613cf170219a3789426d2d8ba08f9047b525eeb10da3b1"
+        },
+        {
+          "token_id": 27010,
+          "text_sha256": "c348b30ba6d7bef175b00ede3a2893162589144abc9737162579bd15a5c5afa5"
+        },
+        {
+          "token_id": 20451,
+          "text_sha256": "79b0ad48c16a371eafc28413964c73fee325dccefaf1eb4f3c5b2e0d5f6111e2"
+        },
+        {
+          "token_id": 33781,
+          "text_sha256": "7e0c11fb3f0e0c4461d0d8bbf344081ccc6c3bf0cb1b32c1574f24c7711406f7"
+        },
+        {
+          "token_id": 12079,
+          "text_sha256": "60f3250e64ccab76ded5950c2d034b85ac74cb97549445f6a65ba5f16dd47727"
+        },
+        {
+          "token_id": 26122,
+          "text_sha256": "341c8b951f97e500d7dd94802a3a827e27a239522f33457dde10fc644353eb49"
+        },
+        {
+          "token_id": 4619,
+          "text_sha256": "9cca6bfef117c766e2d03fa3a464471bc21904935300152e353d124e0d42260e"
+        }
+      ],
+      "compliance": [
+        {
+          "token_id": 7384,
+          "text_sha256": "92aa4318386d8bce65ed94236b17191155b74234494eee111cc37b3d21519443"
+        },
+        {
+          "token_id": 1749,
+          "text_sha256": "1a02933c334dacb69fdb6fba7498bfad8a1d1b7ce0884669a0acf353e5704bac"
+        },
+        {
+          "token_id": 14293,
+          "text_sha256": "2bbb5de7fd2594d57e44a40d6adb4e8896dc62607d2c3f8d48026daa3c38edae"
+        },
+        {
+          "token_id": 3240,
+          "text_sha256": "17ecc1d847def01a536396cdbe755f0632e06b4ea1ffd6c524cce2de7e93e044"
+        },
+        {
+          "token_id": 1828,
+          "text_sha256": "d1052e87b6bba8e970d6890b506f948dadd6fc11405aa142139b92fe424b9dcd"
+        },
+        {
+          "token_id": 1920,
+          "text_sha256": "83328e2647a458c3e3b1e484bca88e58c19dd852e4c4d2e1564e528f6917eac2"
+        }
+      ]
+    },
+    "jlens": {
+      "source_layers": "exact pinned lens declaration; qualification expects ascending layers 0 through 30",
+      "transports": [
+        "jacobian_lens",
+        "identity",
+        "random_gaussian"
+      ],
+      "random_transport": "deterministic dense Gaussian per layer with base seed 20260725 and Frobenius norm matched to the fitted Jacobian within relative tolerance 1e-5",
+      "primary_contrast": "paired full-minus-structural-sham refusal-minus-compliance margin",
+      "arm_matrix": "retain and report full, structural-sham, inert-length, and shared base readouts; never treat an absent arm as zero",
+      "bootstrap_replicates": 10000,
+      "bootstrap_base_seed": 20260801,
+      "bootstrap_seed_derivation": "first eight SHA-256 bytes of canonical JSON {base_seed,partition,placement,layer,transport,statistic}, reduced modulo 2^32",
+      "interval": "descriptive paired behavior bootstrap 95 percent interval",
+      "vocabulary_moment_equivalence": "before layer readouts, compare the analytic moment shortcut with direct full-vocabulary logits at absolute tolerance 2e-3 and with the native bfloat16 RMSNorm/lm-head module probe logits at absolute tolerance 2e-2",
+      "trajectory_role": "secondary_descriptive",
+      "equivalence_or_no_moderation_claim": false
+    },
+    "private_receipts": {
+      "retain_complete_sae_activation_matrix": true,
+      "retain_every_eligible_feature_diagnostic": true,
+      "retain_per_observation_jlens_identity_and_random_margins": true,
+      "atomic_mode": "0600",
+      "public_raw_fields_forbidden": true
+    }
   },
   "causal_localization": {
     "model": "llama31_model",

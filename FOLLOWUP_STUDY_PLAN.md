@@ -242,6 +242,45 @@ worst negative-stratum false-positive rate, then descending threshold. Shared
 base and ordinary-benign rows enter once. If no threshold is eligible, no
 detector advances.
 
+Amendment A031 freezes the remaining G3 construction details before any 8B SAE
+or J-lens readout is generated. A feature is discovery-eligible only when its
+decoder norm is positive and its paired full-minus-sham mean, RMS,
+RMS-standardized effect, and at-least-10% full-arm activation prevalence pass
+separately in both orderings. Individual features rank by the existing maximin
+rule. The top feature is the single-feature candidate. The subspace contains
+the top at most eight eligible features, stored in ascending feature-ID order.
+Each common positive subspace weight is the inverse of that feature's larger
+ordering-specific discovery RMS, followed by one L2 normalization. Calibration
+may select only between those two candidates under the frozen maximin rule.
+
+The existing discovery and calibration captures contain harmful base,
+inert-length, structural-sham, and full arms, but not ordinary-benign or
+structured-benign utility-calibration rows. Therefore A031 explicitly forbids
+fitting the final common threshold at G3. Candidate selection may complete;
+threshold selection and the words “detector” or “circuit breaker” remain
+blocked until the complete frozen negative matrix exists.
+
+The secondary dense comparator is fit without row pooling: compute the
+discovery full-minus-sham mean hidden-state direction separately in each
+ordering at layer 19, L2-normalize each direction, average them with equal
+ordering weight, and L2-normalize the result. It never enters the detector
+candidate grid.
+
+The J-lens replay inherits the exact primary refusal and compliance token IDs
+and token-text hashes from `plans/study_v1.public.json`. At every pinned source
+layer 0–30 it reports the vocabulary-z-scored refusal-minus-compliance margin
+under the fitted Jacobian lens, identity transport, and a deterministic
+Frobenius-matched dense Gaussian transport with base seed 20260725. Discovery
+and calibration, before-request and after-request, are all reported
+separately. Each paired full-minus-sham curve point receives a descriptive
+10,000 behavior-bootstrap interval whose stream is derived from base seed
+20260801 and the exact partition, placement, layer, transport, and statistic.
+No pooled placement, invariance, equivalence, or causal trajectory claim is
+allowed.
+Before any layer result is accepted, the vocabulary-moment shortcut must match
+direct full-vocabulary logits within absolute tolerance `2e-3` and the native
+bfloat16 RMSNorm/lm-head module probe logits within `2e-2`.
+
 ## Stage B: causal activation patching on Llama 3.1 8B
 
 This is distinct from Gate 4. It replaces actual internal state from a matched

@@ -76,7 +76,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(plan["study_id"] == "lexical-scaffold-followup-v2", "wrong study namespace")
     _require(
         plan["outcome_status"]
-        == "four-arm-replay-inspected; no-8b-or-qwen-target-outcomes",
+        == "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
         "8B/Qwen plan outcome boundary drift",
     )
     _require(plan["stage_order"] == EXPECTED_STAGES, "stage order drift")
@@ -261,6 +261,76 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     )
     _require(len(candidate_rule["ranking"]) == 4, "candidate tie rules incomplete")
     _require(len(candidate_rule["threshold_ties"]) == 3, "threshold tie rules incomplete")
+
+    mechanism = plan["mechanism_analysis"]
+    _require(
+        mechanism["amendment"] == "A031"
+        and mechanism["status"] == "prospectively_frozen_before_g3_readouts"
+        and mechanism["input_partitions"] == ["discovery", "calibration"]
+        and mechanism["assistant_boundary_only"] is True
+        and mechanism["raw_prompt_generation_and_token_id_access"] is False
+        and mechanism["placement_pooling_forbidden"] is True,
+        "G3 mechanism boundary drift",
+    )
+    construction = mechanism["sae_candidate_construction"]
+    _require(
+        construction["hook_layer"] == 19
+        and "0.10" in construction["eligibility"]
+        and "top eight" in construction["subspace_feature_ids"]
+        and "larger discovery RMS" in construction["subspace_weights"]
+        and construction["candidate_grid"]
+        == "exactly the single feature and the frozen weighted subspace"
+        and "utility-calibration" in construction["calibration_threshold"]
+        and "no detector or circuit-breaker claim" in construction["no_threshold_claim"],
+        "SAE candidate construction drift",
+    )
+    dense = mechanism["dense_comparator"]
+    _require(
+        dense["role"] == "secondary low-capacity baseline; never a detector candidate"
+        and dense["hook_layer"] == 19
+        and "equal ordering weight" in dense["construction"],
+        "dense comparator drift",
+    )
+    probe = mechanism["probe"]
+    _require(
+        probe["source_plan"] == "plans/study_v1.public.json"
+        and probe["source_plan_sha256"]
+        == "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+        and [row["token_id"] for row in probe["refusal"]]
+        == [18174, 27010, 20451, 33781, 12079, 26122, 4619]
+        and [row["token_id"] for row in probe["compliance"]]
+        == [7384, 1749, 14293, 3240, 1828, 1920]
+        and all(len(row["text_sha256"]) == 64 for row in probe["refusal"])
+        and all(len(row["text_sha256"]) == 64 for row in probe["compliance"]),
+        "G3 probe drift",
+    )
+    jlens = mechanism["jlens"]
+    _require(
+        set(jlens["transports"])
+        == {"jacobian_lens", "identity", "random_gaussian"}
+        and "0 through 30" in jlens["source_layers"]
+        and "20260725" in jlens["random_transport"]
+        and "1e-5" in jlens["random_transport"]
+        and jlens["bootstrap_replicates"] == 10000
+        and jlens["bootstrap_base_seed"] == 20260801
+        and "2e-3" in jlens["vocabulary_moment_equivalence"]
+        and "2e-2" in jlens["vocabulary_moment_equivalence"]
+        and jlens["trajectory_role"] == "secondary_descriptive"
+        and jlens["equivalence_or_no_moderation_claim"] is False,
+        "G3 J-lens analysis drift",
+    )
+    private_receipts = mechanism["private_receipts"]
+    _require(
+        private_receipts["retain_complete_sae_activation_matrix"] is True
+        and private_receipts["retain_every_eligible_feature_diagnostic"] is True
+        and private_receipts[
+            "retain_per_observation_jlens_identity_and_random_margins"
+        ]
+        is True
+        and private_receipts["atomic_mode"] == "0600"
+        and private_receipts["public_raw_fields_forbidden"] is True,
+        "G3 receipt retention drift",
+    )
 
     prerequisite = plan["llama33_four_arm_prerequisite"]
     _require(prerequisite["machine_enforced"] is True, "four-arm gate is not enforced")
