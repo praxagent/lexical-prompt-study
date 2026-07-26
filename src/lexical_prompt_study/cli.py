@@ -40,6 +40,12 @@ def main() -> None:
     validate.add_argument("--public", type=Path, default=Path("plans/study_v1.public.json"))
     validate.add_argument("--private", type=Path, default=Path("private/plans/study_v1.private.json"))
     validate.add_argument("--artifacts", type=Path, default=Path("plans/artifacts.v1.json"))
+    validate_factorial = sub.add_parser("validate-factorial-plan")
+    validate_factorial.add_argument(
+        "--plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -308,6 +314,21 @@ def main() -> None:
         print(json.dumps(build_plan(args.public, args.private_root, args.artifacts), sort_keys=True))
     elif args.command == "validate-plan":
         print(json.dumps(validate_plan(args.public, args.private, args.artifacts), sort_keys=True))
+    elif args.command == "validate-factorial-plan":
+        from .factorial_plan import load_factorial_plan, validate_factorial_plan
+
+        plan = load_factorial_plan(args.plan)
+        validate_factorial_plan(plan)
+        print(
+            json.dumps(
+                {
+                    "plan": str(args.plan),
+                    "status": "factorial_plan_valid",
+                    "study_id": plan["study_id"],
+                },
+                sort_keys=True,
+            )
+        )
     elif args.command == "validate-published-judges":
         print(json.dumps(validate_published_judges(args.source, args.out), sort_keys=True))
     elif args.command == "write-schemas":

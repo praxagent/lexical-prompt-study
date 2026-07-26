@@ -6,6 +6,22 @@ from pathlib import Path
 from lexical_prompt_study import cli
 
 
+def test_factorial_plan_cli_validates_frozen_plan(
+    monkeypatch, capsys
+) -> None:
+    argv = [
+        "lexical-study",
+        "validate-factorial-plan",
+        "--plan",
+        "plans/factorial_8b_v1.public.json",
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    cli.main()
+    output = capsys.readouterr().out
+    assert '"status": "factorial_plan_valid"' in output
+    assert '"study_id": "lexical-scaffold-8b-factorial-v1"' in output
+
+
 def test_mechanism_cli_wires_artifact_manifest(monkeypatch, tmp_path: Path, capsys) -> None:
     captured = {}
 
