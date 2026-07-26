@@ -162,6 +162,13 @@ def test_followup_plan_rejects_unpriced_gpu_fallback() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["qualification"]["gpu"] = "NVIDIA A40"
+    with pytest.raises(ValueError, match="infrastructure amendment"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_keeps_qwen397b_deferred() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["qwen_pilot"]["qwen397b"] = "included"

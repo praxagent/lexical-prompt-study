@@ -402,6 +402,11 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     compute = plan["compute"]
     qualification = compute["qualification"]
     _require(compute["persistent_volume_id"] == "u85xfo0aue", "wrong task volume")
+    _require(
+        qualification["gpu"] == "NVIDIA RTX A6000"
+        and qualification["infrastructure_amendment"] == "A018",
+        "qualification infrastructure amendment drift",
+    )
     _require(qualification["count"] == 1, "qualification must use exactly one GPU")
     _require(qualification["automatic_fallback"] is False, "unpriced GPU fallback forbidden")
     expected_max = (
