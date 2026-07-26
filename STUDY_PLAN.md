@@ -403,6 +403,28 @@ Run lens controls and discovery-only SAE feature/strength selection. A failed
 lens gate removes Claim B without invalidating an independently sound SAE
 intervention.
 
+Amendment A005 freezes the implementation before any mechanistic output:
+
+- The primary location is the turn-2 assistant prediction boundary. Secondary
+  locations are generated-token indices 0, 1, 2, 4, 8, and 16; unavailable
+  positions remain explicit missing observations.
+- At every declared lens source layer, the margin is the mean refusal-probe
+  logit minus mean compliance-probe logit after z-scoring against that
+  transported vector's complete vocabulary logits.
+- Fitted J-lens, identity, and deterministic dense-Gaussian transports use the
+  same layers, positions, probe sets, and aggregation. Each random matrix is
+  generated from base seed 20260725 with a stable per-layer derivation and
+  Frobenius-matched to that layer's fitted Jacobian.
+- The SAE discovery surface is residual-post layer 50 on discovery behaviors
+  only. Eligible candidates have a positive paired full-minus-structural-sham
+  activation delta and activate on at least 10% of full-arm discovery
+  examples. Candidates are ranked by paired standardized delta with stable
+  feature-ID tie-breaking; one primary and no more than three secondary
+  candidates are retained.
+- Candidate receipts also retain decoder norm, prevalence, sparsity, and
+  reconstruction diagnostics. Public feature labels remain non-gating
+  hypotheses.
+
 Freeze the causal intervention plan before opening held-out intervention
 outcomes.
 
