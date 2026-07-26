@@ -93,7 +93,9 @@ def test_mechanism_receipt_fails_closed() -> None:
         "source_commit": "b" * 40,
         "run_id": "gate3-discovery-v1",
         "split": "discovery",
+        "observation_id": "safe-observation",
         "behavior_id": "JBB-H-001",
+        "category": "safe",
         "arm": "full",
         "turn": 2,
         "position": PRIMARY_POSITION,
@@ -117,7 +119,6 @@ def test_mechanism_receipt_fails_closed() -> None:
         "tokenizer_revision": "t",
         "lens_sha256": "c" * 64,
         "sae_sha256": "d" * 64,
-        "observation_sha256": "0" * 64,
         "runtime": {},
     }
     validate_mechanism_receipt(receipt)

@@ -353,7 +353,7 @@ def _validate_layer_checkpoint(
         validate_mechanism_receipt(receipt)
         if receipt["layer"] != layer:
             raise ValueError(f"layer {layer}: receipt layer drift")
-        realized.add((receipt["observation_sha256"], receipt["transport"]))
+        realized.add((receipt["observation_id"], receipt["transport"]))
     if realized != expected or len(realized) != len(receipts):
         raise ValueError(f"layer {layer}: resume receipt topology mismatch")
 
@@ -536,7 +536,6 @@ def _run_transports(
                     "tokenizer_revision": tokenizer_revision,
                     "lens_sha256": lens_sha256,
                     "sae_sha256": sae_sha256,
-                    "observation_sha256": observation.observation_id,
                     "runtime": runtime,
                 }
                 validate_mechanism_receipt(receipt)

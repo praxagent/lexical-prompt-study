@@ -111,7 +111,9 @@ class MechanismReceipt(StrictModel):
     source_commit: str
     run_id: str
     split: Literal["discovery", "confirmatory"]
+    observation_id: str
     behavior_id: str
+    category: str
     arm: Literal["base", "full", "structural_sham", "inert_length"]
     turn: Literal[2]
     position: Literal["assistant_boundary", "generated"]
@@ -132,5 +134,4 @@ class MechanismReceipt(StrictModel):
     tokenizer_revision: str
     lens_sha256: str
     sae_sha256: str
-    observation_sha256: str
     runtime: dict
