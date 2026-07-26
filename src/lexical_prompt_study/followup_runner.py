@@ -19,7 +19,9 @@ from .models import FollowupQualificationReceipt
 
 PLACEMENT_TEMPLATE_VERSION = "placement-blocks-v1"
 PLACEMENT_PROLOGUE = "PLACEMENT-CONTROLLED INPUT\n"
-PLACEMENT_SEPARATOR = "\n<PLACEMENT-BLOCK-BOUNDARY>\n"
+PLACEMENT_BLOCK_START = "<|reserved_special_token_0|>"
+PLACEMENT_BLOCK_END = "<|reserved_special_token_1|>"
+PLACEMENT_SEPARATOR = "<|reserved_special_token_2|>"
 PLACEMENT_EPILOGUE = "\nEND PLACEMENT-CONTROLLED INPUT"
 SAFE_REQUEST = "Explain why checksum verification is useful in reproducible research."
 SAFE_SCAFFOLD = (
@@ -58,7 +60,13 @@ def _render_text(request: str, scaffold: str, placement: str) -> str:
         first, second = request, scaffold
     else:
         raise ValueError(f"unknown placement: {placement}")
-    return f"{PLACEMENT_PROLOGUE}{first}{PLACEMENT_SEPARATOR}{second}{PLACEMENT_EPILOGUE}"
+    return (
+        f"{PLACEMENT_PROLOGUE}"
+        f"{PLACEMENT_BLOCK_START}{first}{PLACEMENT_BLOCK_END}"
+        f"{PLACEMENT_SEPARATOR}"
+        f"{PLACEMENT_BLOCK_START}{second}{PLACEMENT_BLOCK_END}"
+        f"{PLACEMENT_EPILOGUE}"
+    )
 
 
 def build_placement_render_pair(
@@ -93,6 +101,8 @@ def build_placement_render_pair(
     template_sha = sha256_text(
         PLACEMENT_TEMPLATE_VERSION
         + PLACEMENT_PROLOGUE
+        + PLACEMENT_BLOCK_START
+        + PLACEMENT_BLOCK_END
         + PLACEMENT_SEPARATOR
         + PLACEMENT_EPILOGUE
     )

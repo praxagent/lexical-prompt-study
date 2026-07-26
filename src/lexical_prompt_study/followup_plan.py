@@ -172,6 +172,16 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         matching["token_count_mismatch_disposition"] == "stop_before_target_generation",
         "placement token mismatch is not fail closed",
     )
+    _require(
+        matching["boundary_delimiter_tokens"]
+        == [
+            "<|reserved_special_token_0|>",
+            "<|reserved_special_token_1|>",
+            "<|reserved_special_token_2|>",
+        ]
+        and matching["boundary_delimiter_amendment"] == "A020",
+        "placement boundary-token freeze drift",
+    )
     placement_analysis = placement["analysis"]
     for field in (
         "behavioral_outcomes_separate",

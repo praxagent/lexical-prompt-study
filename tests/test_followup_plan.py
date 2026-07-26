@@ -90,6 +90,13 @@ def test_followup_plan_rejects_component_tokenization_drift_permission() -> None
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_boundary_tokenization_fix() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["within_arm_matching"]["boundary_delimiter_tokens"] = []
+    with pytest.raises(ValueError, match="boundary-token"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_rejects_ambiguous_behavioral_family() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["placement_factor"]["behavioral_family"]["discovery"]["status"] = "formal_test"

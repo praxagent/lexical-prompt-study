@@ -233,6 +233,12 @@
       "require_unique_recoverable_component_offsets": true,
       "require_no_truncation_padding_or_context_shift": true,
       "require_frozen_assistant_boundary_suffix": true,
+      "boundary_delimiter_tokens": [
+        "<|reserved_special_token_0|>",
+        "<|reserved_special_token_1|>",
+        "<|reserved_special_token_2|>"
+      ],
+      "boundary_delimiter_amendment": "A020",
       "token_count_mismatch_disposition": "stop_before_target_generation"
     },
     "analysis": {
