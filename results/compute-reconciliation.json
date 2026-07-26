@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-llama33-70b-v1",
+  "queried_at": "2026-07-26T05:34:55Z",
+  "billing_window": {
+    "start": "2026-07-25T00:00:00Z",
+    "end": "2026-07-26T06:00:00Z",
+    "bucket_size": "day",
+    "pod_grouping": "podId"
+  },
+  "task_gpu_inventory": {
+    "active_pods": [],
+    "hourly_rate_usd": 0.0
+  },
+  "task_pod_billing": [
+    {
+      "stage": "gates_0_and_1",
+      "pod_id": "6v98j916n4jx5m",
+      "time_billed_ms": 14423992,
+      "amount_usd": 35.20073598995805
+    },
+    {
+      "stage": "gate_2",
+      "pod_id": "1sgufchujg1sjf",
+      "time_billed_ms": 8006813,
+      "amount_usd": 19.552727350150235,
+      "source_buckets": 2
+    },
+    {
+      "stage": "gate_3",
+      "pod_id": "9ba2gqflf4kexd",
+      "time_billed_ms": 1180546,
+      "amount_usd": 1.9328933174256235
+    },
+    {
+      "stage": "gate_4",
+      "pod_id": "svtxk3t55jj65k",
+      "time_billed_ms": 7380828,
+      "amount_usd": 12.090322192176245
+    }
+  ],
+  "task_gpu_total": {
+    "time_billed_ms": 30992179,
+    "amount_usd": 68.77667884971015,
+    "soft_gate_usd": 100.0,
+    "hard_ceiling_usd": 200.0
+  },
+  "task_persistent_volume": {
+    "id": "u85xfo0aue",
+    "name": "lexical-prompt-study-v1",
+    "size_gb": 500,
+    "datacenter": "US-CA-2",
+    "created_at": "2026-07-25T17:09:00Z",
+    "listed_monthly_rate_usd": 35.0,
+    "derived_hourly_rate_usd": 0.04861111111111111,
+    "hours_through_query": 12.431944444444444,
+    "estimated_accrued_amount_usd": 0.6043306327160494,
+    "estimate_method": "35 USD / (30 days * 24 hours) * elapsed hours",
+    "billing_api_limitation": "The network-volume billing endpoint returned account-wide buckets without volume IDs, so the task-volume amount is derived from its listed standing rate rather than attributed from the aggregate account response.",
+    "retention_review_date": "2026-07-29"
+  },
+  "estimated_task_infrastructure_total_through_query_usd": 69.38100948242621,
+  "source_receipt": {
+    "path": "private/checkpoints/runpod-20260726/reconciliation-full.json",
+    "sha256": "7379f1f00d4e81d934db88dc1d79562c9672d7daf34f07adbc681bf9632a891c",
+    "contains_secrets": false,
+    "public_exclusion_reason": "Includes unrelated account resource billing rows outside this study."
+  },
+  "api_endpoints": [
+    "GET https://rest.runpod.io/v1/pods",
+    "GET https://rest.runpod.io/v1/networkvolumes",
+    "GET https://rest.runpod.io/v1/billing/pods",
+    "GET https://rest.runpod.io/v1/billing/networkvolumes"
+  ]
+}

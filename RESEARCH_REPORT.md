@@ -286,6 +286,7 @@ detector alone does not explain or repair the vulnerability.
 | Gate 4 score receipt aggregate | artifact field | `a09d306f4f643bf502fcae9e371ea0911624287e17abe7d9d87d6db00b30ca75` |
 | Gate 4 analysis rows | artifact field | `fdb1d70c559b8f648e63229bd26b7d74fe9ec056b2d930174a4aecc1bf90cd98` |
 | Gate 4 figure | [figures/gate4/provenance.json](figures/gate4/provenance.json) | `9f3d61afce4e81e35a1d3a3ea3a34f0e275497f187d1516b2131d94dc225adab` |
+| Compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | Exact task pod billing plus derived task-volume accrual |
 
 Private, non-raw checkpoint bundles are retained locally for receipt audit:
 
@@ -302,11 +303,20 @@ require byte-identical outputs.
 
 ## Compute and storage
 
-Task-owned GPU compute was at most approximately `$71.07`, below the `$100`
-soft gate. No task-owned GPU pod remains active, so GPU billing is `$0/hour`.
-The persistent RunPod network volume remains provisioned at approximately
+A final RunPod billing query grouped by pod ID attributes
+`$68.7766788497` to the four task-owned pods over `30,992,179` billed
+milliseconds. This is below the `$100` soft gate and `$200` hard ceiling. No
+task-owned GPU pod remains active, so GPU billing is `$0/hour`.
+
+The persistent 500 GB RunPod network volume remains provisioned at
 `$35/month`, or about `$1.17/day`, to preserve the pinned model and resumable
-artifacts during the short reporting window.
+artifacts during the short reporting window. From its creation through the
+final query, its rate-derived task accrual is approximately `$0.6043`, for an
+estimated task infrastructure total of `$69.3810`. The storage amount is
+derived because RunPod's network-volume billing endpoint returned account-wide
+buckets without volume IDs. The exact method, task pod rows, private source
+receipt hash, and retention review date are recorded in
+[results/compute-reconciliation.json](results/compute-reconciliation.json).
 
 ## Appendix: release inventory
 
