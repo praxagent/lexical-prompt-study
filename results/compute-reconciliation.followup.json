@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "study_id": "lexical-scaffold-followup-v2",
-  "queried_at_utc": "2026-07-26T11:52:49Z",
+  "queried_at_utc": "2026-07-26T15:35:11Z",
   "provider": "RunPod",
   "billing_query": {
     "endpoint": "GET https://rest.runpod.io/v1/billing/pods",
@@ -9,12 +9,24 @@
     "bucket_size": "day",
     "grouping": "podId"
   },
+  "source_receipts": {
+    "pod_inventory_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "network_volume_inventory_sha256": "45de381688f52b40210d318511d7acc8e9dc5fa91413347463c394985b3f050d",
+    "pod_billing_sha256": "f3c7a84ecaefc78132186919007bc378e949aa301ac22254bd1fd2d23894320f",
+    "scope": "Private full-account provider responses; only task-owned pod IDs are summarized publicly."
+  },
   "task_owned_ingested_rows": [
     {
       "pod_id": "1sgufchujg1sjf",
       "amount_usd": 19.552727350150235,
       "time_billed_ms": 8006813,
       "source_bucket_count": 2
+    },
+    {
+      "pod_id": "308h78v9f5ep3c",
+      "amount_usd": 0.6488468371098861,
+      "time_billed_ms": 396225,
+      "source_bucket_count": 1
     },
     {
       "pod_id": "5pi0e2lf7qo0q9",
@@ -35,15 +47,39 @@
       "source_bucket_count": 1
     },
     {
+      "pod_id": "g0shaklamkn312",
+      "amount_usd": 1.1879008506657556,
+      "time_billed_ms": 725627,
+      "source_bucket_count": 1
+    },
+    {
       "pod_id": "i06b217rbx3t09",
       "amount_usd": 1.5171627915697172,
       "time_billed_ms": 926237,
       "source_bucket_count": 1
     },
     {
+      "pod_id": "js87bsj0oj8nsg",
+      "amount_usd": 2.4010299554793164,
+      "time_billed_ms": 1465754,
+      "source_bucket_count": 1
+    },
+    {
       "pod_id": "n1kctgaqqodhp9",
       "amount_usd": 0.407864511013031,
       "time_billed_ms": 249289,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "re46p34wkp5dps",
+      "amount_usd": 0.6365429082652554,
+      "time_billed_ms": 388917,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "sei06ai39r1jkt",
+      "amount_usd": 0.589734124368988,
+      "time_billed_ms": 360095,
       "source_bucket_count": 1
     },
     {
@@ -69,43 +105,46 @@
       "amount_usd": 1.259451214922592,
       "time_billed_ms": 769076,
       "source_bucket_count": 1
+    },
+    {
+      "pod_id": "zdklkml56n39bg",
+      "amount_usd": 1.9110379999037832,
+      "time_billed_ms": 1166622,
+      "source_bucket_count": 1
     }
   ],
   "ingested_total": {
-    "amount_usd": 77.60123816237319,
-    "time_billed_ms": 36380209
+    "task_owned_pod_count": 16,
+    "amount_usd": 84.97633083816618,
+    "time_billed_ms": 40883449
   },
   "terminated_rows_pending_provider_ingestion": [
     {
-      "pod_id": "g0shaklamkn312",
+      "pod_id": "q9nqmpij7w1r82",
       "returned_hourly_rate_usd": 5.89,
-      "authorized_wall_time_minutes": 30,
-      "full_authorized_cap_usd": 2.945
-    },
-    {
-      "pod_id": "re46p34wkp5dps",
-      "returned_hourly_rate_usd": 5.89,
-      "authorized_wall_time_minutes": 30,
-      "full_authorized_cap_usd": 2.945
+      "creation_to_confirmed_teardown_upper_bound_usd": 0.859342
     }
   ],
-  "conservative_gpu_compute_ceiling_usd": 83.49123816237319,
+  "conservative_gpu_compute_ceiling_usd": 85.83567283816618,
   "active_pod_inventory": [],
   "retained_network_volume": {
     "id": "u85xfo0aue",
     "size_gb": 500,
     "data_center_id": "US-CA-2",
     "listed_monthly_rate_usd": 35,
-    "billing_scope_note": "The provider network-volume billing endpoint is account-wide and does not identify a volume, so this receipt does not attribute an exact volume charge."
+    "estimated_accrual_through_query_usd": 1.09,
+    "billing_scope_note": "The provider network-volume billing endpoint is account-wide and does not identify a volume, so this rate-derived estimate is not an exact attributed charge."
   },
+  "conservative_estimated_task_infrastructure_ceiling_usd": 86.92567283816618,
   "budget": {
     "soft_gate_usd": 100,
     "hard_ceiling_usd": 200,
-    "conservative_gpu_compute_ceiling_below_soft_gate": true
+    "conservative_estimated_task_infrastructure_ceiling_below_soft_gate": true
   },
   "scope": [
     "Only task-owned pod IDs were selected from the provider response.",
-    "Unrelated pod rows were excluded.",
-    "The two recently terminated pods are charged at their full authorized caps until provider billing ingestion supplies exact rows."
+    "Unrelated pod and volume rows were excluded.",
+    "The recently terminated scorer pod is charged at its full creation-to-confirmed-teardown upper bound until provider billing ingestion supplies an exact row.",
+    "No task-owned GPU pod is active; the retained task volume remains intentionally preserved."
   ]
 }
