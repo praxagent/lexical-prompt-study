@@ -295,6 +295,12 @@ def _atomic_public_receipt(path: Path, payload: dict[str, Any]) -> str:
     return sha256_bytes(encoded)
 
 
+def _placement_stage_name(placement: str) -> str:
+    if placement not in PLACEMENTS:
+        raise ValueError(f"unknown placement stage: {placement}")
+    return f"generation-{placement.replace('_', '-')}"
+
+
 def _capture_assistant_boundary(torch, model, prompt_ids: list[int], layers: list[int]):
     captured: dict[int, Any] = {}
     handles = []
@@ -505,7 +511,7 @@ def run_followup_qualification(
     states_by_placement = {}
     logits_by_placement = {}
     for placement in PLACEMENTS:
-        stage_name = f"generation-{placement}"
+        stage_name = _placement_stage_name(placement)
         private_stage = checkpoints.load(stage_name)
         if private_stage is None:
             prompt_ids = render_private[placement]["prompt_token_ids"]

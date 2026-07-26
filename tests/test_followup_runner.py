@@ -9,6 +9,7 @@ from lexical_prompt_study.followup_runner import (
     PLACEMENTS,
     PrivateCheckpointStore,
     _assert_no_raw_public_fields,
+    _placement_stage_name,
     build_placement_render_pair,
 )
 
@@ -79,6 +80,17 @@ def test_private_checkpoint_resume_and_provenance_are_fail_closed(tmp_path: Path
     )
     with pytest.raises(ValueError, match="provenance drift"):
         drifted.load("generation-ep-before-request")
+
+
+def test_placement_stage_names_are_store_safe_and_unique() -> None:
+    names = [_placement_stage_name(placement) for placement in PLACEMENTS]
+    assert names == [
+        "generation-ep-before-request",
+        "generation-ep-after-request",
+    ]
+    assert len(names) == len(set(names))
+    with pytest.raises(ValueError, match="unknown placement"):
+        _placement_stage_name("other")
 
 
 def test_private_checkpoint_hash_detects_interrupted_or_tampered_stage(
