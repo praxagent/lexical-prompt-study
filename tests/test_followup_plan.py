@@ -194,6 +194,21 @@ def test_followup_plan_binds_discovery_bootstrap_streams() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_discovery_bundle_and_scoring_cost() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_discovery"]["result_binding"][
+        "receipt_count"
+    ] = 139
+    with pytest.raises(ValueError, match="result binding"):
+        validate_followup_plan(plan)
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_discovery_scoring"][
+        "maximum_compute_usd"
+    ] = 3
+    with pytest.raises(ValueError, match="maximum cost arithmetic"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["compute"]["qualification"]["gpu"] = "NVIDIA RTX A6000"

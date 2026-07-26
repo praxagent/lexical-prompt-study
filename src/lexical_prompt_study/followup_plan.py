@@ -487,6 +487,49 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         and discovery_run["maximum_compute_usd"] < compute["incremental_soft_usd"],
         "G2 discovery qualification or budget binding drift",
     )
+    result_binding = discovery_run["result_binding"]
+    _require(
+        result_binding["status"] == "generation_capture_complete_scores_unopened"
+        and result_binding["source_commit"]
+        == "e126e5e7cd887d01a303d48d750e42a2ebcf37a8"
+        and result_binding["public_plan_sha256"]
+        == "c16a227bbc641ff16d202b4dca5ee5670682e98e1dad7a53868b2ad0901cbdff"
+        and result_binding["private_plan_sha256"]
+        == "3f96a1860bf47f5543f96002585c1f8afc00bca53ea88216c03b2a6598d2a128"
+        and result_binding["run_id"] == "g2-discovery-a025-20260726"
+        and result_binding["receipt_count"] == 140
+        and result_binding["restricted_artifact_count"] == 140
+        and result_binding["state_bundle_count"] == 140
+        and result_binding["raw_outcomes_inspected"] is False
+        and result_binding["harmbench_scores_generated"] is False
+        and result_binding["amendment"] == "A027",
+        "G2 discovery result binding drift",
+    )
+    scoring_run = compute["scientific_runs"]["g2_discovery_scoring"]
+    _require(
+        scoring_run["status"] == "authorized_after_local_preflight"
+        and scoring_run["amendment"] == "A027"
+        and scoring_run["gpu"] == "NVIDIA B200"
+        and scoring_run["count"] == 1
+        and scoring_run["secure_cloud"] is True
+        and scoring_run["receipt_count"] == 140
+        and scoring_run["prior_scoring_receipt_count"] == 180
+        and scoring_run["wall_limit_minutes"] == 20
+        and scoring_run["no_progress_timeout_minutes"] == 10
+        and scoring_run["automatic_fallback"] is False
+        and scoring_run["raw_outcomes_inspected"] is False,
+        "G2 discovery scoring statement drift",
+    )
+    _require(
+        abs(
+            scoring_run["maximum_live_rate_usd_per_hour"]
+            * scoring_run["wall_limit_minutes"]
+            / 60
+            - scoring_run["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G2 scoring maximum cost arithmetic drift",
+    )
     work_units = compute["planned_work_units"]
     _require(
         [row["maximum"] for row in work_units] == [860, 5400, 480, 280],

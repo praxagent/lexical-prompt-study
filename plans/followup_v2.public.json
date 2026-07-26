@@ -661,7 +661,40 @@
         "maximum_compute_usd": 14.95,
         "no_progress_timeout_minutes": 15,
         "automatic_fallback": false,
-        "target_outcomes_inspected": false
+        "target_outcomes_inspected": false,
+        "result_binding": {
+          "status": "generation_capture_complete_scores_unopened",
+          "source_commit": "e126e5e7cd887d01a303d48d750e42a2ebcf37a8",
+          "public_plan_sha256": "c16a227bbc641ff16d202b4dca5ee5670682e98e1dad7a53868b2ad0901cbdff",
+          "private_plan_sha256": "3f96a1860bf47f5543f96002585c1f8afc00bca53ea88216c03b2a6598d2a128",
+          "run_id": "g2-discovery-a025-20260726",
+          "render_preflight_sha256": "c4bfe609eb3534f4961be75f24aaeeca723f329e314df3b6ca06696a9ca76722",
+          "private_bundle_sha256": "d2aaea08d7b137e07a6e5b468af62114f5ee73050ca6c3e5813bf47be15e9678",
+          "receipt_count": 140,
+          "restricted_artifact_count": 140,
+          "state_bundle_count": 140,
+          "raw_outcomes_inspected": false,
+          "harmbench_scores_generated": false,
+          "amendment": "A027"
+        }
+      },
+      "g2_discovery_scoring": {
+        "status": "authorized_after_local_preflight",
+        "amendment": "A027",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.98,
+        "receipt_count": 140,
+        "prior_scoring_receipt_count": 180,
+        "prior_scoring_elapsed_seconds": 49.28,
+        "estimated_scoring_seconds": 38.32888888888889,
+        "setup_and_verification_margin_minutes": 19.361185185185184,
+        "wall_limit_minutes": 20,
+        "maximum_compute_usd": 1.9933333333333334,
+        "no_progress_timeout_minutes": 10,
+        "automatic_fallback": false,
+        "raw_outcomes_inspected": false
       }
     },
     "planned_work_units": [

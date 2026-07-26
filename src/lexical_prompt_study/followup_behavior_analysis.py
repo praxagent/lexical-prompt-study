@@ -40,6 +40,9 @@ def analyze_followup_behavior_discovery(
     plan = json.loads(public_plan_path.read_text())
     validate_followup_plan(plan)
     rule = plan["placement_factor"]["behavioral_family"]["discovery"]
+    generation_binding = plan["compute"]["scientific_runs"]["g2_discovery"][
+        "result_binding"
+    ]
     replicates = int(rule["bootstrap_replicates"])
     seed = int(rule["bootstrap_seed"])
 
@@ -55,6 +58,14 @@ def analyze_followup_behavior_discovery(
         receipt = FollowupTrialReceipt.model_validate_json(path.read_text())
         if receipt.partition != "discovery":
             raise ValueError(f"{path}: non-discovery generation receipt")
+        if (
+            receipt.source_commit != generation_binding["source_commit"]
+            or receipt.plan_sha256 != generation_binding["public_plan_sha256"]
+            or receipt.private_plan_sha256
+            != generation_binding["private_plan_sha256"]
+            or receipt.run_id != generation_binding["run_id"]
+        ):
+            raise ValueError(f"{path}: frozen generation provenance drift")
         if receipt.trial_id in generations:
             raise ValueError(f"duplicate generation trial {receipt.trial_id}")
         generations[receipt.trial_id] = (path, receipt)
