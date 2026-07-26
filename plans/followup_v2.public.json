@@ -269,6 +269,8 @@
         "status": "noninferential_screen",
         "minimum_mean_paired_effect": 0.2,
         "bootstrap_replicates": 10000,
+        "bootstrap_seed": 20260726,
+        "bootstrap_stream_rule": "numpy_default_rng_seed_plus_order_index; interaction_uses_seed_plus_two",
         "bootstrap_lower_bound_above": 0.0,
         "both_orderings_required": true
       },

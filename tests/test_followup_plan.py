@@ -185,6 +185,15 @@ def test_followup_plan_binds_g2_discovery_cost_statement() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_discovery_bootstrap_streams() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["behavioral_family"]["discovery"][
+        "bootstrap_seed"
+    ] = 7
+    with pytest.raises(ValueError, match="behavioral discovery screen"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["compute"]["qualification"]["gpu"] = "NVIDIA RTX A6000"

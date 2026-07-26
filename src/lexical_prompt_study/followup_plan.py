@@ -212,10 +212,16 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         "placement detector multiplicity",
     )
     behavioral = placement["behavioral_family"]
+    discovery_behavioral = behavioral["discovery"]
     _require(
-        behavioral["discovery"]["status"] == "noninferential_screen"
-        and behavioral["discovery"]["minimum_mean_paired_effect"] == 0.2
-        and behavioral["discovery"]["both_orderings_required"] is True,
+        discovery_behavioral["status"] == "noninferential_screen"
+        and discovery_behavioral["minimum_mean_paired_effect"] == 0.2
+        and discovery_behavioral["bootstrap_replicates"] == 10000
+        and discovery_behavioral["bootstrap_seed"] == 20260726
+        and discovery_behavioral["bootstrap_stream_rule"]
+        == "numpy_default_rng_seed_plus_order_index; interaction_uses_seed_plus_two"
+        and discovery_behavioral["bootstrap_lower_bound_above"] == 0.0
+        and discovery_behavioral["both_orderings_required"] is True,
         "behavioral discovery screen drift",
     )
     _require(

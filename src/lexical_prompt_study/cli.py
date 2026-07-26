@@ -210,6 +210,15 @@ def main() -> None:
         required=True,
     )
     followup_generation.add_argument("--run-id", required=True)
+    followup_behavior_analysis = sub.add_parser("analyze-followup-behavior")
+    followup_behavior_analysis.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_behavior_analysis.add_argument(
+        "--generation-root", type=Path, required=True
+    )
+    followup_behavior_analysis.add_argument("--score-root", type=Path, required=True)
+    followup_behavior_analysis.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -497,6 +506,20 @@ def main() -> None:
                     output_root=args.out,
                     partition=args.partition,
                     run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-followup-behavior":
+        from .followup_behavior_analysis import analyze_followup_behavior_discovery
+
+        print(
+            json.dumps(
+                analyze_followup_behavior_discovery(
+                    public_plan_path=args.public_plan,
+                    generation_root=args.generation_root,
+                    score_root=args.score_root,
+                    output_path=args.out,
                 ),
                 sort_keys=True,
             )

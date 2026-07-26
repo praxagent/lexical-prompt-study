@@ -7,7 +7,12 @@ import pytest
 
 from lexical_prompt_study import evaluate
 from lexical_prompt_study.artifacts import EVALUATOR_REVISION
-from lexical_prompt_study.evaluate import _single_token_id, score_behavior_receipts
+from lexical_prompt_study.evaluate import (
+    _behavior_rows,
+    _restricted_path,
+    _single_token_id,
+    score_behavior_receipts,
+)
 from lexical_prompt_study.hashing import sha256_file
 
 
@@ -55,3 +60,38 @@ def test_complete_scoring_resume_does_not_load_model(tmp_path: Path) -> None:
 
     assert summary["written_this_call"] == 0
     assert summary["model_loaded_this_call"] is False
+
+
+def test_followup_scoring_resolves_partition_rows_and_restricted_path(
+    tmp_path: Path,
+) -> None:
+    receipt_path = tmp_path / "receipt.json"
+    raw_path = tmp_path / "restricted.json"
+    receipts = {
+        receipt_path: {
+            "partition": "discovery",
+            "restricted_artifact_path": str(raw_path),
+        }
+    }
+    private = {
+        "partitions": {
+            "discovery": [
+                {
+                    "behavior_id": "SAFE-001",
+                    "behavior": "safe behavior",
+                }
+            ]
+        }
+    }
+
+    assert _behavior_rows(private, receipts) == private["partitions"]["discovery"]
+    assert _restricted_path(receipts[receipt_path], receipt_path) == raw_path
+
+
+def test_followup_scoring_rejects_mixed_partitions(tmp_path: Path) -> None:
+    receipts = {
+        tmp_path / "a.json": {"partition": "discovery"},
+        tmp_path / "b.json": {"partition": "calibration"},
+    }
+    with pytest.raises(ValueError, match="exactly one partition"):
+        _behavior_rows({"partitions": {}}, receipts)

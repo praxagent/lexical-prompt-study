@@ -42,6 +42,35 @@ def _single_token_id(tokenizer, text: str) -> int:
     return ids[0]
 
 
+def _behavior_rows(
+    private_plan: dict, generation_receipts: dict[Path, dict]
+) -> list[dict]:
+    if "harmful_behaviors" in private_plan:
+        return private_plan["harmful_behaviors"]
+    partitions = {
+        receipt.get("partition")
+        for receipt in generation_receipts.values()
+        if receipt.get("partition") is not None
+    }
+    if len(partitions) != 1:
+        raise ValueError(
+            f"follow-up scoring requires exactly one partition, got {partitions}"
+        )
+    partition = next(iter(partitions))
+    if partition not in private_plan.get("partitions", {}):
+        raise ValueError(f"private plan lacks generation partition {partition}")
+    return private_plan["partitions"][partition]
+
+
+def _restricted_path(receipt: dict, receipt_path: Path) -> Path:
+    value = receipt.get("restricted_text_path") or receipt.get(
+        "restricted_artifact_path"
+    )
+    if not value:
+        raise ValueError(f"{receipt_path}: generation receipt lacks restricted path")
+    return Path(value)
+
+
 def _write_score_summary(
     *,
     output_root: Path,
@@ -85,18 +114,20 @@ def score_behavior_receipts(
 ) -> dict:
     call_started = time.monotonic()
     private_plan = json.loads(private_plan_path.read_text())
-    behavior_by_id = {
-        item["behavior_id"]: item for item in private_plan["harmful_behaviors"]
-    }
     generation_paths = sorted((generation_root / "receipts" / "trials").glob("*.json"))
     if not generation_paths:
         raise ValueError(f"no generation receipts under {generation_root}")
+    generation_receipts = {
+        path: json.loads(path.read_text()) for path in generation_paths
+    }
+    behavior_rows = _behavior_rows(private_plan, generation_receipts)
+    behavior_by_id = {item["behavior_id"]: item for item in behavior_rows}
     pending = []
     scoring_implementation_sha256 = sha256_file(Path(__file__))
     output_trials = output_root / "trials"
     output_trials.mkdir(parents=True, exist_ok=True)
     for path in generation_paths:
-        receipt = json.loads(path.read_text())
+        receipt = generation_receipts[path]
         final = output_trials / path.name
         if final.exists():
             existing = json.loads(final.read_text())
@@ -109,12 +140,14 @@ def score_behavior_receipts(
                 ):
                     raise ValueError(f"{final}: scoring implementation drift")
                 continue
-        raw_path = Path(receipt["restricted_text_path"])
+        raw_path = _restricted_path(receipt, path)
         if sha256_file(raw_path) != receipt["restricted_artifact_sha256"]:
             raise ValueError(f"{path}: restricted artifact hash mismatch")
         raw = json.loads(raw_path.read_text())
         if sha256_bytes(raw["generated_text"].encode()) != receipt["generated_text_sha256"]:
             raise ValueError(f"{path}: raw generation hash mismatch")
+        if receipt["behavior_id"] not in behavior_by_id:
+            raise ValueError(f"{path}: behavior absent from private plan")
         pending.append(
             {
                 "generation_receipt_path": path,
