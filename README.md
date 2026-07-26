@@ -18,6 +18,11 @@ Jacobian-lens map and discovery-only SAE candidates, and Gate 4 found no
 eligible causal intervention strength within the frozen efficacy and safety
 rules. Held-out intervention outcomes were never opened.
 
+The integrated, figure-led account is
+[RESEARCH_REPORT.md](RESEARCH_REPORT.md). It separates the confirmed
+behavioral result, discovery-only internal readouts, and the Gate-4 causal
+calibration stop.
+
 The public plan, restricted companion plan, artifact inventory, category-balanced
 splits, four tokenizer-matched arms, evaluator, thresholds, probe sets, decoding,
 resume rules, and compute policy were fixed before their affected outcomes.
