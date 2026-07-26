@@ -65,24 +65,37 @@ def validate_patch_run_authorization(
     run_id: str,
 ) -> dict[str, Any]:
     if qualification_only:
-        binding_name = "g4_patch_qualification"
-        expected_status = "safe_only_authorized_target_closed"
+        matches = [
+            (name, row)
+            for name, row in plan["compute"]["scientific_runs"].items()
+            if name.startswith("g4_patch_")
+            and row.get("qualification_only") is True
+            and row.get("run_id") == run_id
+        ]
+        if len(matches) != 1:
+            raise ValueError("qualification run is not uniquely prospectively authorized")
+        binding_name, authorization = matches[0]
+        expected_statuses = {
+            "safe_only_authorized_target_closed",
+            "throughput_only_authorized_target_closed",
+        }
     elif partition == "discovery":
         binding_name = "g4_patch_discovery"
-        expected_status = "authorized_after_safe_qualification"
+        expected_statuses = {"authorized_after_safe_qualification"}
     else:
         binding_name = "g4_patch_calibration"
-        expected_status = "authorized_after_discovery_selection"
-    try:
-        authorization = plan["compute"]["scientific_runs"][binding_name]
-    except KeyError as exc:
-        raise ValueError(f"{binding_name} is not prospectively authorized") from exc
+        expected_statuses = {"authorized_after_discovery_selection"}
+    if not qualification_only:
+        try:
+            authorization = plan["compute"]["scientific_runs"][binding_name]
+        except KeyError as exc:
+            raise ValueError(f"{binding_name} is not prospectively authorized") from exc
     input_binding = authorization["input_binding"]
     private_input_plan_sha = input_binding.get("patch_private_input_plan_sha256")
     if private_input_plan_sha is None:
         private_input_plan_sha = input_binding["patch_private_scientific_plan_sha256"]
     if (
-        authorization["status"] != expected_status
+        authorization["status"] not in expected_statuses
         or authorization["runner_source_commit"] != source_commit
         or authorization["partition"] != partition
         or authorization["qualification_only"] is not qualification_only

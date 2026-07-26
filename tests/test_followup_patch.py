@@ -194,6 +194,46 @@ def test_patch_target_cannot_use_safe_only_authorization() -> None:
         )
 
 
+def test_patch_throughput_qualification_resolves_by_exact_run_id() -> None:
+    private_sha = "b" * 64
+    private_input_sha = "a" * 64
+    source_commit = "c" * 40
+    run_id = "throughput-run"
+    plan = {
+        "compute": {
+            "scientific_runs": {
+                "g4_patch_qualification": {
+                    "status": "safe_only_authorized_target_closed",
+                    "qualification_only": True,
+                    "run_id": "prior-safe-run",
+                },
+                "g4_patch_throughput_qualification": {
+                    "status": "throughput_only_authorized_target_closed",
+                    "runner_source_commit": source_commit,
+                    "partition": "discovery",
+                    "qualification_only": True,
+                    "run_id": run_id,
+                    "target_generation_authorized": False,
+                    "input_binding": {
+                        "patch_private_plan_sha256": private_sha,
+                        "patch_private_input_plan_sha256": private_input_sha,
+                    },
+                },
+            }
+        }
+    }
+    authorization = validate_patch_run_authorization(
+        plan=plan,
+        patch_private_plan={"public_plan_sha256": private_input_sha},
+        patch_private_plan_sha256=private_sha,
+        source_commit=source_commit,
+        partition="discovery",
+        qualification_only=True,
+        run_id=run_id,
+    )
+    assert authorization["status"] == "throughput_only_authorized_target_closed"
+
+
 def test_frozen_safe_control_validates_layer_specific_instrument(
     tmp_path: Path,
 ) -> None:
