@@ -1298,6 +1298,57 @@
           "raw_outcomes_or_scores_inspected": false,
           "task_pod_terminated": true
         }
+      },
+      "g4_patch_discovery_replacement": {
+        "status": "authorized_partial_resume_after_missing_state_stop",
+        "amendment": "A045",
+        "runner_source_commit": "270b2818a371aeba90aa91b2892689973fba44b1",
+        "partition": "discovery",
+        "qualification_only": false,
+        "run_id": "g4-patch-discovery-a043-20260726",
+        "output_root": "/workspace/runs/followup-g4-patch-discovery-a043",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.89,
+        "wall_limit_minutes": 45,
+        "maximum_compute_usd": 4.4175,
+        "no_progress_timeout_minutes": 10,
+        "automatic_fallback": false,
+        "target_generation_authorized": true,
+        "raw_prompts_generations_reconstructive_token_ids_and_states_public": false,
+        "input_binding": {
+          "patch_scientific_plan_sha256": "d025c4414ee7aea68f6db37725821ec097fd60088eac9f3276fd0ee9d679f020",
+          "patch_private_plan_sha256": "e8d690bc17b286b4b7229da99eaeb0781dabd8d154673e92ac2b8dbbaaa7567c",
+          "patch_private_input_plan_sha256": "5817d5eeaa892a4469072a1384946c17c19cb052e96e049da5575e94f920d44a",
+          "safe_positive_control_result_sha256": "d6dbd3ed6cd6cfe82e1a0ac50560f115f16e6d81a03efb8335610bafdb6712f4",
+          "safe_throughput_result_sha256": "50449028a4268346ccdce7f4fe1b897dd280722215bca3e60fa8f88745514abc",
+          "discovery_input_manifest_sha256": "d128933d562d78e2b01d70a2303a35791a2eb00f335c2a5ec3b655bfcad9bc90",
+          "discovery_private_bundle_sha256": "d2aaea08d7b137e07a6e5b468af62114f5ee73050ca6c3e5813bf47be15e9678",
+          "predecessor_source_commit": "24f01796932151ed634991cd033d61b5fd4d3344",
+          "predecessor_public_plan_sha256": "dcb1e652561004eb8a2801d679eb35aef3d55ae6e8c3affbd9d1b051d45dd313",
+          "predecessor_relative_path_hash_manifest_sha256": "6ba27a2b99347c5f996b91c8542e4c57cd33e6e99faf7fb77b4438b6983e525e",
+          "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+          "persistent_volume_id": "u85xfo0aue"
+        },
+        "resume_scope": {
+          "expected_preexisting_patch_receipt_count": 720,
+          "expected_preexisting_restricted_artifact_count": 720,
+          "expected_preexisting_private_replay_bundle_count": 720,
+          "derived_layer_31_state_checkpoint_count": 4,
+          "new_patch_receipt_count": 1080,
+          "new_restricted_artifact_count": 1080,
+          "new_private_replay_bundle_count": 1080,
+          "final_patch_receipt_count": 1800,
+          "final_restricted_artifact_count": 1800,
+          "final_private_replay_bundle_count": 1800,
+          "completed_unit_overwrite_forbidden": true,
+          "placement_pooling_forbidden": true
+        },
+        "conservative_prelaunch_compute_usd": 93.30790482903985,
+        "conservative_postrun_cap_compute_usd": 97.72540482903985,
+        "reserved_scoring_compute_usd": 1.9633333333333334,
+        "conservative_postrun_and_scoring_cap_compute_usd": 99.68873816237318
       }
     },
     "planned_work_units": [
