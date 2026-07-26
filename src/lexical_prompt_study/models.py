@@ -334,3 +334,123 @@ class FollowupPatchReceipt(StrictModel):
     model_revision: str
     tokenizer_revision: str
     software: dict
+
+
+class FactorialPrivatePlanReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-8b-factorial-v1"]
+    status: Literal["factorial_private_plan_complete_no_target_outcomes"]
+    source_commit: str
+    public_plan_sha256: str
+    material_source_sha256: str
+    private_plan_sha256: str
+    tokenizer_revision: str
+    tokenizer_chat_template_sha256: str
+    request_panel_counts: dict[str, int]
+    request_panel_sha256: dict[str, str]
+    material_block_counts: dict[str, int]
+    material_canonical_sha256: dict[str, str]
+    realized_doses: list[dict]
+    canonical_observation_count: Literal[422]
+    additional_dose_observation_count: int = Field(ge=0, le=540)
+    total_observation_count: int = Field(ge=422, le=962)
+    placement_levels: list[
+        Literal["ep_before_request", "ep_after_request"]
+    ]
+    exact_size_matching_passed: Literal[True]
+    raw_prompt_or_token_ids_public: Literal[False]
+    target_generation_performed: Literal[False]
+    target_outcome_exists: Literal[False]
+
+
+class FactorialAssayReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-8b-factorial-v1"]
+    status: Literal["passed", "failed"]
+    qualification_kind: Literal["noninferential_legacy_canary"]
+    public_plan_sha256: str
+    private_plan_sha256: str
+    source_commit: str
+    run_id: str
+    model_revision: str
+    tokenizer_revision: str
+    lens_sha256: str
+    sae_sha256: str
+    selected_feature_id: Literal[6779]
+    frozen_subspace_feature_ids: list[int]
+    planned_canary_conditions: Literal[8]
+    completed_canary_conditions: int = Field(ge=0, le=8)
+    exact_identity_checks: dict[str, bool]
+    final_render_checks: dict[str, bool]
+    deterministic_rerun_passed: bool
+    reconstruction_metric: str
+    reconstruction_absolute_tolerance: float = Field(gt=0)
+    reconstruction_cross_condition_tolerance: float = Field(gt=0)
+    maximum_reconstruction_error: float = Field(ge=0)
+    reconstruction_error_range: float = Field(ge=0)
+    qualitative_ordering_passed_by_placement: dict[str, bool]
+    private_bundle_path: str
+    private_bundle_sha256: str
+    elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    target_factorial_outcome_generated: Literal[False]
+    software: dict
+
+
+class FactorialTrialReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-8b-factorial-v1"]
+    status: Literal["complete"]
+    public_plan_sha256: str
+    private_plan_sha256: str
+    assay_receipt_sha256: str
+    source_commit: str
+    run_id: str
+    trial_id: str
+    attempt: int = Field(ge=1)
+    request_class: Literal[
+        "minimal_neutral_carrier",
+        "ordinary_benign_request",
+        "harmful_request",
+        "literal_sentinel",
+    ]
+    request_id: str
+    prompt_family_id: str
+    request_sha256: str
+    material: Literal[
+        "no_scaffold",
+        "inert_length",
+        "structural_sham",
+        "full_scaffold",
+    ]
+    placement: Literal["ep_before_request", "ep_after_request"] | None
+    size_id: str
+    injected_token_count: int = Field(ge=0)
+    shared_reference: bool
+    render_group_sha256: str | None
+    prompt_sha256: str
+    prompt_token_ids_sha256: str
+    generated_text_sha256: str
+    generated_token_ids_sha256: str
+    generated_token_count: int = Field(ge=0, le=1024)
+    finish_reason: Literal["eos", "length"]
+    truncated: bool
+    feature_6779_magnitude: float = Field(ge=0)
+    feature_6779_positive: bool
+    frozen_subspace_score: float
+    sae_reconstruction_relative_error: float = Field(ge=0)
+    assistant_boundary_jlens_margin: float
+    refusal_detected: bool | None
+    task_completion: bool | None
+    utility_score: float | None
+    phase_parser_result: dict
+    restricted_artifact_path: str
+    restricted_artifact_sha256: str
+    generation_elapsed_seconds: float = Field(ge=0)
+    readout_elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    model_revision: str
+    tokenizer_revision: str
+    lens_sha256: str
+    sae_sha256: str
+    software: dict

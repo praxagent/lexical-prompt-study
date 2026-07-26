@@ -10,6 +10,9 @@ from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
 from .models import (
+    FactorialAssayReceipt,
+    FactorialPrivatePlanReceipt,
+    FactorialTrialReceipt,
     FollowupQualificationReceipt,
     FollowupTrialReceipt,
     InterventionReceipt,
@@ -45,6 +48,25 @@ def main() -> None:
         "--plan",
         type=Path,
         default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_private = sub.add_parser("build-factorial-private-plan")
+    factorial_private.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_private.add_argument("--material-source", type=Path, required=True)
+    factorial_private.add_argument("--tokenizer-path", required=True)
+    factorial_private.add_argument("--tokenizer-revision", required=True)
+    factorial_private.add_argument(
+        "--private-out",
+        type=Path,
+        default=Path("private/plans/factorial_8b_v1.private.json"),
+    )
+    factorial_private.add_argument(
+        "--public-receipt",
+        type=Path,
+        default=Path("validation/factorial_8b_v1.input-receipt.json"),
     )
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
@@ -329,6 +351,28 @@ def main() -> None:
                 sort_keys=True,
             )
         )
+    elif args.command == "build-factorial-private-plan":
+        from transformers import AutoTokenizer
+
+        from .factorial_private import build_factorial_private_plan
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.tokenizer_path,
+            local_files_only=True,
+        )
+        print(
+            json.dumps(
+                build_factorial_private_plan(
+                    public_plan_path=args.public_plan,
+                    material_source_path=args.material_source,
+                    tokenizer=tokenizer,
+                    tokenizer_revision=args.tokenizer_revision,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.public_receipt,
+                ),
+                sort_keys=True,
+            )
+        )
     elif args.command == "validate-published-judges":
         print(json.dumps(validate_published_judges(args.source, args.out), sort_keys=True))
     elif args.command == "write-schemas":
@@ -340,6 +384,9 @@ def main() -> None:
             ("intervention-receipt", InterventionReceipt),
             ("followup-qualification-receipt", FollowupQualificationReceipt),
             ("followup-trial-receipt", FollowupTrialReceipt),
+            ("factorial-private-plan-receipt", FactorialPrivatePlanReceipt),
+            ("factorial-assay-receipt", FactorialAssayReceipt),
+            ("factorial-trial-receipt", FactorialTrialReceipt),
         ):
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())

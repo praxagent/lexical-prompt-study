@@ -22,6 +22,55 @@ def test_factorial_plan_cli_validates_frozen_plan(
     assert '"study_id": "lexical-scaffold-8b-factorial-v1"' in output
 
 
+def test_factorial_private_cli_is_local_only_and_wires_exact_paths(
+    monkeypatch, tmp_path: Path, capsys
+) -> None:
+    captured = {}
+    tokenizer = object()
+
+    def fake_builder(**kwargs):
+        captured.update(kwargs)
+        return {"status": "safe"}
+
+    import transformers
+
+    import lexical_prompt_study.factorial_private as private
+
+    monkeypatch.setattr(private, "build_factorial_private_plan", fake_builder)
+    monkeypatch.setattr(
+        transformers.AutoTokenizer,
+        "from_pretrained",
+        lambda path, *, local_files_only: (
+            tokenizer
+            if path == "local-tokenizer" and local_files_only is True
+            else None
+        ),
+    )
+    argv = [
+        "lexical-study",
+        "build-factorial-private-plan",
+        "--public-plan",
+        str(tmp_path / "public.json"),
+        "--material-source",
+        str(tmp_path / "materials.private.json"),
+        "--tokenizer-path",
+        "local-tokenizer",
+        "--tokenizer-revision",
+        "pinned-revision",
+        "--private-out",
+        str(tmp_path / "factorial.private.json"),
+        "--public-receipt",
+        str(tmp_path / "receipt.json"),
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    cli.main()
+    assert captured["tokenizer"] is tokenizer
+    assert captured["tokenizer_revision"] == "pinned-revision"
+    assert captured["private_output_path"] == tmp_path / "factorial.private.json"
+    assert captured["public_receipt_path"] == tmp_path / "receipt.json"
+    assert '"status": "safe"' in capsys.readouterr().out
+
+
 def test_mechanism_cli_wires_artifact_manifest(monkeypatch, tmp_path: Path, capsys) -> None:
     captured = {}
 
