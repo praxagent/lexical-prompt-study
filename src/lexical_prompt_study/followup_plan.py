@@ -1150,6 +1150,101 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         < 1e-9,
         "G4 patch throughput corrected projection drift",
     )
+    patch_discovery = compute["scientific_runs"]["g4_patch_discovery"]
+    _require(
+        patch_discovery["status"] == "authorized_after_safe_qualification"
+        and patch_discovery["amendment"] == "A043"
+        and patch_discovery["runner_source_commit"]
+        == "24f01796932151ed634991cd033d61b5fd4d3344"
+        and patch_discovery["partition"] == "discovery"
+        and patch_discovery["qualification_only"] is False
+        and patch_discovery["run_id"] == "g4-patch-discovery-a043-20260726"
+        and patch_discovery["gpu"] == "NVIDIA B200"
+        and patch_discovery["count"] == 1
+        and patch_discovery["secure_cloud"] is True
+        and patch_discovery["wall_limit_minutes"] == 60
+        and patch_discovery["no_progress_timeout_minutes"] == 10
+        and patch_discovery["automatic_fallback"] is False
+        and patch_discovery["target_generation_authorized"] is True
+        and patch_discovery[
+            "raw_prompts_generations_and_reconstructive_token_ids_public"
+        ]
+        is False,
+        "G4 patch discovery authorization drift",
+    )
+    _require(
+        abs(
+            patch_discovery["maximum_live_rate_usd_per_hour"]
+            * patch_discovery["wall_limit_minutes"]
+            / 60
+            - patch_discovery["maximum_compute_usd"]
+        )
+        < 1e-9
+        and patch_discovery["trial_count"] == corrected_trials
+        and patch_discovery["maximum_generated_tokens_per_trial"]
+        == plan["replication"]["decoding"]["max_new_tokens"]
+        and patch_discovery["projected_maximum_generated_tokens"]
+        == corrected_tokens
+        and patch_discovery["measured_aggregate_token_lanes_per_second"]
+        == throughput_result["aggregate_generated_tokens_per_second"]
+        and patch_discovery["projected_generation_seconds"]
+        == throughput_result["corrected_projected_generation_seconds"]
+        and abs(
+            patch_discovery["wall_limit_minutes"]
+            - patch_discovery["projected_generation_seconds"] / 60
+            - patch_discovery["setup_verification_and_io_margin_minutes"]
+        )
+        < 1e-9,
+        "G4 patch discovery throughput or cost arithmetic drift",
+    )
+    discovery_binding = patch_discovery["input_binding"]
+    _require(
+        discovery_binding["patch_scientific_plan_sha256"]
+        == "a37d448a860ccc81f83a160ee5e5dbe8423a92a37d937e13c3c8ff0887a95c56"
+        and discovery_binding["patch_private_plan_sha256"]
+        == patch_binding["patch_private_plan_sha256"]
+        and discovery_binding["patch_private_input_plan_sha256"]
+        == patch_binding["patch_scientific_plan_sha256"]
+        and discovery_binding["safe_positive_control_result_sha256"]
+        == instrument["source_result_sha256"]
+        and discovery_binding["safe_throughput_result_sha256"]
+        == throughput_result["public_result_sha256"]
+        and discovery_binding["discovery_input_manifest_sha256"]
+        == mechanism_input["discovery_input_manifest_sha256"]
+        and discovery_binding["discovery_private_bundle_sha256"]
+        == mechanism_input["discovery_private_bundle_sha256"]
+        and discovery_binding["discovery_state_bundle_count"]
+        == mechanism_input["discovery_state_bundle_count"]
+        and discovery_binding["model_revision"]
+        == plan["artifacts"]["llama31_model"]["revision"]
+        and discovery_binding["persistent_volume_id"] == compute["persistent_volume_id"],
+        "G4 patch discovery input binding drift",
+    )
+    _require(
+        patch_discovery["expected_outputs"]
+        == {
+            "patch_receipt_count": 1800,
+            "restricted_artifact_count": 1800,
+            "private_replay_bundle_count": 1800,
+            "copied_safe_positive_control_public_result_count": 1,
+            "safe_throughput_public_result_count": 1,
+            "summary_count": 1,
+            "private_file_mode": "0600",
+            "placement_pooling_forbidden": True,
+        },
+        "G4 patch discovery output topology drift",
+    )
+    _require(
+        abs(
+            patch_discovery["conservative_prelaunch_compute_usd"]
+            + patch_discovery["maximum_compute_usd"]
+            - patch_discovery["conservative_postrun_cap_compute_usd"]
+        )
+        < 1e-9
+        and patch_discovery["conservative_postrun_cap_compute_usd"]
+        < compute["current_cumulative_soft_gate_usd"],
+        "G4 patch discovery cumulative soft gate drift",
+    )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,
