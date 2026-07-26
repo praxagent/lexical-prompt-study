@@ -136,6 +136,14 @@ def main() -> None:
     analyze_calibration.add_argument("--generation-root", type=Path, required=True)
     analyze_calibration.add_argument("--score-root", type=Path, required=True)
     analyze_calibration.add_argument("--out", type=Path, required=True)
+    intervention_figures = sub.add_parser("figures-interventions")
+    intervention_figures.add_argument("--analysis", type=Path, required=True)
+    intervention_figures.add_argument("--plan", type=Path, required=True)
+    intervention_figures.add_argument("--out", type=Path, required=True)
+    verify_intervention_figures = sub.add_parser("verify-intervention-figures")
+    verify_intervention_figures.add_argument("--analysis", type=Path, required=True)
+    verify_intervention_figures.add_argument("--plan", type=Path, required=True)
+    verify_intervention_figures.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -329,6 +337,32 @@ def main() -> None:
                     "selection": result["selection"],
                     "output": str(args.out),
                 },
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-interventions":
+        from .intervention_figures import generate_intervention_figures
+
+        print(
+            json.dumps(
+                generate_intervention_figures(
+                    args.analysis,
+                    args.plan,
+                    args.out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-intervention-figures":
+        from .intervention_figures import verify_intervention_figures
+
+        print(
+            json.dumps(
+                verify_intervention_figures(
+                    args.analysis,
+                    args.plan,
+                    args.out,
+                ),
                 sort_keys=True,
             )
         )

@@ -30,7 +30,9 @@ frozen runtime gates, but no dose met the frozen behavioral efficacy criteria.
 The largest signed half-span was `0.0212` (95% bootstrap interval
 `[-0.0016, 0.0631]`) against a required `0.1`; therefore the confirmatory
 intervention panel was not run. The non-raw receipt-backed artifact is
-[results/gate4.calibration.discovery.json](results/gate4.calibration.discovery.json).
+[results/gate4.calibration.discovery.json](results/gate4.calibration.discovery.json);
+the byte-verified stop-gate figure is
+[figures/gate4/E05a-discovery-calibration-stop.svg](figures/gate4/E05a-discovery-calibration-stop.svg).
 
 Prior OpenRouter observations described in the source proposal are exploratory
 and are not evidence about the raw checkpoint used by this study.

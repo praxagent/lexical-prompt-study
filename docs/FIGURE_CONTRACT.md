@@ -150,6 +150,29 @@ norm, reconstruction diagnostics, public-label provenance, and selection rule.
 Forbidden overread: labels are hypotheses, and this discovery figure is not
 held-out evidence.
 
+### E05a. Discovery calibration stop surface
+
+Question: Did any prospectively frozen dose qualify for held-out causal
+confirmation?
+
+Chart: signed half-span and bootstrap interval by rho against the frozen
+efficacy threshold, paired with directional components and the two independent
+runtime safety ceilings.
+
+Controls: zero intervention and both signs at every frozen rho; every candidate
+is retained, including ineligible candidates.
+
+Independent unit: discovery base behavior ID.
+
+Required fields: rho, realized alpha, restoring sign, restoring-minus-zero,
+opposite-minus-zero, signed half-span and interval, representation mismatch,
+effective delta-to-residual ratio, parsing, truncation, runtime-error, and
+eligibility fields.
+
+Forbidden overread: this is discovery calibration, not held-out causal evidence;
+passing runtime gates does not establish efficacy, and a failed efficacy gate
+does not prove that no SAE intervention could work.
+
 ### E06. Bidirectional SAE dose response
 
 Question: Does the same frozen direction move held-out behavior in opposite
