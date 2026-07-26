@@ -9,6 +9,7 @@ from lexical_prompt_study import evaluate
 from lexical_prompt_study.artifacts import EVALUATOR_REVISION
 from lexical_prompt_study.evaluate import (
     _behavior_rows,
+    _behavior_text,
     _restricted_path,
     _single_token_id,
     score_behavior_receipts,
@@ -86,6 +87,8 @@ def test_followup_scoring_resolves_partition_rows_and_restricted_path(
 
     assert _behavior_rows(private, receipts) == private["partitions"]["discovery"]
     assert _restricted_path(receipts[receipt_path], receipt_path) == raw_path
+    assert _behavior_text({"request": "safe request"}) == "safe request"
+    assert _behavior_text({"behavior": "safe behavior"}) == "safe behavior"
 
 
 def test_followup_scoring_rejects_mixed_partitions(tmp_path: Path) -> None:

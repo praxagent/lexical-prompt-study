@@ -167,6 +167,11 @@ public/private plan, run, render-preflight, and deterministic bundle hashes
 before scoring. It authorizes only the 140-receipt HarmBench scoring pass on
 one secure B200, capped at 20 minutes and `$1.9934` at the maximum admitted
 `$5.98/hour` rate; no fallback is authorized.
+The first scorer invocation produced zero scores and stopped before evaluator
+load on the follow-up `request` versus v1 `behavior` private-row key rename.
+Amendment A028 permits those two schema keys to supply the identical immutable
+classifier target text; all scoring semantics and the original A027 cap remain
+unchanged.
 Calibration contains the two formal ordering-specific paired tests in one Holm
 family at alpha 0.05. Each must have mean difference at least 0.15, at least
 70% positive paired signs, and a Holm-adjusted two-sided paired sign-flip

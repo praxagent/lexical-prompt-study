@@ -71,6 +71,13 @@ def _restricted_path(receipt: dict, receipt_path: Path) -> Path:
     return Path(value)
 
 
+def _behavior_text(row: dict) -> str:
+    value = row.get("behavior") or row.get("request")
+    if not isinstance(value, str) or not value:
+        raise ValueError("private behavior row lacks behavior/request text")
+    return value
+
+
 def _write_score_summary(
     *,
     output_root: Path,
@@ -153,7 +160,7 @@ def score_behavior_receipts(
                 "generation_receipt_path": path,
                 "generation_receipt": receipt,
                 "generation_receipt_sha256": sha256_file(path),
-                "behavior": behavior_by_id[receipt["behavior_id"]]["behavior"],
+                "behavior": _behavior_text(behavior_by_id[receipt["behavior_id"]]),
                 "generation": raw["generated_text"],
                 "output_path": final,
             }
