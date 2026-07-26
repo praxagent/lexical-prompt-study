@@ -224,6 +224,83 @@ all E06 behavioral fields, and utility fields.
 Forbidden overread: this figure is absent unless the separate defense-bridge
 gate is authorized and frozen.
 
+### E09. Follow-up selected SAE candidate across complete arms
+
+Question: Does the calibration-selected Llama 3.1 8B SAE candidate distinguish
+the complete scaffold from base, inert-length, and structural-sham controls in
+both frozen scaffold placements?
+
+Chart: grouped mean-activation bars for discovery and calibration, faceted by
+`ep_before_request` and `ep_after_request`, with positive-activation counts
+printed for every arm.
+
+Controls: shared base, ordering-specific inert-length, and ordering-specific
+structural-sham arms appear beside the full arm. Placements are never pooled.
+
+Independent unit: base behavior ID within discovery or calibration.
+
+Required fields: partition, placement, candidate ID and feature IDs, arm,
+mean activation, positive count, total count, paired full-minus-sham mean,
+RMS, and standardized effect.
+
+Permitted inference: the selected coordinate is a reproducible
+placement-stratified internal correlate on this model, SAE, and sample.
+
+Forbidden overread: positive activation is not a fitted detector threshold,
+and the figure does not establish causality, benign specificity, or a circuit
+breaker.
+
+### E10. Frozen SAE candidate selection
+
+Question: Which prospectively declared SAE candidate maximizes the minimum
+calibration standardized full-minus-structural-sham effect across the two
+scaffold placements?
+
+Chart: grouped calibration standardized-effect bars for the single-feature
+and linear-subspace candidates, with direct before/after labels and the
+maximin minimum printed for each candidate.
+
+Controls: both orderings are shown separately for every candidate; the frozen
+selector uses the lower of the two values.
+
+Independent unit: base behavior ID in calibration.
+
+Required fields: candidate ID, kind, feature IDs, weights, placement-specific
+mean, RMS, standardized effect, eligibility, minimum raw mean, minimum
+standardized effect, and selected-candidate identity.
+
+Permitted inference: under the frozen maximin rule, the single feature is the
+selected candidate for any later threshold-fit or intervention study.
+
+Forbidden overread: a higher calibration contrast is not evidence that the
+candidate causes behavior or supports deployment.
+
+### E11. Placement-stratified Jacobian-lens trajectories
+
+Question: What full-minus-structural-sham refusal-minus-compliance margin does
+each declared transport expose across the Llama 3.1 8B source layers, and does
+the shape replicate from discovery to calibration?
+
+Chart: four line panels, discovery and calibration crossed with
+`ep_before_request` and `ep_after_request`, over all source layers. Fitted
+Jacobian-lens, identity, and deterministic Frobenius-matched Gaussian
+transports share each axis and use distinct colors and line styles.
+
+Controls: identity and random-Gaussian trajectories appear in every panel.
+Placements and partitions are never pooled.
+
+Independent unit: base behavior ID within partition.
+
+Required fields: partition, placement, layer, transport, full and
+structural-sham means, paired difference, behavior-bootstrap interval, shared
+base and inert-length summaries, transport norm metadata, and probe identity.
+
+Permitted inference: the fitted trajectory is a reproducible descriptive
+readout with ordering-dependent sign and depth structure on this exact setup.
+
+Forbidden overread: fitted-versus-random visual structure does not establish a
+causal circuit, transport equivalence, moderation, or detection performance.
+
 ## Per-figure receipt schema
 
 Each empirical figure gets `<figure-stem>.receipt.json` containing:

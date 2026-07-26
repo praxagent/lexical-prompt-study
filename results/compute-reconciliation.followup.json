@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-followup-v2",
+  "queried_at_utc": "2026-07-26T11:52:49Z",
+  "provider": "RunPod",
+  "billing_query": {
+    "endpoint": "GET https://rest.runpod.io/v1/billing/pods",
+    "start_time": "2026-07-25T00:00:00Z",
+    "bucket_size": "day",
+    "grouping": "podId"
+  },
+  "task_owned_ingested_rows": [
+    {
+      "pod_id": "1sgufchujg1sjf",
+      "amount_usd": 19.552727350150235,
+      "time_billed_ms": 8006813,
+      "source_bucket_count": 2
+    },
+    {
+      "pod_id": "5pi0e2lf7qo0q9",
+      "amount_usd": 0.7621295176213607,
+      "time_billed_ms": 465464,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "6v98j916n4jx5m",
+      "amount_usd": 35.20073598995805,
+      "time_billed_ms": 14423992,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "9ba2gqflf4kexd",
+      "amount_usd": 1.9328933174256235,
+      "time_billed_ms": 1180546,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "i06b217rbx3t09",
+      "amount_usd": 1.5171627915697172,
+      "time_billed_ms": 926237,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "n1kctgaqqodhp9",
+      "amount_usd": 0.407864511013031,
+      "time_billed_ms": 249289,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "svtxk3t55jj65k",
+      "amount_usd": 14.780668921070173,
+      "time_billed_ms": 9023414,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "tj4ht0fo885jze",
+      "amount_usd": 1.6685827258042991,
+      "time_billed_ms": 1018432,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "uipnj7oc6s4686",
+      "amount_usd": 0.5190218228381127,
+      "time_billed_ms": 316946,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "xl6hcwdbyss77h",
+      "amount_usd": 1.259451214922592,
+      "time_billed_ms": 769076,
+      "source_bucket_count": 1
+    }
+  ],
+  "ingested_total": {
+    "amount_usd": 77.60123816237319,
+    "time_billed_ms": 36380209
+  },
+  "terminated_rows_pending_provider_ingestion": [
+    {
+      "pod_id": "g0shaklamkn312",
+      "returned_hourly_rate_usd": 5.89,
+      "authorized_wall_time_minutes": 30,
+      "full_authorized_cap_usd": 2.945
+    },
+    {
+      "pod_id": "re46p34wkp5dps",
+      "returned_hourly_rate_usd": 5.89,
+      "authorized_wall_time_minutes": 30,
+      "full_authorized_cap_usd": 2.945
+    }
+  ],
+  "conservative_gpu_compute_ceiling_usd": 83.49123816237319,
+  "active_pod_inventory": [],
+  "retained_network_volume": {
+    "id": "u85xfo0aue",
+    "size_gb": 500,
+    "data_center_id": "US-CA-2",
+    "listed_monthly_rate_usd": 35,
+    "billing_scope_note": "The provider network-volume billing endpoint is account-wide and does not identify a volume, so this receipt does not attribute an exact volume charge."
+  },
+  "budget": {
+    "soft_gate_usd": 100,
+    "hard_ceiling_usd": 200,
+    "conservative_gpu_compute_ceiling_below_soft_gate": true
+  },
+  "scope": [
+    "Only task-owned pod IDs were selected from the provider response.",
+    "Unrelated pod rows were excluded.",
+    "The two recently terminated pods are charged at their full authorized caps until provider billing ingestion supplies exact rows."
+  ]
+}

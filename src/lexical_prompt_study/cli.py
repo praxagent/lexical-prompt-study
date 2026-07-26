@@ -236,6 +236,14 @@ def main() -> None:
     followup_mechanism.add_argument("--sae-path", type=Path, required=True)
     followup_mechanism.add_argument("--out", type=Path, required=True)
     followup_mechanism.add_argument("--run-id", required=True)
+    followup_mechanism_figures = sub.add_parser("figures-followup-mechanisms")
+    followup_mechanism_figures.add_argument("--result", type=Path, required=True)
+    followup_mechanism_figures.add_argument("--out", type=Path, required=True)
+    verify_followup_mechanism_figures = sub.add_parser(
+        "verify-followup-mechanism-figures"
+    )
+    verify_followup_mechanism_figures.add_argument("--result", type=Path, required=True)
+    verify_followup_mechanism_figures.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -565,6 +573,24 @@ def main() -> None:
                     output_root=args.out,
                     run_id=args.run_id,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-followup-mechanisms":
+        from .followup_mechanism_figures import generate_followup_mechanism_figures
+
+        print(
+            json.dumps(
+                generate_followup_mechanism_figures(args.result, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-followup-mechanism-figures":
+        from .followup_mechanism_figures import verify_followup_mechanism_figures
+
+        print(
+            json.dumps(
+                verify_followup_mechanism_figures(args.result, args.out),
                 sort_keys=True,
             )
         )

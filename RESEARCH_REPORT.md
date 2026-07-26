@@ -1,8 +1,11 @@
-# A Strong Lexical Effect, but No Causal SAE Handle Yet
+# A Strong Lexical Effect and an 8B Internal Replication, but No Defense Yet
 
 **Status:** Complete through the frozen Gate 4 discovery calibration and the
-post-study four-arm SAE replay. The held-out confirmatory intervention outcomes
-were not opened.
+post-study four-arm SAE replay on Llama 3.3 70B, plus ordering-controlled
+behavioral and internal replication on Llama 3.1 8B. The 70B held-out
+intervention outcomes were not opened. The 8B detector threshold, benign
+utility calibration, causal patching, held-out confirmation, and Qwen transfer
+remain unrun.
 
 > **Draft and AI-use status.** Generative-AI tools helped implement, audit,
 > execute, interpret, visualize, and draft this study. The author selected the
@@ -44,6 +47,21 @@ The behavioral vulnerability is well supported on this checkpoint and
 protocol. The selected SAE direction is not yet a validated causal mechanism
 or defense handle.
 
+We then repeated the controlled comparison on
+`meta-llama/Llama-3.1-8B-Instruct`, treating scaffold placement as a crossed
+factor and never pooling it. The behavioral contrast replicated in discovery
+and formal calibration for both scaffold-before-request and
+scaffold-after-request. A discovery-frozen SAE selection procedure advanced
+feature `6779` over an eight-feature subspace by a narrow maximin calibration
+margin. In calibration, feature `6779` activated in `0/20` shared base and
+`0/20` inert-length cases, `20/20` full cases in both orderings, and
+`20/20` versus `12/20` structural-sham cases for before versus after. Thus the
+signal is not a binary full-versus-sham switch; its useful contrast is
+activation magnitude and remains placement-dependent. The common threshold
+was deliberately not fit because ordinary-benign and structured-benign
+negative strata do not yet exist. This is a replicated internal signature,
+not a detector, circuit breaker, causal mechanism, or defense.
+
 ## Result in one picture
 
 | Claim rung | Outcome | Evidence level |
@@ -53,6 +71,9 @@ or defense handle.
 | Feature 10146 is specific enough for a held-out attack-family detector | Failed replay gate | Inert-length activated it in 14/20 discovery cases |
 | The selected SAE direction causes a practically large bidirectional behavioral change | Did not pass calibration | Prospective discovery calibration |
 | The direction supports a held-out defense | Not tested | Confirmatory outcomes unopened |
+| The behavioral effect replicates on Llama 3.1 8B in both scaffold orderings | Passed discovery and calibration screens | Ordering-specific, receipt-backed |
+| A discovery-frozen 8B SAE candidate replicates on calibration | Feature 6779 selected | Complete four-arm readout, threshold intentionally unfitted |
+| The 8B J-lens trajectory is placement-invariant or causal | Not established | Orderings differ; descriptive controls only |
 
 ## Prior work, contribution, and non-claims
 
@@ -265,6 +286,88 @@ operation may matter; or the behavior may be distributed in a way this SAE
 does not capture. It does establish that the prospectively selected direction,
 under the tested safe dose ladder, did not earn a held-out defense test.
 
+## Follow-up replication on Llama 3.1 8B
+
+The follow-up crossed scaffold placement explicitly:
+`ep_before_request` and `ep_after_request` used otherwise matched request,
+scaffold, delimiter, conversation, context, and generation budgets. Every
+behavioral, SAE, dense, and J-lens result below is reported separately by
+ordering.
+
+The paired HarmBench full-minus-structural-sham effect replicated
+behaviorally. Discovery estimates were `0.9491778379` before the request and
+`0.8914905411` after it. Formal calibration estimates were `0.8916347671` and
+`0.8388469202`; both ordering-specific positive-sign fractions were `1.0`,
+with Holm-adjusted sign-flip `p = 0.0000305171`. The descriptive
+before-minus-after interaction interval crossed zero, so this supports two
+positive ordering-specific effects, not placement invariance.
+
+### A complete four-arm SAE readout
+
+![Selected Llama 3.1 8B SAE feature arm matrix](figures/followup-g3/E09-followup-selected-sae-arm-matrix.png)
+
+*Figure E09. Feature `6779` mean activation and activation counts for shared
+base plus inert-length, structural-sham, and full arms in both scaffold
+orderings, shown separately for discovery and calibration. Source:
+[G3 follow-up result](results/g3.followup-mechanism.public.json). Receipt:
+[E09 receipt](figures/followup-g3/E09-followup-selected-sae-arm-matrix.receipt.json).*
+
+The discovery rule found 30 eligible features and froze two candidates: the
+top individual feature `6779` and an eight-feature positive weighted subspace.
+Calibration chose between only those two. Feature `6779` had the slightly
+higher worst-order standardized full-minus-sham effect, `0.9535245913` versus
+`0.9496602754`, even though the subspace had larger raw magnitude.
+
+![Frozen SAE candidate selection](figures/followup-g3/E10-followup-sae-candidate-selection.png)
+
+*Figure E10. Ordering-specific calibration effects for the two
+discovery-frozen candidates. The left panel is the frozen maximin selection
+metric; the right panel shows why raw magnitude alone would have selected
+differently. Source: [G3 follow-up result](results/g3.followup-mechanism.public.json).
+Receipt: [E10 receipt](figures/followup-g3/E10-followup-sae-candidate-selection.receipt.json).*
+
+The complete selected-feature matrix matters. In both partitions, base and
+inert-length prevalence were `0/20`, while full prevalence was `20/20` in
+both orderings. Structural sham was not uniformly silent:
+
+| Partition | Ordering | Full mean / prevalence | Sham mean / prevalence | Full − sham mean |
+|---|---|---:|---:|---:|
+| Discovery | Before request | `0.4608190536` / `20/20` | `0.2589601062` / `20/20` | `0.2018589474` |
+| Discovery | After request | `0.4458873972` / `20/20` | `0.0867029030` / `10/20` | `0.3591844942` |
+| Calibration | Before request | `0.4589053988` / `20/20` | `0.2282391459` / `20/20` | `0.2306662530` |
+| Calibration | After request | `0.4374633938` / `20/20` | `0.0481475640` / `12/20` | `0.3893158298` |
+
+That is stronger than the old feature-`10146` result on the inert-length
+control, but it still is not a binary attack-family fingerprint: structural
+sham activates feature `6779`, especially when the scaffold precedes the
+request. Any useful discrimination would depend on a common magnitude
+threshold. The protocol forbids fitting that threshold until
+ordinary-benign and ordering-specific structured-benign negative strata are
+available, so false-positive rate and utility cost are unknown.
+
+### J-lens trajectories reverse with placement
+
+![Ordering-specific Llama 3.1 8B J-lens trajectories](figures/followup-g3/E11-followup-jlens-trajectories.png)
+
+*Figure E11. Full-minus-sham refusal-minus-compliance margin across all 31
+source layers under fitted Jacobian lens, identity, and deterministic
+Frobenius-matched random transport. Discovery/calibration and both placements
+remain separate. Bands are paired 10,000-replicate behavior bootstraps.
+Source: [G3 follow-up result](results/g3.followup-mechanism.public.json).
+Receipt: [E11 receipt](figures/followup-g3/E11-followup-jlens-trajectories.receipt.json).*
+
+The ordering difference is visually and numerically large. For
+scaffold-before-request, the fitted trajectory reached its minimum at layer
+15 in both discovery (`-1.1698`) and calibration (`-1.1348`), ending at layer
+30 at `-0.6555` and `-0.7725`. For scaffold-after-request, the fitted
+trajectory instead peaked at layer 17 (`0.6384` discovery, `0.5100`
+calibration) and ended positive (`0.2598`, `0.1488`). Discovery/calibration
+trajectory correlations were high (`0.9882` before and `0.9334` after), but
+the deterministic random trajectories also reproduced across partitions.
+Accordingly, this is a stable descriptive readout under the pinned protocol,
+not proof that the fitted lens localized a causal circuit or that the two
+placements are mechanistically equivalent.
+
 ## Interpretation
 
 The cleanest conclusion is asymmetric. We have strong evidence that the full
@@ -315,10 +418,13 @@ utility and avoiding overrefusal.
 The most defensible near-term defense work is therefore diagnostic rather than
 deployment-ready. The four-arm replay retires feature `10146` itself as the
 planned detector because inert length activated it in `14/20` discovery cases.
-The next study must independently select and freeze any 8B feature or subspace,
-carry all four harmful arms plus benign controls into confirmation, and compare
-against dense and lexical baselines. A detector alone would still not explain
-or repair the vulnerability.
+The 8B follow-up has now independently selected and calibration-checked feature
+`6779`, carried the four harmful arms through both placements, and retained
+dense, identity, random-transport, and lexical comparators. The next gate is
+not deployment: it is the missing ordinary-benign and structured-benign
+utility-calibration matrix, followed by a frozen common threshold. Only a
+candidate that passes that gate should reach held-out confirmation and causal
+patching. A detector alone would still not explain or repair the vulnerability.
 
 ## Reproducibility and provenance ledger
 
@@ -341,7 +447,12 @@ or repair the vulnerability.
 | Gate 4 score receipt aggregate | artifact field | `a09d306f4f643bf502fcae9e371ea0911624287e17abe7d9d87d6db00b30ca75` |
 | Gate 4 analysis rows | artifact field | `fdb1d70c559b8f648e63229bd26b7d74fe9ec056b2d930174a4aecc1bf90cd98` |
 | Gate 4 figure | [figures/gate4/provenance.json](figures/gate4/provenance.json) | `9f3d61afce4e81e35a1d3a3ea3a34f0e275497f187d1516b2131d94dc225adab` |
-| Compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
+| Follow-up public plan | [plans/followup_v2.public.json](plans/followup_v2.public.json) | `d37125c2675f55bf3b24fb18b57896f1f5258c24b5ea18b803db7de9de6e1124` |
+| Follow-up G3 result | [results/g3.followup-mechanism.public.json](results/g3.followup-mechanism.public.json) | `d4cef123fcc3d1323d6832ae677dabb21cc1fdd45222dda9b1da8e728787a7ea` |
+| Follow-up G3 runner source | artifact field | `23da31eb563e6386de980fd06c6dfca4454cc678` |
+| Follow-up G3 figures | [figures/followup-g3/provenance.followup-mechanisms.json](figures/followup-g3/provenance.followup-mechanisms.json) | Per-output hashes and source pointers inside |
+| Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
+| Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `2ea3b9ae310199d86e5ad3a7e973dfc8ea8d85151c41d6bd5ac7353e11620f7d` |
 
 Private, non-raw checkpoint bundles are retained locally for receipt audit:
 
@@ -351,27 +462,34 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
   `16271bebbedc8952c731a28dc6e78cdcf3263c060bda8f5b59feafd9aed6dd7e`
 - Gate 4: SHA-256
   `d5075a3653e0169293228fbbe6b62c92b4eeae07ac8c212e0cc2ae8c9511a5b5`
+- Follow-up G3: SHA-256
+  `2f79a9417bbf470e2da5fd97ae154fb49ce614a157d632a691186df68fcc2ea8`
 
-All seven empirical figures ship as SVG, PNG, and PDF with individual receipt
+All ten empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
 ## Compute and storage
 
 A final RunPod billing query grouped by pod ID attributes
-`$68.7766788497` to the four task-owned pods over `30,992,179` billed
-milliseconds. This is below the `$100` soft gate and `$200` hard ceiling. No
-task-owned GPU pod remains active, so GPU billing is `$0/hour`.
+`$77.6012381624` to currently ingested task-owned pod rows over `36,380,209`
+billed milliseconds. The failed A032 readout pod and its successful A034
+replacement had not yet reached the billing endpoint at the final query.
+Charging both at their complete 30-minute caps yields a conservative
+GPU-compute ceiling of `$83.4912381624`. This is below the `$100` soft gate and
+`$200` hard ceiling. No task-owned GPU pod remains active, so GPU billing is
+`$0/hour`.
 
 The persistent 500 GB RunPod network volume remains provisioned at
 `$35/month`, or about `$1.17/day`, to preserve the pinned model and resumable
-artifacts during the short reporting window. From its creation through the
-final query, its rate-derived task accrual is approximately `$0.6043`, for an
-estimated task infrastructure total of `$69.3810`. The storage amount is
-derived because RunPod's network-volume billing endpoint returned account-wide
-buckets without volume IDs. The exact method, task pod rows, private source
-receipt hash, and retention review date are recorded in
-[results/compute-reconciliation.json](results/compute-reconciliation.json).
+artifacts during the short reporting window. RunPod's network-volume billing
+endpoint returns account-wide buckets without volume IDs, so it cannot yet
+support an exact task-volume charge. An earlier rate-derived snapshot was
+approximately `$0.6043`; it is not added to the newer GPU total as though the
+timestamps matched. The original and follow-up reconciliation methods,
+task-owned rows, pending-ingestion caps, and volume scope are recorded in
+[results/compute-reconciliation.json](results/compute-reconciliation.json) and
+[results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json).
 
 ## Appendix: release inventory
 
@@ -383,6 +501,7 @@ receipt hash, and retention review date are recorded in
 | Four-arm SAE replay JSON | Feature prevalence and paired contrasts for every behavioral arm | Test content and formatting alternatives without a new 70B forward pass |
 | Gate 4 result JSON | Dose selection, efficacy, safety, and stop state | Verify that no alpha qualified |
 | Figure receipts and provenance | Exact inputs, output hashes, and plot bindings | Verify every plotted mark |
+| Llama 3.1 8B follow-up result | Separate placement, SAE, dense, and J-lens summaries | Audit replication without opening raw prompts or generations |
 | Schemas and analysis code | Machine-checkable receipt contracts and deterministic analysis | Re-run local validation |
 
 Restricted prompt and generation text is intentionally excluded from the

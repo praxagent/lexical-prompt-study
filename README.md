@@ -4,7 +4,9 @@ This repository contains a staged white-box study of how a structured lexical
 scaffold changes refusal and compliance behavior in
 `meta-llama/Llama-3.3-70B-Instruct`, whether a fitted Jacobian lens localizes
 that change, and whether a public layer-50 sparse autoencoder (SAE) supports a
-causal intervention.
+causal intervention. A controlled follow-up replicates the behavioral and
+internal readouts on `meta-llama/Llama-3.1-8B-Instruct`, with the lexical
+scaffold placed both before and after the harmful request and never pooled.
 
 The governing design is [STUDY_PLAN.md](STUDY_PLAN.md). The external proposal
 review and our point-by-point adjudication are recorded in
@@ -38,6 +40,18 @@ intervention panel was not run. The non-raw receipt-backed artifact is
 [results/gate4.calibration.discovery.json](results/gate4.calibration.discovery.json);
 the byte-verified stop-gate figure is
 [figures/gate4/E05a-discovery-calibration-stop.svg](figures/gate4/E05a-discovery-calibration-stop.svg).
+
+The Llama 3.1 8B follow-up passed its ordering-specific behavioral discovery
+and calibration screens. A discovery-frozen SAE rule selected feature `6779`
+on calibration, with full prevalence `20/20` in both orderings and partitions,
+base/inert-length prevalence `0/20`, and order-dependent structural-sham
+activation. The detector threshold is intentionally unfitted because the
+ordinary-benign and structured-benign calibration negatives have not yet
+been generated. The result is therefore an internal replication candidate,
+not a detector, circuit breaker, causal mechanism, or defense. See
+[results/g3.followup-mechanism.public.json](results/g3.followup-mechanism.public.json)
+and the three byte-verified figures under
+[figures/followup-g3](figures/followup-g3).
 
 Prior OpenRouter observations described in the source proposal are exploratory
 and are not evidence about the raw checkpoint used by this study.
