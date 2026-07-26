@@ -246,7 +246,10 @@ def generate_mechanism_figures(analysis_path: Path, output_dir: Path) -> dict:
         (selected_ids, "#DC2626", "*", "Selected candidates"),
         (control_ids, "#2563EB", "s", "Matched controls"),
     ):
-        rows = [row for row in feature_rows if int(row["feature_id"]) in feature_id]
+        rows = sorted(
+            (row for row in feature_rows if int(row["feature_id"]) in feature_id),
+            key=lambda row: int(row["feature_id"]),
+        )
         ax.scatter(
             [row["decoder_norm"] for row in rows],
             [row["paired_mean_delta"] for row in rows],
@@ -258,11 +261,20 @@ def generate_mechanism_figures(analysis_path: Path, output_dir: Path) -> dict:
             label=label,
             zorder=4,
         )
+        label_offsets = {
+            3907: (7, 10),
+            4057: (7, -22),
+            10146: (9, 14),
+            44802: (8, -23),
+            9105: (-31, 14),
+            26453: (8, -22),
+            40804: (8, 14),
+        }
         for row in rows:
             ax.annotate(
                 str(row["feature_id"]),
                 (row["decoder_norm"], row["paired_mean_delta"]),
-                xytext=(4, 4),
+                xytext=label_offsets[int(row["feature_id"])],
                 textcoords="offset points",
                 fontsize=8,
             )
