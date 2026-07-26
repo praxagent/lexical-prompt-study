@@ -81,6 +81,29 @@ def test_followup_plan_rejects_unequal_order_token_budgets() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_rejects_component_tokenization_drift_permission() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["within_arm_matching"][
+        "require_equal_component_token_subsequences"
+    ] = False
+    with pytest.raises(ValueError, match="component_token_subsequences"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_ambiguous_behavioral_family() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["behavioral_family"]["discovery"]["status"] = "formal_test"
+    with pytest.raises(ValueError, match="behavioral discovery"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_mutable_candidate_ties() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["candidate_rule"]["threshold_ties"] = []
+    with pytest.raises(ValueError, match="threshold tie"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_rejects_pooled_or_missing_detector_ordering() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["detectors"]["positive_strata"] = ["full"]
@@ -99,6 +122,22 @@ def test_followup_plan_rejects_non_boundary_confirmation() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["causal_localization"]["only_confirmatory_position"] = "generated_index_1"
     with pytest.raises(ValueError, match="non-boundary"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_causal_test_without_holm() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["causal_localization"]["confirmatory_rule"]["require_holm_rejection"] = False
+    with pytest.raises(ValueError, match="Holm"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_detector_complete_case_missingness() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["detectors"]["confirmatory_success"]["missingness"][
+        "unevaluable_negative"
+    ] = "drop"
+    with pytest.raises(ValueError, match="detector missingness"):
         validate_followup_plan(plan)
 
 

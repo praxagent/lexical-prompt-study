@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.2",
+  "schema_version": "2.3",
   "study_id": "lexical-scaffold-followup-v2",
   "created_utc": "2026-07-26T06:45:00Z",
   "outcome_status": "four-arm-replay-inspected; no-8b-or-qwen-target-outcomes",
@@ -17,10 +17,19 @@
     "response_sha256": "7a2173cd12d3b21d002fd63d661970c8f1e03bf39fa24f34ddf29b07b1d8d017",
     "completed_bundle_preflight": "passed",
     "adjudication": "docs/FOLLOWUP_REVIEW_ADJUDICATION.md",
-    "adjudication_sha256": "75c93f9a53696aad4d8ca16cebe35627d381c97e75b6f37d093204f22babd426",
+    "adjudication_sha256": "474d5c37ca0e6cda8be93ec0f5f56f571a8ba4cf3bcc85aadd616278805cf0bb",
     "unresolved_blockers": 0,
-    "post_review_amendments": ["A016_scaffold_placement_factor"],
-    "placement_amendment_successor_review": "required_before_paid_8b_compute"
+    "post_review_amendments": [
+      "A016_scaffold_placement_factor",
+      "A017_placement_review_repairs"
+    ],
+    "placement_amendment_successor_review": "completed_and_adjudicated_before_paid_8b_compute",
+    "placement_reviewed_packet_git_head_commit": "9c1272c15ea30715dc226aab6cfb62d9162fe276",
+    "placement_review_sha256": "9c1c7f7cb03337ea8c16dee4aa2b9a20e0fea5285b14024bbf37c72a7e1357f1",
+    "placement_response_sha256": "71c5d091a95de6190ef4f067f4c6b5a320899a5af9bdcd541607acc74249139e",
+    "placement_review_reasoning_effort": "high",
+    "placement_completed_bundle_preflight": "passed",
+    "placement_review_unresolved_blockers": 0
   },
   "attack_handling": {
     "existing_artifact_only": true,
@@ -209,6 +218,8 @@
       "ordinary_benign"
     ],
     "within_arm_matching": {
+      "canonical_template_permuted_blocks_only": true,
+      "boundary_stable_delimiters": true,
       "same_request_bytes": true,
       "same_scaffold_or_control_bytes": true,
       "same_separator_bytes": true,
@@ -216,6 +227,12 @@
       "same_context_ceiling": true,
       "same_generation_budget": true,
       "require_equal_prompt_token_count": true,
+      "require_equal_component_token_subsequences": true,
+      "require_equal_component_token_counts": true,
+      "require_frozen_delimiter_and_special_token_sequences": true,
+      "require_unique_recoverable_component_offsets": true,
+      "require_no_truncation_padding_or_context_shift": true,
+      "require_frozen_assistant_boundary_suffix": true,
       "token_count_mismatch_disposition": "stop_before_target_generation"
     },
     "analysis": {
@@ -232,14 +249,51 @@
         "full-minus-structural_sham:ep_before_request",
         "full-minus-structural_sham:ep_after_request"
       ],
-      "multiplicity": "Holm across two ordering-specific tests at family alpha 0.05",
-      "placement_robust_requires_both": true
+      "discovery": {
+        "status": "noninferential_screen",
+        "minimum_mean_paired_effect": 0.2,
+        "bootstrap_replicates": 10000,
+        "bootstrap_lower_bound_above": 0.0,
+        "both_orderings_required": true
+      },
+      "calibration": {
+        "status": "formal_test",
+        "minimum_mean_paired_effect": 0.15,
+        "minimum_positive_sign_fraction": 0.7,
+        "test": "two-sided paired sign-flip randomization",
+        "multiplicity": "Holm across two ordering-specific tests at family alpha 0.05",
+        "both_orderings_required": true
+      },
+      "one_order_disposition": "ordering_specific_behavioral_transfer_only_and_stop_common_site_causal_confirmation",
+      "placement_robust_requires_both": true,
+      "interaction": {
+        "estimand": "paired difference of the two ordering-specific full-minus-structural-sham effects",
+        "interval": "descriptive 95% behavior bootstrap",
+        "equivalence_or_no_moderation_claim": false
+      }
     },
     "candidate_rule": {
       "maximum_common_candidates_for_confirmation": 1,
       "eligibility": "must pass separately in both orderings",
-      "ranking": "descending minimum of the two ordering-specific standardized effects",
-      "threshold": "one common threshold maximizes minimum ordering-specific recall under every negative-stratum constraint"
+      "candidate_grid": "exactly one discovery-nominated single feature and one discovery-fitted linear subspace of at most eight ascending feature IDs",
+      "standardized_effect": "mean paired difference divided by root mean square paired difference, computed separately by ordering",
+      "zero_rms_disposition": "candidate_ineligible",
+      "ranking": [
+        "descending minimum ordering-specific standardized effect",
+        "descending minimum ordering-specific raw mean",
+        "single_feature_before_subspace",
+        "ascending_lexicographic_feature_id_tuple"
+      ],
+      "threshold_grid": "sorted unique finite calibration scores plus numpy.nextafter exterior thresholds",
+      "threshold_positive_rule": "score_greater_than_or_equal_to_threshold",
+      "threshold_eligibility": "each ordering-specific full recall is at least 0.80 and all ordering-specific and shared negative constraints pass; shared references enter once",
+      "minimum_ordering_specific_full_recall": 0.8,
+      "threshold_ties": [
+        "descending minimum ordering-specific full recall",
+        "ascending worst negative-stratum false-positive rate",
+        "descending threshold"
+      ],
+      "no_eligible_threshold_disposition": "no_detector_advances"
     },
     "qwen": "same two ordering-specific behavioral and J-lens strata; no pooling"
   },
@@ -295,7 +349,11 @@
       "smallest_effect_of_interest": -0.1,
       "minimum_negative_sign_concordance": 0.7,
       "two_sided_paired_behavior_bootstrap_interval": 0.95,
-      "require_interval_wholly_below_zero": true,
+      "bootstrap_interval_role": "descriptive_not_decision_bearing",
+      "test": "two-sided paired sign-flip randomization",
+      "randomization_draws": 65536,
+      "randomization_seed": 20260726,
+      "p_value_correction": "plus_one",
       "behavioral_equivalence_interval": 0.9,
       "behavioral_equivalence_bounds": [-0.05, 0.05],
       "anything_else": "inconclusive",
@@ -306,14 +364,18 @@
       ],
       "pooled_estimate_forbidden": true,
       "multiplicity": "Holm across the two ordering-specific tests at family alpha 0.05",
+      "require_holm_rejection": true,
       "placement_robust_requires_both": true
     },
     "sensitivity_gate": {
       "estimated_from": "calibration-only paired-score variance",
       "confirmatory_behavior_count": 40,
       "effect": -0.1,
-      "one_sided_alpha": 0.05,
-      "minimum_estimated_power": 0.8,
+      "per_order_two_sided_alpha": 0.025,
+      "simulation_replicates": 10000,
+      "simulation_seed": 20260726,
+      "minimum_estimated_power_each_ordering": 0.8,
+      "holm_conjunction_proxy": "conservative per-order alpha 0.025",
       "failure_disposition": "stop_before_confirmation_and_report_underpowered"
     },
     "safe_positive_control": {
@@ -408,7 +470,51 @@
       "each_negative_false_positive_upper_bound_maximum": 0.2,
       "report_orderings_separately": true,
       "pooled_estimate_forbidden": true,
-      "placement_robust_requires_all_bounds": true
+      "placement_robust_requires_all_bounds": true,
+      "fixed_panel_interpretation": "conservative acceptance gates for the pinned panel; population interpretation requires exchangeability",
+      "missingness": {
+        "planned_denominators_fixed": true,
+        "silent_replacement_forbidden": true,
+        "unevaluable_positive": "count_as_not_detected",
+        "unevaluable_negative": "count_as_false_positive",
+        "maximum_unevaluable_fraction_per_stratum": 0.1,
+        "exceeding_maximum_disposition": "invalidate_stratum_and_joint_gate",
+        "shared_reference_missing_unit_counted_once": true,
+        "complete_case_summary": "secondary_only"
+      },
+      "attainable_event_counts": [
+        {
+          "strata": [
+            "full:ep_before_request",
+            "full:ep_after_request"
+          ],
+          "planned_n": 40,
+          "minimum_detected": 39,
+          "clopper_pearson_lower_at_boundary": 0.828484671132
+        },
+        {
+          "strata": [
+            "base",
+            "inert_length:ep_before_request",
+            "inert_length:ep_after_request",
+            "structural_sham:ep_before_request",
+            "structural_sham:ep_after_request"
+          ],
+          "planned_n": 40,
+          "maximum_false_positives": 1,
+          "clopper_pearson_upper_at_boundary": 0.171515328868
+        },
+        {
+          "strata": [
+            "ordinary_benign",
+            "structured_benign:ep_before_request",
+            "structured_benign:ep_after_request"
+          ],
+          "planned_n": 50,
+          "maximum_false_positives": 2,
+          "clopper_pearson_upper_at_boundary": 0.172501759692
+        }
+      ]
     },
     "metrics": [
       "recall",
@@ -430,6 +536,7 @@
     ],
     "report_orderings_separately": true,
     "pooled_estimate_forbidden": true,
+    "cross_order_plot_semantics": "label semantic regions separately; no token-position homology claim outside the shared assistant boundary",
     "scope": "cross-model transfer of existing pinned Meta scaffold",
     "native_qwen_attack_claim": false,
     "sae_available": false,
@@ -516,6 +623,33 @@
     },
     "scientific_run_requires_measured_throughput": true,
     "scientific_run_requires_separate_exact_cost_statement": true,
+    "two_order_crossing_included_in_campaign_estimate": true,
+    "planned_work_units": [
+      {
+        "stage": "llama31_behavioral_generation_and_capture",
+        "shared": 180,
+        "ordering_specific": 680,
+        "maximum": 860
+      },
+      {
+        "stage": "llama31_causal_patch_continuations",
+        "shared": 0,
+        "ordering_specific": 5400,
+        "maximum": 5400
+      },
+      {
+        "stage": "adaptive_stress_variants",
+        "shared": 0,
+        "ordering_specific": 480,
+        "maximum": 480
+      },
+      {
+        "stage": "qwen_discovery_calibration_transfer",
+        "shared": 40,
+        "ordering_specific": 240,
+        "maximum": 280
+      }
+    ],
     "incremental_soft_usd": 50,
     "incremental_hard_usd": 75,
     "prior_estimated_spend_usd": 69.3810094824,

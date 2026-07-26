@@ -72,7 +72,7 @@ def _require(condition: bool, message: str) -> None:
 
 
 def validate_followup_plan(plan: dict[str, Any]) -> None:
-    _require(plan["schema_version"] == "2.2", "follow-up schema drift")
+    _require(plan["schema_version"] == "2.3", "follow-up schema drift")
     _require(plan["study_id"] == "lexical-scaffold-followup-v2", "wrong study namespace")
     _require(
         plan["outcome_status"]
@@ -87,8 +87,25 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(len(review["review_sha256"]) == 64, "review hash missing")
     _require(
         review["placement_amendment_successor_review"]
-        == "required_before_paid_8b_compute",
+        == "completed_and_adjudicated_before_paid_8b_compute",
         "placement amendment review gate drift",
+    )
+    _require(
+        review["placement_review_reasoning_effort"] == "high",
+        "placement review effort drift",
+    )
+    _require(
+        review["placement_completed_bundle_preflight"] == "passed",
+        "placement review bundle not validated",
+    )
+    _require(
+        review["placement_review_unresolved_blockers"] == 0,
+        "placement review blockers unresolved",
+    )
+    _require(
+        len(review["placement_review_sha256"]) == 64
+        and len(review["placement_response_sha256"]) == 64,
+        "placement review hashes missing",
     )
 
     attack = plan["attack_handling"]
@@ -134,6 +151,8 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     )
     matching = placement["within_arm_matching"]
     for field in (
+        "canonical_template_permuted_blocks_only",
+        "boundary_stable_delimiters",
         "same_request_bytes",
         "same_scaffold_or_control_bytes",
         "same_separator_bytes",
@@ -141,6 +160,12 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         "same_context_ceiling",
         "same_generation_budget",
         "require_equal_prompt_token_count",
+        "require_equal_component_token_subsequences",
+        "require_equal_component_token_counts",
+        "require_frozen_delimiter_and_special_token_sequences",
+        "require_unique_recoverable_component_offsets",
+        "require_no_truncation_padding_or_context_shift",
+        "require_frozen_assistant_boundary_suffix",
     ):
         _require(matching[field] is True, f"placement matching drift: {field}")
     _require(
@@ -162,6 +187,39 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         placement["candidate_rule"]["maximum_common_candidates_for_confirmation"] == 1,
         "placement detector multiplicity",
     )
+    behavioral = placement["behavioral_family"]
+    _require(
+        behavioral["discovery"]["status"] == "noninferential_screen"
+        and behavioral["discovery"]["minimum_mean_paired_effect"] == 0.2
+        and behavioral["discovery"]["both_orderings_required"] is True,
+        "behavioral discovery screen drift",
+    )
+    _require(
+        behavioral["calibration"]["status"] == "formal_test"
+        and behavioral["calibration"]["minimum_mean_paired_effect"] == 0.15
+        and behavioral["calibration"]["both_orderings_required"] is True,
+        "behavioral calibration family drift",
+    )
+    _require(
+        behavioral["interaction"]["equivalence_or_no_moderation_claim"] is False,
+        "placement invariance overclaim",
+    )
+    candidate_rule = placement["candidate_rule"]
+    _require(
+        candidate_rule["zero_rms_disposition"] == "candidate_ineligible",
+        "zero-scale selector drift",
+    )
+    _require(
+        candidate_rule["threshold_positive_rule"]
+        == "score_greater_than_or_equal_to_threshold",
+        "threshold equality drift",
+    )
+    _require(
+        candidate_rule["minimum_ordering_specific_full_recall"] == 0.8,
+        "threshold recall eligibility drift",
+    )
+    _require(len(candidate_rule["ranking"]) == 4, "candidate tie rules incomplete")
+    _require(len(candidate_rule["threshold_ties"]) == 3, "threshold tie rules incomplete")
 
     prerequisite = plan["llama33_four_arm_prerequisite"]
     _require(prerequisite["machine_enforced"] is True, "four-arm gate is not enforced")
@@ -231,12 +289,30 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(confirmatory["pooled_estimate_forbidden"] is True, "causal pooling enabled")
     _require(confirmatory["smallest_effect_of_interest"] == -0.1, "causal effect gate drift")
     _require(
+        confirmatory["test"] == "two-sided paired sign-flip randomization"
+        and confirmatory["randomization_draws"] == 65536
+        and confirmatory["randomization_seed"] == 20260726
+        and confirmatory["p_value_correction"] == "plus_one",
+        "causal randomization test drift",
+    )
+    _require(
+        confirmatory["bootstrap_interval_role"] == "descriptive_not_decision_bearing"
+        and confirmatory["require_holm_rejection"] is True,
+        "causal interval or Holm decision drift",
+    )
+    _require(
         confirmatory["behavioral_equivalence_bounds"] == [-0.05, 0.05],
         "causal equivalence bounds drift",
     )
     _require(
-        causal["sensitivity_gate"]["minimum_estimated_power"] == 0.8,
+        causal["sensitivity_gate"]["minimum_estimated_power_each_ordering"] == 0.8,
         "causal sensitivity gate drift",
+    )
+    _require(
+        causal["sensitivity_gate"]["per_order_two_sided_alpha"] == 0.025
+        and causal["sensitivity_gate"]["simulation_replicates"] == 10000
+        and causal["sensitivity_gate"]["simulation_seed"] == 20260726,
+        "causal sensitivity procedure drift",
     )
     replay = causal["private_replay_bundle"]
     _require(replay["retain_recipient_pre_patch_bf16"] is True, "recipient tensor not replayable")
@@ -276,6 +352,27 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(
         detectors["confirmatory_success"]["pooled_estimate_forbidden"] is True,
         "detector placement pooling enabled",
+    )
+    missingness = detectors["confirmatory_success"]["missingness"]
+    _require(
+        missingness["planned_denominators_fixed"] is True
+        and missingness["silent_replacement_forbidden"] is True
+        and missingness["unevaluable_positive"] == "count_as_not_detected"
+        and missingness["unevaluable_negative"] == "count_as_false_positive"
+        and missingness["maximum_unevaluable_fraction_per_stratum"] == 0.1
+        and missingness["shared_reference_missing_unit_counted_once"] is True,
+        "detector missingness drift",
+    )
+    event_counts = detectors["confirmatory_success"]["attainable_event_counts"]
+    _require(
+        [row["planned_n"] for row in event_counts] == [40, 40, 50],
+        "detector event-count denominators drift",
+    )
+    _require(
+        event_counts[0]["minimum_detected"] == 39
+        and event_counts[1]["maximum_false_positives"] == 1
+        and event_counts[2]["maximum_false_positives"] == 2,
+        "detector attainable event-count gate drift",
     )
 
     breaker = plan["circuit_breaker"]
@@ -321,6 +418,15 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(
         compute["scientific_run_requires_separate_exact_cost_statement"] is True,
         "scientific run lacks per-run cost gate",
+    )
+    _require(
+        compute["two_order_crossing_included_in_campaign_estimate"] is True,
+        "placement crossing missing from cost estimate",
+    )
+    work_units = compute["planned_work_units"]
+    _require(
+        [row["maximum"] for row in work_units] == [860, 5400, 480, 280],
+        "placement work-unit ledger drift",
     )
     _require(
         compute["prior_estimated_spend_usd"] + compute["incremental_hard_usd"]

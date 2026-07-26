@@ -35,3 +35,30 @@ carried into the authoritative successor packet.
 No blocking finding remains unresolved. Replay or GPU execution is still
 forbidden until the amended plans, validators, tests, and exact hashes are
 committed and pushed.
+
+## Placement-amendment successor review
+
+The user-requested placement factor was frozen and pushed before any Llama 3.1
+8B or Qwen target outcome at commit
+`9c1272c15ea30715dc226aab6cfb62d9162fe276`. A separate `gpt-5.6-sol`
+high-reasoning review then evaluated only that amendment and its interactions
+with the already adjudicated plan. The completed exact-byte bundle passed
+local preflight. Review SHA-256:
+`9c1c7f7cb03337ea8c16dee4aa2b9a20e0fea5285b14024bbf37c72a7e1357f1`;
+response SHA-256:
+`71c5d091a95de6190ef4f067f4c6b5a320899a5af9bdcd541607acc74249139e`.
+
+| ID | Disposition | Prospective repair |
+|---|---|---|
+| B01 | Accepted | Require immutable-block rendering, component-level token-subsequence equality, frozen delimiters/chat special tokens, unique offsets, no truncation/padding/context shift, and frozen assistant-boundary suffix before generation |
+| B02 | Accepted | Use two ordering-specific paired sign-flip tests with Holm correction; make bootstrap intervals descriptive; estimate power conservatively at two-sided alpha 0.025 in each ordering |
+| B03 | Accepted | Freeze the RMS-standardized maximin formula, zero-scale rule, candidate grid, threshold grid, inequality, and every deterministic tie |
+| B04 | Accepted | Treat discovery as a non-inferential two-order screen and calibration as the two-test Holm family; a one-order pass stops common-site causal confirmation |
+| B05 | Accepted | Keep fixed detector denominators; count unevaluable positives against recall and negatives against FPR; invalidate above 10% missing in any stratum; count shared-reference failures once |
+| I01 | Accepted | Define the claim as robustness across only the two frozen single-turn orderings and report a secondary interaction estimate without an invariance claim |
+| I02 | Accepted | Treat Clopper-Pearson bounds as fixed-panel acceptance gates and publish exact attainable event counts; population interpretation requires exchangeability |
+| I03 | Accepted | Add a placement-inclusive work-unit ledger and keep measured-throughput re-estimation and the existing soft/hard gates |
+
+These repairs add no arm, model, outcome, or post-outcome discretion. The exact
+two placement levels, complete ordering-specific behavioral/SAE/J-lens
+reporting, shared-reference deduplication, and no-pooling rule remain unchanged.
