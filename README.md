@@ -12,14 +12,25 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
-**Study v1 is frozen and outcome-free for the raw checkpoint. Gate 0
-implementation is complete; paid artifact preparation is in progress.**
+**Study v1 reached its prospectively frozen Gate-4 stop rule.** Gate 2
+confirmed a large behavioral scaffold effect, Gate 3 produced a receipt-backed
+Jacobian-lens map and discovery-only SAE candidates, and Gate 4 found no
+eligible causal intervention strength within the frozen efficacy and safety
+rules. Held-out intervention outcomes were never opened.
 
 The public plan, restricted companion plan, artifact inventory, category-balanced
 splits, four tokenizer-matched arms, evaluator, thresholds, probe sets, decoding,
-resume rules, and compute policy are fixed. The Gate 1 discovery outcome has not
-been inspected. Implementation corrections made before that outcome are recorded
-in [docs/AMENDMENTS.md](docs/AMENDMENTS.md).
+resume rules, and compute policy were fixed before their affected outcomes.
+Implementation and numerical-semantics corrections are recorded in
+[docs/AMENDMENTS.md](docs/AMENDMENTS.md).
+
+The Gate-4 discovery calibration evaluated 20 behaviors at zero and both signs
+of four residual-norm-scaled doses. All 180 intervention receipts passed the
+frozen runtime gates, but no dose met the frozen behavioral efficacy criteria.
+The largest signed half-span was `0.0212` (95% bootstrap interval
+`[-0.0016, 0.0631]`) against a required `0.1`; therefore the confirmatory
+intervention panel was not run. The non-raw receipt-backed artifact is
+[results/gate4.calibration.discovery.json](results/gate4.calibration.discovery.json).
 
 Prior OpenRouter observations described in the source proposal are exploratory
 and are not evidence about the raw checkpoint used by this study.
