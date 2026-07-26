@@ -264,7 +264,9 @@ def analyze_coarse_patch_rows(
 ) -> dict[str, Any]:
     execution = plan["causal_localization"]["execution"]
     analysis = execution["analysis"]
-    layers = plan["causal_localization"]["coarse_residual_post_layers"]
+    eligible_layers = plan["causal_localization"]["instrument_strength_calibration"][
+        "target_candidate_layers"
+    ]
     conditions = execution["condition_kinds"]
     grouped: dict[tuple[str, int, str], list[Mapping[str, Any]]] = defaultdict(list)
     for row in rows:
@@ -272,6 +274,12 @@ def analyze_coarse_patch_rows(
             raise ValueError("patch analysis partition drift")
         key = (str(row["placement"]), int(row["candidate_layer"]), str(row["condition"]))
         grouped[key].append(row)
+    if partition == "discovery":
+        layers = eligible_layers
+    else:
+        layers = sorted({layer for _, layer, _ in grouped})
+        if len(layers) != 1 or layers[0] not in eligible_layers:
+            raise ValueError("patch calibration layer drift")
     expected = {
         (placement, layer, condition)
         for placement in PLACEMENTS

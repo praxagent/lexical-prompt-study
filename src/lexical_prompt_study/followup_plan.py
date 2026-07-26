@@ -401,8 +401,42 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     positive = causal["safe_positive_control"]
     _require(positive["same_hook_class"] is True, "positive control bypasses patch hook")
     _require(
-        positive["failure_disposition"] == "invalidate_causal_arm",
-        "positive-control failure is not invalidating",
+        positive["failure_disposition"]
+        == "exclude_failing_layers; invalidate_if_no_layer_passes_or_any_identity_or_noop_fails",
+        "positive-control layer-specific disposition drift",
+    )
+    instrument = causal["instrument_strength_calibration"]
+    _require(
+        instrument["status"]
+        == "prospectively_revised_after_safe_only_a037; no_target_patch_outcome_existed"
+        and instrument["source_run_id"]
+        == "g4-patch-qualification-a037-20260726"
+        and instrument["source_commit"]
+        == "3ae84aec497feb07f2bb139f29f63f3623852749"
+        and instrument["source_public_plan_sha256"]
+        == "cf71f5f87aaeaded86aa465211635f57fbe081f1b941acb271bbc05f1250a627"
+        and instrument["source_private_plan_sha256"]
+        == "e8d690bc17b286b4b7229da99eaeb0781dabd8d154673e92ac2b8dbbaaa7567c"
+        and instrument["source_result_path"]
+        == "results/followup-g4-safe-positive-control.public.json"
+        and instrument["source_result_sha256"]
+        == "d6dbd3ed6cd6cfe82e1a0ac50560f115f16e6d81a03efb8335610bafdb6712f4"
+        and instrument["source_pair_count"] == 20
+        and instrument["source_target_patch_trial_count"] == 0
+        and instrument["identity_and_noop_passed_all_layers"] is True,
+        "safe instrument calibration provenance drift",
+    )
+    _require(
+        instrument["target_candidate_layers"] == [16, 20, 24, 28, 31]
+        and instrument["excluded_instrument_weak_layers"] == [0, 4, 8, 12]
+        and sorted(
+            instrument["target_candidate_layers"]
+            + instrument["excluded_instrument_weak_layers"]
+        )
+        == sorted(causal["coarse_residual_post_layers"])
+        and instrument["target_layer_pooling_forbidden"] is True
+        and instrument["target_outcome_selection_forbidden"] is True,
+        "safe instrument layer partition drift",
     )
     confirmatory = causal["confirmatory_rule"]
     _require(confirmatory["maximum_confirmatory_tests"] == 2, "causal multiplicity drift")
@@ -513,7 +547,14 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         safe_private["pair_count"] == 20
         and safe_private["answer_tokens_distinct_within_pair"] is True
         and safe_private["answer_tokens_single_under_pinned_tokenizer"] is True
-        and safe_private["same_hook_and_candidate_layers"] is True
+        and safe_private[
+            "same_hook_and_all_coarse_layers_during_instrument_calibration"
+        ]
+        is True
+        and safe_private[
+            "target_generation_limited_to_instrument_passing_layers"
+        ]
+        is True
         and safe_private["no_generation"] is True,
         "safe positive-control private schema drift",
     )

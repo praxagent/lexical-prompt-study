@@ -8,6 +8,7 @@ from typing import Any
 
 from .artifacts import EVALUATOR_REVISION
 from .followup_patch import analyze_coarse_patch_rows
+from .followup_patch_runner import load_frozen_safe_positive_control
 from .followup_plan import validate_followup_plan
 from .hashing import sha256_file, write_json_atomic
 from .models import FollowupPatchReceipt, FollowupTrialReceipt
@@ -100,11 +101,10 @@ def analyze_followup_coarse_patch(
     validate_followup_plan(plan)
     if partition not in {"discovery", "calibration"}:
         raise ValueError("patch analysis partition drift")
-    safe = json.loads(
-        (patch_root / "safe-positive-control.public.json").read_text()
+    load_frozen_safe_positive_control(
+        path=patch_root / "safe-positive-control.public.json",
+        plan=plan,
     )
-    if safe["status"] != "passed" or not safe["all_candidate_layers_passed"]:
-        raise ValueError("safe positive-control gate did not pass")
     patch_scores = _score_by_trial(patch_score_root)
     baseline = _baseline_scores(
         generation_root=baseline_generation_root,
@@ -113,7 +113,11 @@ def analyze_followup_coarse_patch(
     )
     patch_paths = sorted((patch_root / "receipts/trials").glob("*.json"))
     expected_layers = (
-        len(plan["causal_localization"]["coarse_residual_post_layers"])
+        len(
+            plan["causal_localization"]["instrument_strength_calibration"][
+                "target_candidate_layers"
+            ]
+        )
         if partition == "discovery"
         else 1
     )

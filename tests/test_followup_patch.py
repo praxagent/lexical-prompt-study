@@ -18,6 +18,8 @@ from lexical_prompt_study.followup_patch import (
     select_cross_behavior_donors,
 )
 from lexical_prompt_study.followup_patch_runner import validate_patch_run_authorization
+from lexical_prompt_study.followup_patch_runner import load_frozen_safe_positive_control
+from lexical_prompt_study.hashing import sha256_file, write_json_atomic
 
 
 ROOT = Path(__file__).parents[1]
@@ -80,13 +82,15 @@ def test_random_deltas_match_each_reference_norm() -> None:
 def _analysis_rows(*, make_primary_eligible: bool) -> list[dict]:
     rows = []
     conditions = PLAN["causal_localization"]["execution"]["condition_kinds"]
-    layers = PLAN["causal_localization"]["coarse_residual_post_layers"]
+    layers = PLAN["causal_localization"]["instrument_strength_calibration"][
+        "target_candidate_layers"
+    ]
     for placement in PLACEMENTS:
         for layer in layers:
             for condition in conditions:
                 for index in range(20):
                     effect = 0.0
-                    if layer == 8 and make_primary_eligible:
+                    if layer == 20 and make_primary_eligible:
                         if condition == PRIMARY:
                             effect = -0.2
                         elif condition == RECIPROCAL:
@@ -115,7 +119,7 @@ def test_coarse_patch_analysis_selects_common_layer_without_pooling() -> None:
         plan=PLAN,
         partition="discovery",
     )
-    assert result["selected_common_layer"] == 8
+    assert result["selected_common_layer"] == 20
     assert result["pooled_placement_estimate_reported"] is False
     assert set(result["ordering_results"]) == set(PLACEMENTS)
 
@@ -188,3 +192,37 @@ def test_patch_target_cannot_use_safe_only_authorization() -> None:
             qualification_only=False,
             run_id="target-run",
         )
+
+
+def test_frozen_safe_control_validates_layer_specific_instrument(
+    tmp_path: Path,
+) -> None:
+    plan = json.loads(json.dumps(PLAN))
+    instrument = plan["causal_localization"]["instrument_strength_calibration"]
+    eligible = instrument["target_candidate_layers"]
+    result = {
+        "run_id": instrument["source_run_id"],
+        "source_commit": instrument["source_commit"],
+        "public_plan_sha256": instrument["source_public_plan_sha256"],
+        "patch_private_plan_sha256": instrument["source_private_plan_sha256"],
+        "pair_count": instrument["source_pair_count"],
+        "raw_prompts_or_token_ids_public": False,
+        "layers": [
+            {
+                "layer": layer,
+                "gate_passed": layer in eligible,
+                "identity_and_noop_passed": True,
+            }
+            for layer in plan["causal_localization"]["coarse_residual_post_layers"]
+        ],
+    }
+    path = tmp_path / "safe.json"
+    write_json_atomic(path, result)
+    instrument["source_result_sha256"] = sha256_file(path)
+    loaded = load_frozen_safe_positive_control(path=path, plan=plan)
+    assert loaded["pair_count"] == 20
+    result["layers"][0]["identity_and_noop_passed"] = False
+    write_json_atomic(path, result)
+    instrument["source_result_sha256"] = sha256_file(path)
+    with pytest.raises(ValueError, match="layer partition drift"):
+        load_frozen_safe_positive_control(path=path, plan=plan)

@@ -77,20 +77,18 @@ def validate_patch_run_authorization(
         authorization = plan["compute"]["scientific_runs"][binding_name]
     except KeyError as exc:
         raise ValueError(f"{binding_name} is not prospectively authorized") from exc
-    scientific_plan_sha = authorization["input_binding"][
-        "patch_scientific_plan_sha256"
-    ]
+    input_binding = authorization["input_binding"]
+    private_input_plan_sha = input_binding.get("patch_private_input_plan_sha256")
+    if private_input_plan_sha is None:
+        private_input_plan_sha = input_binding["patch_private_scientific_plan_sha256"]
     if (
         authorization["status"] != expected_status
         or authorization["runner_source_commit"] != source_commit
         or authorization["partition"] != partition
         or authorization["qualification_only"] is not qualification_only
         or authorization["run_id"] != run_id
-        or authorization["input_binding"]["patch_private_plan_sha256"]
-        != patch_private_plan_sha256
-        or patch_private_plan["public_plan_sha256"] != scientific_plan_sha
-        or authorization["input_binding"]["patch_private_scientific_plan_sha256"]
-        != scientific_plan_sha
+        or input_binding["patch_private_plan_sha256"] != patch_private_plan_sha256
+        or patch_private_plan["public_plan_sha256"] != private_input_plan_sha
         or authorization["target_generation_authorized"] is qualification_only
     ):
         raise ValueError("patch run authorization binding drift")
@@ -480,6 +478,40 @@ def run_safe_positive_control(
     return result
 
 
+def load_frozen_safe_positive_control(
+    *,
+    path: Path,
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    instrument = plan["causal_localization"]["instrument_strength_calibration"]
+    if sha256_file(path) != instrument["source_result_sha256"]:
+        raise ValueError("frozen safe positive-control result hash drift")
+    result = json.loads(path.read_text())
+    if (
+        result["run_id"] != instrument["source_run_id"]
+        or result["source_commit"] != instrument["source_commit"]
+        or result["public_plan_sha256"] != instrument["source_public_plan_sha256"]
+        or result["patch_private_plan_sha256"]
+        != instrument["source_private_plan_sha256"]
+        or result["pair_count"] != instrument["source_pair_count"]
+        or result["raw_prompts_or_token_ids_public"] is not False
+    ):
+        raise ValueError("frozen safe positive-control provenance drift")
+    by_layer = {int(row["layer"]): row for row in result["layers"]}
+    all_layers = plan["causal_localization"]["coarse_residual_post_layers"]
+    eligible = instrument["target_candidate_layers"]
+    excluded = instrument["excluded_instrument_weak_layers"]
+    if (
+        sorted(by_layer) != sorted(all_layers)
+        or [layer for layer in all_layers if by_layer[layer]["gate_passed"]] != eligible
+        or [layer for layer in all_layers if not by_layer[layer]["gate_passed"]]
+        != excluded
+        or not all(row["identity_and_noop_passed"] for row in by_layer.values())
+    ):
+        raise ValueError("frozen safe positive-control layer partition drift")
+    return result
+
+
 def run_safe_throughput_qualification(
     *,
     torch,
@@ -842,13 +874,19 @@ def run_followup_coarse_patch_generation(
     run_id: str,
     selected_layer: int | None = None,
     qualification_only: bool = False,
+    safe_positive_control_result_path: Path | None = None,
 ) -> dict[str, Any]:
     started = time.monotonic()
     plan = json.loads(public_plan_path.read_text())
     validate_followup_plan(plan)
     if partition not in {"discovery", "calibration"}:
         raise ValueError("coarse patch partition must be discovery or calibration")
-    layers = [int(value) for value in plan["causal_localization"]["coarse_residual_post_layers"]]
+    layers = [
+        int(value)
+        for value in plan["causal_localization"][
+            "instrument_strength_calibration"
+        ]["target_candidate_layers"]
+    ]
     if partition == "discovery":
         if selected_layer is not None:
             raise ValueError("discovery cannot receive a selected layer")
@@ -910,32 +948,26 @@ def run_followup_coarse_patch_generation(
     if model_revision != expected_revision:
         raise ValueError("patch model revision drift")
 
-    safe = run_safe_positive_control(
-        torch=torch,
-        model=model,
-        tokenizer=tokenizer,
+    output_root.mkdir(parents=True, exist_ok=True)
+    output_root.chmod(0o700)
+    if safe_positive_control_result_path is None:
+        raise ValueError("layer-specific protocol requires frozen safe-control result")
+    safe = load_frozen_safe_positive_control(
+        path=safe_positive_control_result_path,
         plan=plan,
-        public_plan_sha256=public_sha,
-        patch_private_plan=patch_private,
-        patch_private_plan_sha256=patch_private_sha,
-        output_root=output_root,
-        run_id=run_id,
-        source_commit=source_commit,
     )
-    if not safe["all_candidate_layers_passed"]:
-        summary = {
-            "schema_version": "1.0",
-            "status": "stopped_safe_positive_control_failed",
-            "partition": partition,
-            "run_id": run_id,
-            "source_commit": source_commit,
-            "public_plan_sha256": public_sha,
-            "patch_private_plan_sha256": patch_private_sha,
-            "trials": 0,
-            "elapsed_seconds": time.monotonic() - started,
-        }
-        _save_private_json(output_root / "summary.json", summary)
-        return summary
+    safe_copy_path = output_root / "safe-positive-control.public.json"
+    if safe_copy_path.exists():
+        if sha256_file(safe_copy_path) != sha256_file(
+            safe_positive_control_result_path
+        ):
+            raise ValueError("copied frozen safe positive-control result drift")
+    else:
+        write_json_atomic(safe_copy_path, safe)
+        if sha256_file(safe_copy_path) != sha256_file(
+            safe_positive_control_result_path
+        ):
+            raise ValueError("frozen safe positive-control byte copy drift")
     qualification = run_safe_throughput_qualification(
         torch=torch,
         model=model,
@@ -958,7 +990,8 @@ def run_followup_coarse_patch_generation(
             "public_plan_sha256": public_sha,
             "patch_private_plan_sha256": patch_private_sha,
             "trials": 0,
-            "safe_positive_control_status": safe["status"],
+            "safe_positive_control_status": "passed_layer_specific_instrument_gate",
+            "safe_positive_control_source_status": safe["status"],
             "safe_throughput_status": qualification["status"],
             "elapsed_seconds": time.monotonic() - started,
         }

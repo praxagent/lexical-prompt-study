@@ -258,6 +258,9 @@ def main() -> None:
     followup_coarse_patch.add_argument("--run-id", required=True)
     followup_coarse_patch.add_argument("--selected-layer", type=int)
     followup_coarse_patch.add_argument("--qualification-only", action="store_true")
+    followup_coarse_patch.add_argument(
+        "--safe-positive-control-result", type=Path, required=True
+    )
     followup_patch_analysis = sub.add_parser("analyze-followup-coarse-patch")
     followup_patch_analysis.add_argument(
         "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
@@ -643,6 +646,7 @@ def main() -> None:
                     run_id=args.run_id,
                     selected_layer=args.selected_layer,
                     qualification_only=args.qualification_only,
+                    safe_positive_control_result_path=args.safe_positive_control_result,
                 ),
                 sort_keys=True,
             )

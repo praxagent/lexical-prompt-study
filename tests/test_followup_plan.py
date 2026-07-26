@@ -17,6 +17,14 @@ def test_followup_plan_passes_strict_validation() -> None:
     validate_followup_plan(load_followup_plan(PLAN_PATH))
 
 
+def test_followup_plan_binds_safe_instrument_result_bytes() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    instrument = plan["causal_localization"]["instrument_strength_calibration"]
+    assert sha256_file(ROOT / instrument["source_result_path"]) == instrument[
+        "source_result_sha256"
+    ]
+
+
 def test_followup_plan_binds_unchanged_source_plan() -> None:
     plan = load_followup_plan(PLAN_PATH)
     source = ROOT / plan["partitions"]["source"]
