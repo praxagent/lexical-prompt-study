@@ -680,6 +680,88 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         < 1e-9,
         "G2 calibration scoring maximum cost arithmetic drift",
     )
+    mechanism_run = compute["scientific_runs"]["g3_mechanism_readout"]
+    _require(
+        mechanism_run["status"] == "authorized_after_local_preflight"
+        and mechanism_run["amendment"] == "A032"
+        and mechanism_run["runner_source_commit"]
+        == "655fa9b69b185cfcbad5ce51fb027909c1d73d18"
+        and mechanism_run["gpu"] == "NVIDIA B200"
+        and mechanism_run["count"] == 1
+        and mechanism_run["secure_cloud"] is True
+        and mechanism_run["state_bundle_count"] == 280
+        and mechanism_run["qualification_observation_count"] == 2
+        and mechanism_run["wall_limit_minutes"] == 30
+        and mechanism_run["no_progress_timeout_minutes"] == 10
+        and mechanism_run["automatic_fallback"] is False
+        and mechanism_run[
+            "raw_prompts_generations_and_reconstructive_token_ids_opened"
+        ]
+        is False,
+        "G3 mechanism compute statement drift",
+    )
+    _require(
+        abs(
+            mechanism_run["maximum_live_rate_usd_per_hour"]
+            * mechanism_run["wall_limit_minutes"]
+            / 60
+            - mechanism_run["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G3 mechanism maximum cost arithmetic drift",
+    )
+    expected_linear_seconds = (
+        mechanism_run["qualification_elapsed_seconds"]
+        / mechanism_run["qualification_observation_count"]
+        * mechanism_run["state_bundle_count"]
+    )
+    _require(
+        abs(
+            expected_linear_seconds
+            - mechanism_run["conservative_linear_state_scaling_seconds"]
+        )
+        < 1e-9
+        and abs(
+            mechanism_run["wall_limit_minutes"]
+            - expected_linear_seconds / 60
+            - mechanism_run["setup_and_verification_margin_minutes"]
+        )
+        < 1e-9,
+        "G3 mechanism throughput arithmetic drift",
+    )
+    mechanism_input = mechanism_run["input_binding"]
+    _require(
+        mechanism_input["discovery_input_manifest_sha256"]
+        == "d128933d562d78e2b01d70a2303a35791a2eb00f335c2a5ec3b655bfcad9bc90"
+        and mechanism_input["calibration_input_manifest_sha256"]
+        == "dd332b46b61b81f2e46b764e2992516ec04ae77f11b5cda172089bce3c196e65"
+        and mechanism_input["discovery_private_bundle_sha256"]
+        == "d2aaea08d7b137e07a6e5b468af62114f5ee73050ca6c3e5813bf47be15e9678"
+        and mechanism_input["calibration_private_bundle_sha256"]
+        == "3b04804a504d7895216867c27060ad8411a7af4b209ab1dff6793623d50d94a3"
+        and mechanism_input["source_probe_plan_sha256"]
+        == "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+        and mechanism_input["discovery_state_bundle_count"] == 140
+        and mechanism_input["calibration_state_bundle_count"] == 140,
+        "G3 mechanism input binding drift",
+    )
+    mechanism_outputs = mechanism_run["expected_outputs"]
+    _require(
+        mechanism_outputs["public_result_count"] == 1
+        and mechanism_outputs["summary_count"] == 1
+        and mechanism_outputs["private_sae_activation_matrix_count"] == 1
+        and mechanism_outputs["private_sae_diagnostics_count"] == 1
+        and mechanism_outputs["private_dense_direction_count"] == 1
+        and mechanism_outputs["private_jlens_layer_receipt_count"] == 31
+        and mechanism_outputs["private_file_mode"] == "0600"
+        and mechanism_outputs["placement_pooling_forbidden"] is True,
+        "G3 mechanism output receipt topology drift",
+    )
+    _require(
+        compute["current_cumulative_soft_gate_usd"] == 100
+        and compute["existing_cumulative_hard_ceiling_usd"] == 200,
+        "current cumulative budget gates drift",
+    )
     work_units = compute["planned_work_units"]
     _require(
         [row["maximum"] for row in work_units] == [860, 5400, 480, 280],

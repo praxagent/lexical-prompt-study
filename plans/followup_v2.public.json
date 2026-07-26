@@ -871,6 +871,46 @@
         "no_progress_timeout_minutes": 10,
         "automatic_fallback": false,
         "raw_outcomes_inspected": false
+      },
+      "g3_mechanism_readout": {
+        "status": "authorized_after_local_preflight",
+        "amendment": "A032",
+        "runner_source_commit": "655fa9b69b185cfcbad5ce51fb027909c1d73d18",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.98,
+        "state_bundle_count": 280,
+        "qualification_receipt_sha256": "7c097f12ffa1c0f59ce769c96e3b87d2a254ddde3a6a9b97116f53e5de46fe7b",
+        "qualification_observation_count": 2,
+        "qualification_elapsed_seconds": 7.371764304116368,
+        "conservative_linear_state_scaling_seconds": 1032.0470025762915,
+        "setup_and_verification_margin_minutes": 12.799216623728474,
+        "wall_limit_minutes": 30,
+        "maximum_compute_usd": 2.99,
+        "no_progress_timeout_minutes": 10,
+        "automatic_fallback": false,
+        "raw_prompts_generations_and_reconstructive_token_ids_opened": false,
+        "input_binding": {
+          "discovery_input_manifest_sha256": "d128933d562d78e2b01d70a2303a35791a2eb00f335c2a5ec3b655bfcad9bc90",
+          "calibration_input_manifest_sha256": "dd332b46b61b81f2e46b764e2992516ec04ae77f11b5cda172089bce3c196e65",
+          "discovery_private_bundle_sha256": "d2aaea08d7b137e07a6e5b468af62114f5ee73050ca6c3e5813bf47be15e9678",
+          "calibration_private_bundle_sha256": "3b04804a504d7895216867c27060ad8411a7af4b209ab1dff6793623d50d94a3",
+          "source_probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+          "discovery_state_bundle_count": 140,
+          "calibration_state_bundle_count": 140
+        },
+        "expected_outputs": {
+          "public_result_count": 1,
+          "summary_count": 1,
+          "private_sae_activation_matrix_count": 1,
+          "private_sae_diagnostics_count": 1,
+          "private_dense_direction_count": 1,
+          "private_jlens_layer_receipt_count": 31,
+          "private_file_mode": "0600",
+          "placement_pooling_forbidden": true
+        },
+        "checkpoint_resume": "verify exact provenance and reuse completed SAE, dense, and per-layer J-lens artifacts; never restart a completed unit"
       }
     },
     "planned_work_units": [
@@ -902,6 +942,7 @@
     "incremental_soft_usd": 50,
     "incremental_hard_usd": 75,
     "prior_estimated_spend_usd": 69.3810094824,
+    "current_cumulative_soft_gate_usd": 100,
     "existing_cumulative_hard_ceiling_usd": 200
   }
 }

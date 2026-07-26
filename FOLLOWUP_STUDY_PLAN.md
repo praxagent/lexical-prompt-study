@@ -614,6 +614,19 @@ Immediately before launch, the live secure B200 rate had moved to
 updating the exact maximum to `$14.95`. No target outcome existed when this
 rate-only amendment was frozen.
 
+Prospective amendment A032 authorizes only the G3 readout over the 280
+already-captured assistant-boundary state bundles. It binds exact A031 source
+`655fa9b69b185cfcbad5ce51fb027909c1d73d18`, both deterministic input
+manifests, both private-bundle hashes, and the inherited probe-plan hash.
+Exactly one secure B200 may run for at most 30 minutes at no more than
+`$5.98/hour` (`$2.99` maximum), with a 10-minute no-progress stop, atomic
+per-stage resume, and no fallback. The 7.3718-second synthetic-safe
+qualification exercised two observations through the model, SAE, J-lens,
+identity, and random-control paths; linear scaling to 280 captured states is
+1,032.05 seconds, leaving 12.80 minutes for verification, vectorized
+analysis, receipt validation, retrieval, and teardown. No generation is
+repeated and the two scaffold placements remain unpooled.
+
 Those estimates include both scaffold orderings. The bounded work-unit ledger
 before qualification is:
 
