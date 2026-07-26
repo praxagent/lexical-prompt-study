@@ -63,7 +63,7 @@ negative strata do not yet exist. This is a replicated internal signature,
 not a detector, circuit breaker, causal mechanism, or defense.
 
 Finally, we tested coarse residual-post state replacement at five
-independently instrument-valid layers, separately for both scaffold
+prespecified residual-post sites, separately for both scaffold
 orderings. The run produced and scored all `1,800` predeclared patch
 continuations. No layer passed the frozen restoring and reciprocal causal
 gates, so no common layer advanced to calibration. This rules out the tested
@@ -383,7 +383,7 @@ placements are mechanistically equivalent.
 ![Frozen bidirectional patch effects and eligibility gates](figures/followup-g4/E12-followup-causal-localization-stop.png)
 
 *Figure E12. Top: ordering-specific restoring and reciprocal effects for all
-five independently instrument-valid residual-post layers, with paired 95%
+five prespecified residual-post layers, with paired 95%
 bootstrap intervals and the frozen practical-effect thresholds. Bottom: every
 predeclared eligibility component, including identity/no-op and negative
 controls. The two scaffold placements are never pooled. Source:

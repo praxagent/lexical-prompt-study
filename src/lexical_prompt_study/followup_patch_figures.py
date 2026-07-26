@@ -86,8 +86,20 @@ def generate_followup_patch_figures(
     ]
     y = np.arange(len(rows))
     for offset, key, label, marker, color in (
-        (-0.13, "restoring", "Sham → full (restoring)", "o", "#D97706"),
-        (0.13, "reciprocal", "Full → sham (reciprocal)", "s", "#0284C7"),
+        (
+            -0.13,
+            "restoring",
+            "Sham donor into full recipient",
+            "o",
+            "#D97706",
+        ),
+        (
+            0.13,
+            "reciprocal",
+            "Full donor into sham recipient",
+            "s",
+            "#0284C7",
+        ),
     ):
         means = np.asarray([row[key]["mean"] for row in rows])
         lower = np.asarray([row[key]["interval"][0] for row in rows])
@@ -155,19 +167,21 @@ def generate_followup_patch_figures(
         "question": "Did any residual-post layer causally transfer behavior in both scaffold placements?",
         "description": (
             "Ordering-specific restoring and reciprocal patch effects with frozen "
-            "eligibility gates for all five instrument-valid layers."
+            "eligibility gates for five prespecified residual-post sites. "
+            "Condition names use donor-into-recipient order."
         ),
         "alt_text": (
-            "The upper forest plot shows restoring and reciprocal patch effects "
-            "for layers 16, 20, 24, 28, and 31 separately for scaffold-before and "
+            "The upper forest plot shows sham-donor-into-full-recipient restoring "
+            "patches and full-donor-into-sham-recipient reciprocal patches for "
+            "layers 16, 20, 24, 28, and 31, separately for scaffold-before and "
             "scaffold-after. No restoring effect reaches the required minus 0.10 "
             "threshold and no reciprocal effect reaches plus 0.10. The lower gate "
             "matrix shows that every layer fails both causal-direction gates; some "
-            "layers also fail identity, no-op, or negative-control checks. No common "
-            "layer advances to calibration."
+            "sites also fail identity, no-op, or negative-control checks. No common "
+            "site advances to calibration."
         ),
         "permitted_inference": (
-            "none of the five independently instrument-valid coarse residual-post "
+            "none of the five prespecified coarse residual-post "
             "sites passed the frozen bidirectional discovery gate in both orderings"
         ),
         "non_claims": [

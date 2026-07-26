@@ -55,7 +55,7 @@ and the three byte-verified figures under
 
 The follow-up coarse causal-localization arm also completed. It scored all
 `1,800` predeclared residual-post patch continuations across both scaffold
-placements, five instrument-valid layers, nine conditions, and 20 discovery
+placements, five prespecified residual-post sites, nine conditions, and 20 discovery
 behaviors. No layer passed both restoring and reciprocal effect gates, so the
 eligible set is empty and calibration remains closed. The result does not rule
 out finer tokenwise, component, feature, or subspace circuits. See
