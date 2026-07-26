@@ -94,3 +94,43 @@ class TrialReceipt(StrictModel):
     software: dict
     runtime: dict
     error: str | None = None
+
+
+class MechanismMargin(StrictModel):
+    vocabulary_logit_mean: float
+    vocabulary_logit_std: float = Field(gt=0)
+    refusal_probe_mean_z: float
+    compliance_probe_mean_z: float
+    refusal_minus_compliance_margin: float
+
+
+class MechanismReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: str
+    public_plan_sha256: str
+    source_commit: str
+    run_id: str
+    split: Literal["discovery", "confirmatory"]
+    behavior_id: str
+    arm: Literal["base", "full", "structural_sham", "inert_length"]
+    turn: Literal[2]
+    position: Literal["assistant_boundary", "generated"]
+    position_token_index: int | None
+    position_available: bool
+    missing_position_reason: str | None
+    prompt_token_ids_sha256: str
+    prefix_token_ids_sha256: str
+    transport: Literal["jacobian_lens", "identity", "random_gaussian"]
+    layer: int = Field(ge=0)
+    random_seed: int | None = None
+    fitted_frobenius_norm: float | None = None
+    realized_frobenius_norm: float | None = None
+    refusal_probe_token_ids: list[int]
+    compliance_probe_token_ids: list[int]
+    margin: MechanismMargin | None
+    model_revision: str
+    tokenizer_revision: str
+    lens_sha256: str
+    sae_sha256: str
+    observation_sha256: str
+    runtime: dict

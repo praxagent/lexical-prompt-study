@@ -9,7 +9,7 @@ from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
-from .models import StudyPlan, TrialReceipt
+from .models import MechanismReceipt, StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
 from .hashing import write_json_atomic
 from .synthetic import build_engineering_fixture, run_synthetic
@@ -81,6 +81,20 @@ def main() -> None:
     verify_figures = sub.add_parser("verify-figures")
     verify_figures.add_argument("--gate", type=Path, required=True)
     verify_figures.add_argument("--out", type=Path, required=True)
+    mechanism = sub.add_parser("run-mechanism-discovery")
+    mechanism.add_argument("--private-plan", type=Path, required=True)
+    mechanism.add_argument(
+        "--public-plan", type=Path, default=Path("plans/study_v1.public.json")
+    )
+    mechanism.add_argument(
+        "--artifacts", type=Path, default=Path("plans/artifacts.v1.json")
+    )
+    mechanism.add_argument("--generation-root", type=Path, required=True)
+    mechanism.add_argument("--model-path", required=True)
+    mechanism.add_argument("--lens-path", type=Path, required=True)
+    mechanism.add_argument("--sae-path", type=Path, required=True)
+    mechanism.add_argument("--out", type=Path, required=True)
+    mechanism.add_argument("--run-id", required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -95,7 +109,11 @@ def main() -> None:
         print(json.dumps(validate_published_judges(args.source, args.out), sort_keys=True))
     elif args.command == "write-schemas":
         outputs = {}
-        for name, model in (("study-plan", StudyPlan), ("trial-receipt", TrialReceipt)):
+        for name, model in (
+            ("study-plan", StudyPlan),
+            ("trial-receipt", TrialReceipt),
+            ("mechanism-receipt", MechanismReceipt),
+        ):
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())
         print(json.dumps(outputs, sort_keys=True))
@@ -112,6 +130,7 @@ def main() -> None:
                 run_behavior(
                     private_plan_path=args.private_plan,
                     public_plan_path=args.public_plan,
+                    artifacts_manifest_path=args.artifacts,
                     model_path=args.model_path,
                     output_root=args.out,
                     split=args.split,
@@ -163,3 +182,21 @@ def main() -> None:
         from .figures import verify_behavior_figures
 
         print(json.dumps(verify_behavior_figures(args.gate, args.out), sort_keys=True))
+    elif args.command == "run-mechanism-discovery":
+        from .mechanism_runner import run_mechanism_discovery
+
+        print(
+            json.dumps(
+                run_mechanism_discovery(
+                    private_plan_path=args.private_plan,
+                    public_plan_path=args.public_plan,
+                    generation_root=args.generation_root,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )

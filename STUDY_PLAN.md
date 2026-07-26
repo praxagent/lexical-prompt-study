@@ -419,8 +419,10 @@ Amendment A005 freezes the implementation before any mechanistic output:
   only. Eligible candidates have a positive paired full-minus-structural-sham
   activation delta and activate on at least 10% of full-arm discovery
   examples. Candidates are ranked by paired standardized delta with stable
-  feature-ID tie-breaking; one primary and no more than three secondary
-  candidates are retained.
+  feature-ID tie-breaking; the standardized delta is the paired mean divided
+  by the root-mean-square paired delta, which remains finite for perfectly
+  consistent effects. One primary and no more than three secondary candidates
+  are retained.
 - Candidate receipts also retain decoder norm, prevalence, sparsity, and
   reconstruction diagnostics. Public feature labels remain non-gating
   hypotheses.

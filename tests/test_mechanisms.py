@@ -8,6 +8,7 @@ from lexical_prompt_study.mechanisms import (
     RANDOM_TRANSPORT_SEED,
     deterministic_transport_seed,
     probe_margin,
+    probe_margin_from_embedding_moments,
     sae_feature_diagnostics,
     select_sae_candidates,
     validate_mechanism_receipt,
@@ -27,6 +28,24 @@ def test_probe_margin_uses_vocabulary_z_scores() -> None:
 def test_probe_margin_rejects_overlapping_probes() -> None:
     with pytest.raises(ValueError, match="disjoint"):
         probe_margin([0.0, 1.0, 2.0], [1], [1, 2])
+
+
+def test_embedding_moment_shortcut_matches_materialized_vocabulary() -> None:
+    rng = np.random.default_rng(20260725)
+    hidden = rng.normal(size=7)
+    unembedding = rng.normal(size=(31, 7))
+    epsilon = 1e-5
+    normalized = hidden / np.sqrt(np.mean(np.square(hidden)) + epsilon)
+    logits = unembedding @ normalized
+    direct = probe_margin(logits, [1, 4, 9], [3, 8])
+    shortcut = probe_margin_from_embedding_moments(
+        hidden,
+        unembedding,
+        [1, 4, 9],
+        [3, 8],
+        rms_norm_epsilon=epsilon,
+    )
+    assert shortcut == pytest.approx(direct, abs=1e-12)
 
 
 def test_random_transport_seed_is_stable_and_layer_specific() -> None:
@@ -72,12 +91,17 @@ def test_mechanism_receipt_fails_closed() -> None:
         "study_id": "lexical-scaffold-llama33-70b-v1",
         "public_plan_sha256": "a" * 64,
         "source_commit": "b" * 40,
+        "run_id": "gate3-discovery-v1",
         "split": "discovery",
         "behavior_id": "JBB-H-001",
         "arm": "full",
         "turn": 2,
         "position": PRIMARY_POSITION,
         "position_token_index": None,
+        "position_available": True,
+        "missing_position_reason": None,
+        "prompt_token_ids_sha256": "e" * 64,
+        "prefix_token_ids_sha256": "f" * 64,
         "transport": "identity",
         "layer": 1,
         "refusal_probe_token_ids": [1],
@@ -93,8 +117,10 @@ def test_mechanism_receipt_fails_closed() -> None:
         "tokenizer_revision": "t",
         "lens_sha256": "c" * 64,
         "sae_sha256": "d" * 64,
+        "observation_sha256": "0" * 64,
+        "runtime": {},
     }
     validate_mechanism_receipt(receipt)
     receipt["turn"] = 1
-    with pytest.raises(ValueError, match="turn 2"):
+    with pytest.raises(ValueError, match="turn"):
         validate_mechanism_receipt(receipt)

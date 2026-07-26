@@ -7,6 +7,7 @@ from typing import Any
 import numpy as np
 
 from .hashing import canonical_json_bytes, sha256_bytes
+from .models import MechanismReceipt
 
 
 MECHANISM_SCHEMA_VERSION = "1.0"
@@ -43,6 +44,49 @@ def probe_margin(
     z = (values - mean) / std
     refusal_mean = float(z[list(refusal)].mean())
     compliance_mean = float(z[list(compliance)].mean())
+    return {
+        "vocabulary_logit_mean": mean,
+        "vocabulary_logit_std": std,
+        "refusal_probe_mean_z": refusal_mean,
+        "compliance_probe_mean_z": compliance_mean,
+        "refusal_minus_compliance_margin": refusal_mean - compliance_mean,
+    }
+
+
+def probe_margin_from_embedding_moments(
+    vector: Sequence[float] | np.ndarray,
+    effective_unembedding: np.ndarray,
+    refusal_token_ids: Sequence[int],
+    compliance_token_ids: Sequence[int],
+    *,
+    rms_norm_epsilon: float,
+) -> dict[str, float]:
+    """Compute the exact Llama RMSNorm/unembedding margin without materializing logits."""
+    hidden = np.asarray(vector, dtype=np.float64)
+    embedding = np.asarray(effective_unembedding, dtype=np.float64)
+    if hidden.ndim != 1 or embedding.ndim != 2 or embedding.shape[1] != hidden.size:
+        raise ValueError("hidden vector and effective unembedding shapes do not align")
+    if rms_norm_epsilon <= 0:
+        raise ValueError("RMSNorm epsilon must be positive")
+    normalized = hidden / np.sqrt(np.mean(np.square(hidden)) + rms_norm_epsilon)
+    embedding_mean = embedding.mean(axis=0)
+    embedding_second_moment = embedding.T @ embedding / embedding.shape[0]
+    mean = float(normalized @ embedding_mean)
+    second = float(normalized @ embedding_second_moment @ normalized)
+    std = float(np.sqrt(max(second - mean * mean, 0.0)))
+    if std <= np.finfo(np.float64).eps:
+        raise ValueError("vocabulary logit standard deviation is zero")
+    refusal = tuple(int(item) for item in refusal_token_ids)
+    compliance = tuple(int(item) for item in compliance_token_ids)
+    if not refusal or not compliance or set(refusal) & set(compliance):
+        raise ValueError("probe sets must be non-empty and disjoint")
+    probe_ids = refusal + compliance
+    if min(probe_ids) < 0 or max(probe_ids) >= embedding.shape[0]:
+        raise ValueError("probe token ID outside vocabulary")
+    probe_logits = embedding[list(probe_ids)] @ normalized
+    probe_z = (probe_logits - mean) / std
+    refusal_mean = float(probe_z[: len(refusal)].mean())
+    compliance_mean = float(probe_z[len(refusal) :].mean())
     return {
         "vocabulary_logit_mean": mean,
         "vocabulary_logit_std": std,
@@ -127,7 +171,9 @@ def sae_feature_diagnostics(
         raise ValueError("SAE activations must be non-negative and decoder norms positive")
     delta = full_values - sham_values
     mean_delta = delta.mean(axis=0)
-    scale = delta.std(axis=0, ddof=1)
+    # RMS standardization is finite for perfectly consistent non-zero paired
+    # deltas and bounded in [-1, 1], avoiding an arbitrary epsilon in Cohen's dz.
+    scale = np.sqrt(np.mean(np.square(delta), axis=0))
     standardized = np.divide(
         mean_delta,
         scale,
@@ -178,61 +224,27 @@ def select_sae_candidates(
 
 
 def validate_mechanism_receipt(receipt: dict[str, Any]) -> None:
-    required = {
-        "schema_version",
-        "study_id",
-        "public_plan_sha256",
-        "source_commit",
-        "split",
-        "behavior_id",
-        "arm",
-        "turn",
-        "position",
-        "position_token_index",
-        "transport",
-        "layer",
-        "refusal_probe_token_ids",
-        "compliance_probe_token_ids",
-        "margin",
-        "model_revision",
-        "tokenizer_revision",
-        "lens_sha256",
-        "sae_sha256",
-    }
-    missing = sorted(required - receipt.keys())
-    if missing:
-        raise ValueError(f"mechanism receipt missing fields: {missing}")
-    if receipt["schema_version"] != MECHANISM_SCHEMA_VERSION:
+    parsed = MechanismReceipt.model_validate(receipt)
+    if parsed.schema_version != MECHANISM_SCHEMA_VERSION:
         raise ValueError("mechanism receipt schema version mismatch")
-    if receipt["split"] not in {"discovery", "confirmatory"}:
-        raise ValueError("invalid mechanism split")
-    if receipt["arm"] not in {"base", "full", "structural_sham", "inert_length"}:
-        raise ValueError("invalid mechanism arm")
-    if receipt["turn"] != 2:
-        raise ValueError("primary mechanism receipts are frozen to turn 2")
-    if receipt["position"] == PRIMARY_POSITION:
-        if receipt["position_token_index"] is not None:
+    if parsed.position == PRIMARY_POSITION:
+        if parsed.position_token_index is not None:
             raise ValueError("assistant boundary must not have a generated-token index")
-    elif receipt["position"] == "generated":
-        if receipt["position_token_index"] not in SECONDARY_GENERATED_POSITIONS:
-            raise ValueError("generated position is outside the frozen secondary set")
-    else:
-        raise ValueError("invalid mechanism position")
+    elif parsed.position_token_index not in SECONDARY_GENERATED_POSITIONS:
+        raise ValueError("generated position is outside the frozen secondary set")
+    if parsed.position_available:
+        if parsed.margin is None or parsed.missing_position_reason is not None:
+            raise ValueError("available position must have a margin and no missing reason")
+    elif parsed.margin is not None or not parsed.missing_position_reason:
+        raise ValueError("missing position must have a reason and no margin")
     validate_transport_metadata(
-        transport=receipt["transport"],
-        layer=int(receipt["layer"]),
-        fitted_frobenius_norm=receipt.get("fitted_frobenius_norm"),
-        realized_frobenius_norm=receipt.get("realized_frobenius_norm"),
-        random_seed=receipt.get("random_seed"),
+        transport=parsed.transport,
+        layer=parsed.layer,
+        fitted_frobenius_norm=parsed.fitted_frobenius_norm,
+        realized_frobenius_norm=parsed.realized_frobenius_norm,
+        random_seed=parsed.random_seed,
     )
-    margin = receipt["margin"]
-    if set(margin) != {
-        "vocabulary_logit_mean",
-        "vocabulary_logit_std",
-        "refusal_probe_mean_z",
-        "compliance_probe_mean_z",
-        "refusal_minus_compliance_margin",
-    }:
-        raise ValueError("mechanism margin fields mismatch")
-    if not all(np.isfinite(float(value)) for value in margin.values()):
+    if parsed.margin is not None and not all(
+        np.isfinite(float(value)) for value in parsed.margin.model_dump().values()
+    ):
         raise ValueError("mechanism margin contains non-finite values")
