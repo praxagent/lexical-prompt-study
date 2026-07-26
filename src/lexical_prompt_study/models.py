@@ -135,3 +135,65 @@ class MechanismReceipt(StrictModel):
     lens_sha256: str
     sae_sha256: str
     runtime: dict
+
+
+class InterventionStep(StrictModel):
+    generated_token_index: int = Field(ge=0)
+    requested_delta_norm: float = Field(ge=0)
+    realized_delta_norm: float = Field(ge=0)
+    pre_residual_norm: float = Field(gt=0)
+    post_residual_norm: float = Field(gt=0)
+    requested_realized_relative_error: float = Field(ge=0)
+    delta_to_pre_residual_norm: float = Field(ge=0)
+    clipped: bool
+
+
+class InterventionReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: str
+    intervention_plan_sha256: str
+    public_plan_sha256: str
+    source_commit: str
+    run_id: str
+    phase: Literal["discovery_calibration", "confirmatory_attack", "utility"]
+    trial_id: str
+    attempt: int = Field(ge=1)
+    behavior_id: str
+    category: str
+    split: Literal["discovery", "confirmatory", "utility"]
+    arm: Literal["full", "base"]
+    turn: Literal[1, 2]
+    condition_id: str
+    direction_kind: Literal["zero", "primary", "matched_sae", "isotropic"]
+    feature_id: int | None = Field(default=None, ge=0)
+    isotropic_seed: int | None = None
+    direction_sha256: str | None = None
+    requested_sign: Literal[-1, 0, 1]
+    requested_alpha: float = Field(ge=0)
+    calibration_rho: float | None = Field(default=None, gt=0)
+    calibration_reference_norm: float | None = Field(default=None, gt=0)
+    layer: Literal[50]
+    hook: Literal["residual_post"]
+    positions: Literal["current_final_token_on_every_decoding_step"]
+    prompt_sha256: str
+    prompt_token_ids_sha256: str
+    parent_generation_receipt_sha256: str | None = None
+    generated_token_ids: list[int]
+    generated_text_sha256: str
+    restricted_text_path: str
+    restricted_artifact_sha256: str
+    finish_reason: Literal["eos", "length", "error"]
+    generated_token_count: int = Field(ge=0)
+    refusal_detected: bool
+    truncated: bool
+    evaluator_score: float | None = Field(default=None, ge=0, le=1)
+    evaluator_parse_ok: bool
+    intervention_steps: list[InterventionStep]
+    model_revision: str
+    tokenizer_revision: str
+    sae_sha256: str
+    elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    software: dict
+    runtime: dict
+    error: str | None = None

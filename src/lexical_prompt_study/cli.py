@@ -9,7 +9,7 @@ from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
-from .models import MechanismReceipt, StudyPlan, TrialReceipt
+from .models import InterventionReceipt, MechanismReceipt, StudyPlan, TrialReceipt
 from .plans import build_plan, validate_plan
 from .hashing import write_json_atomic
 from .synthetic import build_engineering_fixture, run_synthetic
@@ -128,6 +128,7 @@ def main() -> None:
             ("study-plan", StudyPlan),
             ("trial-receipt", TrialReceipt),
             ("mechanism-receipt", MechanismReceipt),
+            ("intervention-receipt", InterventionReceipt),
         ):
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())
