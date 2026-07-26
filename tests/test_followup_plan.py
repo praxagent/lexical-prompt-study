@@ -146,6 +146,24 @@ def test_followup_plan_rejects_causal_test_without_holm() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_rejects_patch_execution_drift() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["causal_localization"]["execution"]["residual_post_hook"][
+        "irrelevant_layer"
+    ] = 4
+    with pytest.raises(ValueError, match="patch hook semantics"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_missing_patch_execution_condition() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["causal_localization"]["execution"]["condition_kinds"].remove(
+        "irrelevant_token_position"
+    )
+    with pytest.raises(ValueError, match="patch condition topology"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_rejects_detector_complete_case_missingness() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["detectors"]["confirmatory_success"]["missingness"][

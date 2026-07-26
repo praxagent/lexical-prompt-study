@@ -236,6 +236,45 @@ def main() -> None:
     followup_mechanism.add_argument("--sae-path", type=Path, required=True)
     followup_mechanism.add_argument("--out", type=Path, required=True)
     followup_mechanism.add_argument("--run-id", required=True)
+    followup_patch_private = sub.add_parser(
+        "build-followup-patch-private-plan"
+    )
+    followup_patch_private.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_patch_private.add_argument("--tokenizer-path", required=True)
+    followup_patch_private.add_argument("--out", type=Path, required=True)
+    followup_coarse_patch = sub.add_parser("run-followup-coarse-patch")
+    followup_coarse_patch.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_coarse_patch.add_argument("--patch-private-plan", type=Path, required=True)
+    followup_coarse_patch.add_argument("--generation-root", type=Path, required=True)
+    followup_coarse_patch.add_argument("--model-path", required=True)
+    followup_coarse_patch.add_argument("--out", type=Path, required=True)
+    followup_coarse_patch.add_argument(
+        "--partition", choices=["discovery", "calibration"], required=True
+    )
+    followup_coarse_patch.add_argument("--run-id", required=True)
+    followup_coarse_patch.add_argument("--selected-layer", type=int)
+    followup_coarse_patch.add_argument("--qualification-only", action="store_true")
+    followup_patch_analysis = sub.add_parser("analyze-followup-coarse-patch")
+    followup_patch_analysis.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_patch_analysis.add_argument("--patch-root", type=Path, required=True)
+    followup_patch_analysis.add_argument("--patch-score-root", type=Path, required=True)
+    followup_patch_analysis.add_argument(
+        "--baseline-generation-root", type=Path, required=True
+    )
+    followup_patch_analysis.add_argument(
+        "--baseline-score-root", type=Path, required=True
+    )
+    followup_patch_analysis.add_argument(
+        "--partition", choices=["discovery", "calibration"], required=True
+    )
+    followup_patch_analysis.add_argument("--public-out", type=Path, required=True)
+    followup_patch_analysis.add_argument("--private-out", type=Path, required=True)
     followup_mechanism_figures = sub.add_parser("figures-followup-mechanisms")
     followup_mechanism_figures.add_argument("--result", type=Path, required=True)
     followup_mechanism_figures.add_argument("--out", type=Path, required=True)
@@ -572,6 +611,56 @@ def main() -> None:
                     sae_path=args.sae_path,
                     output_root=args.out,
                     run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-followup-patch-private-plan":
+        from .followup_patch_private import build_followup_patch_private_plan
+
+        print(
+            json.dumps(
+                build_followup_patch_private_plan(
+                    public_plan_path=args.public_plan,
+                    tokenizer_path=args.tokenizer_path,
+                    output_path=args.out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-followup-coarse-patch":
+        from .followup_patch_runner import run_followup_coarse_patch_generation
+
+        print(
+            json.dumps(
+                run_followup_coarse_patch_generation(
+                    public_plan_path=args.public_plan,
+                    patch_private_plan_path=args.patch_private_plan,
+                    generation_root=args.generation_root,
+                    model_path=args.model_path,
+                    output_root=args.out,
+                    partition=args.partition,
+                    run_id=args.run_id,
+                    selected_layer=args.selected_layer,
+                    qualification_only=args.qualification_only,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-followup-coarse-patch":
+        from .followup_patch_analysis import analyze_followup_coarse_patch
+
+        print(
+            json.dumps(
+                analyze_followup_coarse_patch(
+                    public_plan_path=args.public_plan,
+                    patch_root=args.patch_root,
+                    patch_score_root=args.patch_score_root,
+                    baseline_generation_root=args.baseline_generation_root,
+                    baseline_score_root=args.baseline_score_root,
+                    partition=args.partition,
+                    public_output_path=args.public_out,
+                    private_output_path=args.private_out,
                 ),
                 sort_keys=True,
             )

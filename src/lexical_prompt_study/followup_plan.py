@@ -44,6 +44,11 @@ REQUIRED_PATCH_CONTROLS = {
     "irrelevant_token_position",
     "cross_behavior_category_and_length_matched_donor",
 }
+REQUIRED_PATCH_CONDITIONS = {
+    "sham_into_full",
+    "full_into_sham",
+    *REQUIRED_PATCH_CONTROLS,
+}
 EXPECTED_PARTITION_COUNTS = {
     "discovery": 20,
     "calibration": 20,
@@ -79,6 +84,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         in {
             "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
             "llama31-g3-sae-derived-unopened; no-g3-jlens-or-qwen-outcomes",
+            "llama31-g3-mechanism-inspected-and-reported; no-g4-patch-or-qwen-outcomes",
         },
         "8B/Qwen plan outcome boundary drift",
     )
@@ -432,6 +438,110 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     replay = causal["private_replay_bundle"]
     _require(replay["retain_recipient_pre_patch_bf16"] is True, "recipient tensor not replayable")
     _require(replay["retain_realized_delta_bf16"] is True, "realized patch not replayable")
+    execution = causal["execution"]
+    _require(execution["amendment"] == "A035", "patch execution amendment drift")
+    _require(
+        execution["status"]
+        in {
+            "implementation_pending_exact_source_and_cost_authorization",
+            "authorized_after_local_preflight",
+        },
+        "patch execution status drift",
+    )
+    _require(
+        execution["target_partitions_in_order"] == ["discovery", "calibration"],
+        "patch partition order drift",
+    )
+    _require(
+        execution["calibration_requires_common_discovery_layer"] is True
+        and execution["component_stage_requires_common_calibration_layer"] is True,
+        "patch gate ordering drift",
+    )
+    generation = execution["generation"]
+    _require(
+        generation["inherits_replication_decoding"] is True
+        and generation["patch_applied_during_prefill_only"] is True
+        and generation["patch_call_count_per_continuation"] == 1
+        and generation["left_padding_required_for_batches"] is True,
+        "patch generation semantics drift",
+    )
+    hook = execution["residual_post_hook"]
+    _require(
+        hook["module"] == "model.model.layers[layer]"
+        and hook["irrelevant_layer"] == 2
+        and hook["random_seed"] == 20260726,
+        "patch hook semantics drift",
+    )
+    _require(
+        set(execution["condition_kinds"]) == REQUIRED_PATCH_CONDITIONS
+        and len(execution["condition_kinds"]) == len(REQUIRED_PATCH_CONDITIONS),
+        "patch condition topology drift",
+    )
+    _require(
+        set(execution["effect_references"]) == REQUIRED_PATCH_CONDITIONS,
+        "patch baseline map drift",
+    )
+    patch_analysis = execution["analysis"]
+    _require(
+        patch_analysis["bootstrap_replicates"] == 10000
+        and patch_analysis["bootstrap_seed"] == 20260726
+        and patch_analysis[
+            "primary_and_reciprocal_require_absolute_mean_at_least"
+        ]
+        == 0.1
+        and patch_analysis[
+            "primary_and_reciprocal_minimum_directional_concordance"
+        ]
+        == 0.7,
+        "patch analysis thresholds drift",
+    )
+    _require(
+        patch_analysis["primary_requires_upper_95_bound_below_zero"] is True
+        and patch_analysis["reciprocal_requires_lower_95_bound_above_zero"]
+        is True
+        and patch_analysis["identity_and_noop_use_90_interval"] is True
+        and patch_analysis[
+            "random_irrelevant_and_cross_behavior_use_95_interval"
+        ]
+        is True
+        and patch_analysis["cross_behavior_uses_random_irrelevant_gate"] is True
+        and patch_analysis["pooled_placement_rows_forbidden"] is True,
+        "patch analysis semantics drift",
+    )
+    safe_private = execution["safe_positive_control_private_plan"]
+    _require(
+        safe_private["pair_count"] == 20
+        and safe_private["answer_tokens_distinct_within_pair"] is True
+        and safe_private["answer_tokens_single_under_pinned_tokenizer"] is True
+        and safe_private["same_hook_and_candidate_layers"] is True
+        and safe_private["no_generation"] is True,
+        "safe positive-control private schema drift",
+    )
+    qualification_generation = safe_private["qualification_generation"]
+    _require(
+        qualification_generation["pair_count"] == 20
+        and qualification_generation["safe_repetition_prompt"] is True
+        and qualification_generation["inherits_1024_token_cap"] is True
+        and qualification_generation["batched_together"] is True
+        and qualification_generation[
+            "uses_no_op_residual_post_hook_at_layer_0"
+        ]
+        is True
+        and qualification_generation["raw_output_private"] is True,
+        "patch qualification generation drift",
+    )
+    checkpointing = execution["private_checkpointing"]
+    _require(
+        checkpointing["one_atomic_receipt_and_replay_tensor_bundle_per_continuation"]
+        is True
+        and checkpointing[
+            "resume_requires_exact_source_plan_input_and_artifact_hashes"
+        ]
+        is True
+        and checkpointing["completed_unit_overwrite_forbidden"] is True
+        and checkpointing["raw_prompts_generations_and_token_ids_public"] is False,
+        "patch checkpoint policy drift",
+    )
 
     qwen = plan["qwen_pilot"]
     _require(qwen["native_qwen_attack_claim"] is False, "Qwen native-attack overclaim")

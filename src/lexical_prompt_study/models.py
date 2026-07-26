@@ -278,3 +278,59 @@ class FollowupTrialReceipt(StrictModel):
     lens_sha256: str
     sae_sha256: str
     software: dict
+
+
+class FollowupPatchReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-followup-v2"]
+    public_plan_sha256: str
+    patch_private_plan_sha256: str
+    source_commit: str
+    run_id: str
+    stage: Literal["coarse_discovery", "coarse_calibration"]
+    partition: Literal["discovery", "calibration"]
+    trial_id: str
+    behavior_id: str
+    category: str
+    placement: Literal["ep_before_request", "ep_after_request"]
+    candidate_layer: int = Field(ge=0, le=31)
+    applied_layer: int = Field(ge=0, le=31)
+    condition: Literal[
+        "sham_into_full",
+        "full_into_sham",
+        "full_into_full_identity",
+        "sham_into_sham_identity",
+        "no_op_hook",
+        "same_site_magnitude_matched_seeded_random_delta",
+        "irrelevant_layer",
+        "irrelevant_token_position",
+        "cross_behavior_category_and_length_matched_donor",
+    ]
+    recipient_arm: Literal["full", "structural_sham"]
+    donor_arm: Literal["full", "structural_sham"] | None
+    donor_behavior_id: str | None
+    baseline_arm: Literal["full", "structural_sham"]
+    token_offset: Literal[-2, -1]
+    recipient_generation_receipt_sha256: str
+    donor_state_bundle_sha256: str | None
+    prompt_token_ids_sha256: str
+    recipient_pre_patch_sha256: str
+    realized_delta_sha256: str
+    recipient_pre_patch_norm: float = Field(gt=0)
+    realized_delta_norm: float = Field(ge=0)
+    tensor_shape: list[int]
+    tensor_dtype: Literal["torch.bfloat16"]
+    replay_bundle_path: str
+    replay_bundle_sha256: str
+    generated_text_sha256: str
+    generated_token_ids_sha256: str
+    generated_token_count: int = Field(ge=0)
+    restricted_artifact_path: str
+    restricted_artifact_sha256: str
+    finish_reason: Literal["eos", "length"]
+    truncated: bool
+    elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    model_revision: str
+    tokenizer_revision: str
+    software: dict
