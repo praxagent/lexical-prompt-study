@@ -54,6 +54,17 @@
     "reproduce_prior_full_minus_sham_mean": 0.8233342051506043,
     "absolute_tolerance": 1e-06
   },
+  "candidate_gate": {
+    "scope": "discovery-only eligibility for later confirmatory detector evaluation",
+    "full_minimum_prevalence": 0.9,
+    "each_non_full_maximum_prevalence": 0.1,
+    "non_full_arms": ["base", "inert_length", "structural_sham"],
+    "require_each_full_minus_non_full_bootstrap_lower_bound_above_zero": true,
+    "minimum_each_full_minus_non_full_positive_delta_fraction": 0.8,
+    "pass_disposition": "retain_feature_10146_as_discovery_candidate_only",
+    "fail_disposition": "retire_feature_10146_from_confirmatory_detector_and_defense_claims",
+    "no_post_outcome_rule_change": true
+  },
   "claim_boundary_before_replay": "Feature 10146 is a discovery-only full-versus-structural-sham fingerprint; independence from harmful content and formatting or length has not been established.",
   "claim_boundary_after_replay": "Any strengthened claim remains limited to these 20 discovery behaviors until a separately frozen held-out detector test.",
   "raw_data_policy": {

@@ -42,6 +42,56 @@ def validate_replay_plan(plan: dict[str, Any]) -> None:
         raise ValueError("replay must not authorize a new model forward pass")
     if not plan["compute"]["paid_execution_requires_exact_cost_approval"]:
         raise ValueError("paid replay lacks an exact-cost gate")
+    candidate = plan["candidate_gate"]
+    if candidate["non_full_arms"] != ["base", "inert_length", "structural_sham"]:
+        raise ValueError("candidate-gate non-full arms drift")
+    if candidate["full_minimum_prevalence"] != 0.9:
+        raise ValueError("candidate-gate full prevalence drift")
+    if candidate["each_non_full_maximum_prevalence"] != 0.1:
+        raise ValueError("candidate-gate non-full prevalence drift")
+    if candidate["minimum_each_full_minus_non_full_positive_delta_fraction"] != 0.8:
+        raise ValueError("candidate-gate paired concordance drift")
+    if not candidate["no_post_outcome_rule_change"]:
+        raise ValueError("candidate gate permits post-outcome changes")
+
+
+def evaluate_candidate_gate(
+    primary_feature: dict[str, Any],
+    candidate_gate: dict[str, Any],
+) -> dict[str, Any]:
+    non_full_arms = candidate_gate["non_full_arms"]
+    contrast_rows = {
+        row["contrast"]: row for row in primary_feature["paired_contrasts"]
+    }
+    checks: dict[str, bool] = {
+        "full_minimum_prevalence": (
+            primary_feature["arms"]["full"]["prevalence"]
+            >= candidate_gate["full_minimum_prevalence"]
+        )
+    }
+    for arm in non_full_arms:
+        checks[f"{arm}_maximum_prevalence"] = (
+            primary_feature["arms"][arm]["prevalence"]
+            <= candidate_gate["each_non_full_maximum_prevalence"]
+        )
+        contrast = contrast_rows[f"full-minus-{arm}"]
+        checks[f"full_minus_{arm}_bootstrap_lower_above_zero"] = (
+            contrast["bootstrap_95_interval"][0] > 0
+        )
+        checks[f"full_minus_{arm}_positive_delta_fraction"] = (
+            contrast["positive_delta_fraction"]
+            >= candidate_gate["minimum_each_full_minus_non_full_positive_delta_fraction"]
+        )
+    passed = all(checks.values())
+    return {
+        "passed": passed,
+        "checks": checks,
+        "disposition": (
+            candidate_gate["pass_disposition"]
+            if passed
+            else candidate_gate["fail_disposition"]
+        ),
+    }
 
 
 def _id_list_hash(ids: list[str]) -> str:
@@ -264,6 +314,10 @@ def run_replay(
             "replay_plan_sha256": sha256_file(plan_path),
             "source_artifacts": sources,
             "consistency_gate": checks,
+            "candidate_gate": evaluate_candidate_gate(
+                replay_primary,
+                plan["candidate_gate"],
+            ),
             "claim_boundary": plan["claim_boundary_after_replay"],
         }
     )

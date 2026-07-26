@@ -8,6 +8,7 @@ import pytest
 from lexical_prompt_study.sae_four_arm_replay import (
     ARMS,
     compute_four_arm_replay,
+    evaluate_candidate_gate,
     validate_replay_plan,
 )
 
@@ -46,6 +47,13 @@ def test_replay_plan_rejects_new_forward_pass() -> None:
         validate_replay_plan(plan)
 
 
+def test_replay_plan_rejects_mutable_candidate_gate() -> None:
+    plan = copy.deepcopy(PLAN)
+    plan["candidate_gate"]["no_post_outcome_rule_change"] = False
+    with pytest.raises(ValueError, match="post-outcome"):
+        validate_replay_plan(plan)
+
+
 def test_four_arm_replay_preserves_pairing_and_summarizes_prevalence() -> None:
     states, observations = _fixture()
     public, private = compute_four_arm_replay(
@@ -63,6 +71,27 @@ def test_four_arm_replay_preserves_pairing_and_summarizes_prevalence() -> None:
     assert feature["arms"]["structural_sham"]["positive_count"] == 0
     assert feature["arms"]["full"]["positive_count"] == 20
     assert len(private["rows"]) == 80
+    gate = evaluate_candidate_gate(feature, PLAN["candidate_gate"])
+    assert gate["passed"] is True
+    assert gate["disposition"] == "retain_feature_10146_as_discovery_candidate_only"
+
+
+def test_candidate_gate_retires_feature_when_harmful_base_activates() -> None:
+    states, observations = _fixture()
+    public, _ = compute_four_arm_replay(
+        layer_states=states,
+        observations=observations,
+        encoder_rows=np.asarray([[1.0, 0.0]], dtype=np.float32),
+        encoder_bias=np.asarray([-0.05], dtype=np.float32),
+        feature_ids=[10146],
+        bootstrap_seed=20260726,
+        bootstrap_replicates=100,
+    )
+    gate = evaluate_candidate_gate(public["features"][0], PLAN["candidate_gate"])
+    assert gate["passed"] is False
+    assert gate["disposition"] == (
+        "retire_feature_10146_from_confirmatory_detector_and_defense_claims"
+    )
 
 
 def test_four_arm_replay_rejects_unaligned_behavior_ids() -> None:

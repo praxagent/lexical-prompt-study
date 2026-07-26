@@ -23,6 +23,14 @@ def test_followup_plan_binds_unchanged_source_plan() -> None:
     assert sha256_file(source) == plan["partitions"]["source_sha256"]
 
 
+def test_followup_plan_binds_review_adjudication_and_replay_plan() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    review = plan["review_gate"]
+    assert sha256_file(ROOT / review["adjudication"]) == review["adjudication_sha256"]
+    replay = plan["llama33_four_arm_prerequisite"]
+    assert sha256_file(ROOT / replay["plan"]) == replay["plan_sha256"]
+
+
 def test_followup_plan_rejects_outcome_contamination() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["outcome_status"] = "outcomes-inspected"
@@ -41,6 +49,34 @@ def test_followup_plan_rejects_confirmation_leakage() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["replication"]["threshold_partition"] = "confirmatory"
     with pytest.raises(ValueError, match="threshold leakage"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_multiple_confirmatory_detectors() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["detectors"]["maximum_llama31_confirmatory_candidates"] = 2
+    with pytest.raises(ValueError, match="multiplicity"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_non_boundary_confirmation() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["causal_localization"]["only_confirmatory_position"] = "generated_index_1"
+    with pytest.raises(ValueError, match="non-boundary"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_noninvalidating_positive_control_failure() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["causal_localization"]["safe_positive_control"]["failure_disposition"] = "continue"
+    with pytest.raises(ValueError, match="positive-control"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_mutable_four_arm_retirement() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["llama33_four_arm_prerequisite"]["machine_enforced"] = False
+    with pytest.raises(ValueError, match="four-arm"):
         validate_followup_plan(plan)
 
 
