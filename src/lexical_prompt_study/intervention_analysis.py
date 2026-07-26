@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import json
+import subprocess
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 
-from .hashing import canonical_json_bytes, sha256_bytes
+from .hashing import (
+    canonical_json_bytes,
+    sha256_bytes,
+    sha256_file,
+    write_json_atomic,
+)
+from .intervention_plan import validate_intervention_plan
+from .interventions import validate_intervention_receipt
 
 
 def calibration_condition_id(sign: int, rho: float) -> str:
@@ -49,7 +59,7 @@ def analyze_alpha_calibration(rows: list[dict], plan: dict) -> dict:
         if condition in indexed[behavior_id]:
             raise ValueError(f"duplicate calibration row: {behavior_id}/{condition}")
         score = row["evaluator_score"]
-        if score is not None and not 0 <= score <= 1:
+        if score is None or not np.isfinite(score) or not 0 <= score <= 1:
             raise ValueError("calibration evaluator score outside [0, 1]")
         indexed[behavior_id][condition] = row
     if len(indexed) != expected_behaviors:
@@ -93,6 +103,21 @@ def analyze_alpha_calibration(rows: list[dict], plan: dict) -> dict:
             for behavior_id in behavior_ids
             for condition in (negative_id, positive_id)
         ]
+        realized_alphas = np.array(
+            [float(row["requested_alpha"]) for row in nonzero_rows],
+            dtype=float,
+        )
+        if (
+            not np.all(np.isfinite(realized_alphas))
+            or np.any(realized_alphas <= 0)
+            or not np.allclose(
+                realized_alphas,
+                realized_alphas[0],
+                rtol=0,
+                atol=1e-12,
+            )
+        ):
+            raise ValueError("calibration alpha drift within dose")
         parse_failures = sum(not bool(row["evaluator_parse_ok"]) for row in phase_rows)
         runtime_errors = sum(row.get("error") is not None for row in phase_rows)
         max_relative_error = max(
@@ -120,7 +145,7 @@ def analyze_alpha_calibration(rows: list[dict], plan: dict) -> dict:
         metrics = {
             "rho": rho,
             "restoring_sign": restoring_sign,
-            "alpha": float(nonzero_rows[0]["requested_alpha"]),
+            "alpha": float(realized_alphas[0]),
             "mean_signed_half_span": float(signed_half_span.mean()),
             "signed_half_span_bootstrap_95_interval": interval,
             "mean_restoring_minus_zero": float(restoring_minus_zero.mean()),
@@ -166,3 +191,104 @@ def analyze_alpha_calibration(rows: list[dict], plan: dict) -> dict:
         "selection": selected,
         "confirmatory_outcomes_opened": False,
     }
+
+
+def analyze_alpha_calibration_receipts(
+    *,
+    intervention_plan_path: Path,
+    public_plan_path: Path,
+    gate3_analysis_path: Path,
+    generation_root: Path,
+    score_root: Path,
+    output_path: Path,
+) -> dict:
+    validate_intervention_plan(
+        intervention_plan_path,
+        public_plan_path,
+        gate3_analysis_path,
+    )
+    plan = json.loads(intervention_plan_path.read_text())
+    plan_sha = sha256_file(intervention_plan_path)
+    generation_paths = sorted(
+        (generation_root / "receipts" / "trials").glob("*.json")
+    )
+    score_paths = sorted((score_root / "trials").glob("*.json"))
+    if not generation_paths or len(generation_paths) != len(score_paths):
+        raise ValueError("calibration generation/score count mismatch")
+    scores = {
+        json.loads(path.read_text())["trial_id"]: path for path in score_paths
+    }
+    rows = []
+    generation_hashes = []
+    score_hashes = []
+    run_ids = set()
+    source_commits = set()
+    for generation_path in generation_paths:
+        receipt = validate_intervention_receipt(
+            json.loads(generation_path.read_text())
+        )
+        if receipt.phase != "discovery_calibration":
+            raise ValueError("non-calibration receipt in calibration analysis")
+        if receipt.intervention_plan_sha256 != plan_sha:
+            raise ValueError("calibration intervention plan hash drift")
+        if receipt.trial_id not in scores:
+            raise ValueError(f"missing calibration score: {receipt.trial_id}")
+        score_path = scores[receipt.trial_id]
+        score = json.loads(score_path.read_text())
+        if score["generation_receipt_sha256"] != sha256_file(generation_path):
+            raise ValueError(f"calibration score linkage drift: {receipt.trial_id}")
+        steps = receipt.intervention_steps
+        rows.append(
+            {
+                "trial_id": receipt.trial_id,
+                "behavior_id": receipt.behavior_id,
+                "condition_id": receipt.condition_id,
+                "evaluator_score": score["yes_probability"],
+                "evaluator_parse_ok": score["parse_ok"],
+                "requested_alpha": receipt.requested_alpha,
+                "maximum_requested_realized_relative_error": max(
+                    (
+                        step.requested_realized_relative_error
+                        for step in steps
+                    ),
+                    default=0.0,
+                ),
+                "maximum_event_delta_to_pre_residual_norm": max(
+                    (step.delta_to_pre_residual_norm for step in steps),
+                    default=0.0,
+                ),
+                "truncated": receipt.truncated,
+                "error": receipt.error,
+                "generation_receipt_sha256": sha256_file(generation_path),
+                "score_receipt_sha256": sha256_file(score_path),
+            }
+        )
+        generation_hashes.append(sha256_file(generation_path))
+        score_hashes.append(sha256_file(score_path))
+        run_ids.add(receipt.run_id)
+        source_commits.add(receipt.source_commit)
+    if len(run_ids) != 1 or len(source_commits) != 1:
+        raise ValueError("calibration run/source topology drift")
+    result = analyze_alpha_calibration(rows, plan)
+    result.update(
+        {
+            "intervention_plan_sha256": plan_sha,
+            "public_plan_sha256": sha256_file(public_plan_path),
+            "gate3_analysis_sha256": sha256_file(gate3_analysis_path),
+            "generation_receipts_sha256": sha256_bytes(
+                canonical_json_bytes(sorted(generation_hashes))
+            ),
+            "score_receipts_sha256": sha256_bytes(
+                canonical_json_bytes(sorted(score_hashes))
+            ),
+            "run_id": next(iter(run_ids)),
+            "generation_source_commit": next(iter(source_commits)),
+            "analysis_source_commit": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"],
+                text=True,
+            ).strip(),
+            "analysis_implementation_sha256": sha256_file(Path(__file__)),
+        }
+    )
+    write_json_atomic(output_path, result)
+    return result

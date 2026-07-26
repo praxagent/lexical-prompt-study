@@ -110,6 +110,32 @@ def main() -> None:
     validate_intervention.add_argument("--public", type=Path, required=True)
     validate_intervention.add_argument("--analysis", type=Path, required=True)
     validate_intervention.add_argument("--private", type=Path)
+    intervention_calibration = sub.add_parser("run-intervention-calibration")
+    intervention_calibration.add_argument("--private-plan", type=Path, required=True)
+    intervention_calibration.add_argument("--public-plan", type=Path, required=True)
+    intervention_calibration.add_argument(
+        "--intervention-plan", type=Path, required=True
+    )
+    intervention_calibration.add_argument(
+        "--gate3-analysis", type=Path, required=True
+    )
+    intervention_calibration.add_argument(
+        "--generation-root", type=Path, required=True
+    )
+    intervention_calibration.add_argument("--model-path", required=True)
+    intervention_calibration.add_argument("--sae-path", type=Path, required=True)
+    intervention_calibration.add_argument("--out", type=Path, required=True)
+    intervention_calibration.add_argument("--run-id", required=True)
+    intervention_calibration.add_argument("--max-behaviors", type=int)
+    intervention_calibration.add_argument("--max-rhos", type=int)
+    intervention_calibration.add_argument("--max-new-tokens", type=int)
+    analyze_calibration = sub.add_parser("analyze-intervention-calibration")
+    analyze_calibration.add_argument("--intervention-plan", type=Path, required=True)
+    analyze_calibration.add_argument("--public-plan", type=Path, required=True)
+    analyze_calibration.add_argument("--gate3-analysis", type=Path, required=True)
+    analyze_calibration.add_argument("--generation-root", type=Path, required=True)
+    analyze_calibration.add_argument("--score-root", type=Path, required=True)
+    analyze_calibration.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -260,6 +286,49 @@ def main() -> None:
                     args.analysis,
                     private_study_path=args.private,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-intervention-calibration":
+        from .intervention_runner import run_intervention_calibration
+
+        print(
+            json.dumps(
+                run_intervention_calibration(
+                    private_plan_path=args.private_plan,
+                    public_plan_path=args.public_plan,
+                    intervention_plan_path=args.intervention_plan,
+                    gate3_analysis_path=args.gate3_analysis,
+                    generation_root=args.generation_root,
+                    model_path=args.model_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    run_id=args.run_id,
+                    max_behaviors=args.max_behaviors,
+                    max_rhos=args.max_rhos,
+                    max_new_tokens=args.max_new_tokens,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-intervention-calibration":
+        from .intervention_analysis import analyze_alpha_calibration_receipts
+
+        result = analyze_alpha_calibration_receipts(
+            intervention_plan_path=args.intervention_plan,
+            public_plan_path=args.public_plan,
+            gate3_analysis_path=args.gate3_analysis,
+            generation_root=args.generation_root,
+            score_root=args.score_root,
+            output_path=args.out,
+        )
+        print(
+            json.dumps(
+                {
+                    "status": result["status"],
+                    "selection": result["selection"],
+                    "output": str(args.out),
+                },
                 sort_keys=True,
             )
         )

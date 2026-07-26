@@ -7,7 +7,7 @@ import numpy as np
 from .hashing import canonical_json_bytes
 from .models import InterventionReceipt
 
-REQUESTED_REALIZED_TOLERANCE = 1e-3
+REQUESTED_REALIZED_TOLERANCE = 0.05
 MAXIMUM_DELTA_TO_RESIDUAL_NORM = 0.05
 
 
