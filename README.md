@@ -53,6 +53,16 @@ not a detector, circuit breaker, causal mechanism, or defense. See
 and the three byte-verified figures under
 [figures/followup-g3](figures/followup-g3).
 
+The follow-up coarse causal-localization arm also completed. It scored all
+`1,800` predeclared residual-post patch continuations across both scaffold
+placements, five instrument-valid layers, nine conditions, and 20 discovery
+behaviors. No layer passed both restoring and reciprocal effect gates, so the
+eligible set is empty and calibration remains closed. The result does not rule
+out finer tokenwise, component, feature, or subspace circuits. See
+[results/g4.followup-patch-discovery.public.json](results/g4.followup-patch-discovery.public.json)
+and the byte-verified
+[E12 causal-stop figure](figures/followup-g4/E12-followup-causal-localization-stop.svg).
+
 Prior OpenRouter observations described in the source proposal are exploratory
 and are not evidence about the raw checkpoint used by this study.
 

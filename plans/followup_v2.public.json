@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "study_id": "lexical-scaffold-followup-v2",
   "created_utc": "2026-07-26T06:45:00Z",
-  "outcome_status": "llama31-g3-mechanism-inspected-and-reported; no-g4-patch-or-qwen-outcomes",
+  "outcome_status": "llama31-g4-patch-discovery-inspected-and-stopped-no-eligible-layer; no-g4-calibration-or-qwen-outcomes",
   "source_study": {
     "study_id": "lexical-scaffold-llama33-70b-v1",
     "public_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
@@ -1375,7 +1375,7 @@
         }
       },
       "g4_patch_discovery_scoring": {
-        "status": "scoring_complete_analysis_unopened",
+        "status": "scoring_complete_analysis_inspected",
         "amendment": "A049",
         "runner_source_commit": "55a1be9708e46e57b8ac64901502d7e11e48a742",
         "partition": "discovery",
@@ -1417,7 +1417,7 @@
         "conservative_prelaunch_compute_usd": 97.79290482903985,
         "conservative_postrun_cap_compute_usd": 99.78623816237318,
         "result_binding": {
-          "status": "complete_analysis_unopened",
+          "status": "complete_analysis_inspected",
           "source_commit": "55a1be9708e46e57b8ac64901502d7e11e48a742",
           "public_plan_sha256": "99e5bf0777120cf5402a0f9d9c00d5b9204c0ba23a4b6a26f0837f126eead9f1",
           "run_id": "g4-patch-discovery-score-a048-20260726",
@@ -1437,7 +1437,24 @@
           "returned_rate_usd_per_hour": 5.89,
           "creation_to_confirmed_teardown_compute_upper_bound_usd": 0.859341183333333,
           "raw_score_values_or_classifier_inputs_inspected": false,
-          "causal_analysis_generated": false
+          "causal_analysis_generated": true
+        },
+        "analysis_binding": {
+          "status": "stopped_no_eligible_layer",
+          "amendment": "A050",
+          "source_commit": "636b105d963747bb7fa0a03d68341a11082449cc",
+          "input_public_plan_sha256": "c20eb1ab09383cc2ef619bf44c265bd70ba799408575d683696d1d84fa978f79",
+          "analysis_implementation_sha256": "054efbef412715096755ab618c69203ea92df9f4791d69bc612ae8415d5a89b1",
+          "public_result_path": "results/g4.followup-patch-discovery.public.json",
+          "public_result_sha256": "3134f5a53f07f79b3f823cf51d2a24de79afa6111d6ddf5596b80f16dd20b07b",
+          "private_result_sha256": "6b1a13af00127e322789024a068f1151904f624cee9852dfa0f5cd4f000f7923",
+          "patch_receipt_count": 1800,
+          "patch_score_receipt_count": 1800,
+          "placement_pooling_performed": false,
+          "eligible_common_layers": [],
+          "selected_common_layer": null,
+          "calibration_authorized": false,
+          "raw_prompts_generations_token_ids_or_replay_tensors_public": false
         }
       }
     },

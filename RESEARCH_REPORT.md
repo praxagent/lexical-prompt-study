@@ -2,10 +2,10 @@
 
 **Status:** Complete through the frozen Gate 4 discovery calibration and the
 post-study four-arm SAE replay on Llama 3.3 70B, plus ordering-controlled
-behavioral and internal replication on Llama 3.1 8B. The 70B held-out
-intervention outcomes were not opened. The 8B detector threshold, benign
-utility calibration, causal patching, held-out confirmation, and Qwen transfer
-remain unrun.
+behavioral, internal, and coarse causal-patching stages on Llama 3.1 8B. The
+70B held-out intervention outcomes were not opened. The 8B detector threshold,
+benign utility calibration, causal-patch calibration and confirmation, and
+Qwen transfer remain unrun.
 
 > **Draft and AI-use status.** Generative-AI tools helped implement, audit,
 > execute, interpret, visualize, and draft this study. The author selected the
@@ -62,6 +62,15 @@ was deliberately not fit because ordinary-benign and structured-benign
 negative strata do not yet exist. This is a replicated internal signature,
 not a detector, circuit breaker, causal mechanism, or defense.
 
+Finally, we tested coarse residual-post state replacement at five
+independently instrument-valid layers, separately for both scaffold
+orderings. The run produced and scored all `1,800` predeclared patch
+continuations. No layer passed the frozen restoring and reciprocal causal
+gates, so no common layer advanced to calibration. This rules out the tested
+single-site residual-post replacement as a sufficiently strong bidirectional
+handle under this protocol; it does not rule out finer tokenwise, component,
+feature, or subspace circuits.
+
 ## Result in one picture
 
 | Claim rung | Outcome | Evidence level |
@@ -74,6 +83,7 @@ not a detector, circuit breaker, causal mechanism, or defense.
 | The behavioral effect replicates on Llama 3.1 8B in both scaffold orderings | Passed discovery and calibration screens | Ordering-specific, receipt-backed |
 | A discovery-frozen 8B SAE candidate replicates on calibration | Feature 6779 selected | Complete four-arm readout, threshold intentionally unfitted |
 | The 8B J-lens trajectory is placement-invariant or causal | Not established | Orderings differ; descriptive controls only |
+| One of five coarse 8B residual-post sites bidirectionally transfers the behavior in both orderings | No layer passed | 1,800 discovery patches and scores; calibration closed |
 
 ## Prior work, contribution, and non-claims
 
@@ -368,6 +378,47 @@ Accordingly, this is a stable descriptive readout under the pinned protocol,
 not proof that the fitted lens localized a causal circuit or that the two
 placements are mechanistically equivalent.
 
+### Coarse causal localization stops before calibration
+
+![Frozen bidirectional patch effects and eligibility gates](figures/followup-g4/E12-followup-causal-localization-stop.png)
+
+*Figure E12. Top: ordering-specific restoring and reciprocal effects for all
+five independently instrument-valid residual-post layers, with paired 95%
+bootstrap intervals and the frozen practical-effect thresholds. Bottom: every
+predeclared eligibility component, including identity/no-op and negative
+controls. The two scaffold placements are never pooled. Source:
+[G4 follow-up patch result](results/g4.followup-patch-discovery.public.json).
+Receipt:
+[E12 receipt](figures/followup-g4/E12-followup-causal-localization-stop.receipt.json).*
+
+The causal arm replaced the current final-token residual-post state at layers
+`16`, `20`, `24`, `28`, and `31`. For each ordering, layer, and behavior it
+measured both `sham → full` replacement, intended to restore the matched
+unpatched full behavior, and the reciprocal `full → sham` replacement. Seven
+controls tested hook identity, no-op behavior, random directions, irrelevant
+layers and positions, and cross-behavior donors. The complete topology was
+`2` orderings × `5` layers × `9` conditions × `20` behaviors = `1,800`
+patched continuations, each linked to one pinned HarmBench score receipt.
+
+No primary direction passed. For scaffold-before-request, the largest
+restoring movement was about `-0.050` at layers `24`, `28`, and `31`, versus
+the required mean at most `-0.1`; all corresponding upper 95% bounds crossed
+zero. Its largest reciprocal mean was `0.0500` at layer `20`, below the
+required `0.1`. For scaffold-after-request, restoring means instead ranged
+from `0.0437` to `0.0584`, opposite the required direction, while reciprocal
+means were all below `0.001`. Several layer/order cells also failed identity,
+no-op, or negative-control gates. The conjunction therefore returned an empty
+eligible-layer set.
+
+This is a useful negative localization result. It says that replacing one
+coarse residual stream site with the matched opposite-arm state was not a
+sufficient, reliable bidirectional control under the frozen effect-size,
+uncertainty, and concordance requirements. It does not say that the behavior
+has no causal mechanism, that feature `6779` is non-causal, or that finer
+attention/MLP, tokenwise, multi-layer, or subspace interventions will fail.
+Because discovery selected no common layer, calibration was not generated and
+no held-out causal outcome was opened.
+
 ## Interpretation
 
 The cleanest conclusion is asymmetric. We have strong evidence that the full
@@ -379,10 +430,12 @@ the full scaffold activates it much more strongly. We do not have evidence that
 the primary feature direction is a practically useful causal handle or a
 specific detector.
 
-The stop is informative. It prevents a vivid discovery correlation from being
-promoted into a mechanism claim merely because a feature separates conditions.
-The protocol did what it was designed to do: it let a promising candidate fail
-before the held-out confirmatory set could be used to rescue or tune it.
+The stops are informative. They prevent vivid discovery correlations from
+being promoted into mechanism claims merely because a feature separates
+conditions. The protocol did what it was designed to do twice: it let the 70B
+SAE intervention fail before held-out confirmation, and it stopped the 8B
+coarse patch arm before calibration could be used to rescue or tune a
+discovery site.
 
 ## Discussion
 
@@ -420,11 +473,13 @@ deployment-ready. The four-arm replay retires feature `10146` itself as the
 planned detector because inert length activated it in `14/20` discovery cases.
 The 8B follow-up has now independently selected and calibration-checked feature
 `6779`, carried the four harmful arms through both placements, and retained
-dense, identity, random-transport, and lexical comparators. The next gate is
-not deployment: it is the missing ordinary-benign and structured-benign
-utility-calibration matrix, followed by a frozen common threshold. Only a
-candidate that passes that gate should reach held-out confirmation and causal
-patching. A detector alone would still not explain or repair the vulnerability.
+dense, identity, random-transport, and lexical comparators. The next detector
+gate is not deployment: it is the missing ordinary-benign and
+structured-benign utility-calibration matrix, followed by a frozen common
+threshold. The coarse causal arm has separately stopped; any finer
+component/token/subspace localization must begin under a new prospective
+protocol rather than reuse the failed layer selector. A detector alone would
+still not explain or repair the vulnerability.
 
 ## Reproducibility and provenance ledger
 
@@ -447,10 +502,13 @@ patching. A detector alone would still not explain or repair the vulnerability.
 | Gate 4 score receipt aggregate | artifact field | `a09d306f4f643bf502fcae9e371ea0911624287e17abe7d9d87d6db00b30ca75` |
 | Gate 4 analysis rows | artifact field | `fdb1d70c559b8f648e63229bd26b7d74fe9ec056b2d930174a4aecc1bf90cd98` |
 | Gate 4 figure | [figures/gate4/provenance.json](figures/gate4/provenance.json) | `9f3d61afce4e81e35a1d3a3ea3a34f0e275497f187d1516b2131d94dc225adab` |
-| Follow-up public plan | [plans/followup_v2.public.json](plans/followup_v2.public.json) | `d37125c2675f55bf3b24fb18b57896f1f5258c24b5ea18b803db7de9de6e1124` |
+| Follow-up public plan | [plans/followup_v2.public.json](plans/followup_v2.public.json) | `4c575471406cf5aa58e79f577c736732db7c769e1b863af9bac3ac3c1e03e597` |
 | Follow-up G3 result | [results/g3.followup-mechanism.public.json](results/g3.followup-mechanism.public.json) | `d4cef123fcc3d1323d6832ae677dabb21cc1fdd45222dda9b1da8e728787a7ea` |
 | Follow-up G3 runner source | artifact field | `23da31eb563e6386de980fd06c6dfca4454cc678` |
 | Follow-up G3 figures | [figures/followup-g3/provenance.followup-mechanisms.json](figures/followup-g3/provenance.followup-mechanisms.json) | Per-output hashes and source pointers inside |
+| Follow-up G4 coarse-patch result | [results/g4.followup-patch-discovery.public.json](results/g4.followup-patch-discovery.public.json) | `3134f5a53f07f79b3f823cf51d2a24de79afa6111d6ddf5596b80f16dd20b07b` |
+| Follow-up G4 analysis source | result artifact fields | `636b105d963747bb7fa0a03d68341a11082449cc`; implementation `054efbef412715096755ab618c69203ea92df9f4791d69bc612ae8415d5a89b1` |
+| Follow-up G4 figure | [figures/followup-g4/provenance.followup-patch.json](figures/followup-g4/provenance.followup-patch.json) | Per-output hashes and source pointers inside |
 | Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 | Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `2ea3b9ae310199d86e5ad3a7e973dfc8ea8d85151c41d6bd5ac7353e11620f7d` |
 
@@ -465,7 +523,7 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
 - Follow-up G3: SHA-256
   `2f79a9417bbf470e2da5fd97ae154fb49ce614a157d632a691186df68fcc2ea8`
 
-All ten empirical figures ship as SVG, PNG, and PDF with individual receipt
+All eleven empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
@@ -502,6 +560,7 @@ task-owned rows, pending-ingestion caps, and volume scope are recorded in
 | Gate 4 result JSON | Dose selection, efficacy, safety, and stop state | Verify that no alpha qualified |
 | Figure receipts and provenance | Exact inputs, output hashes, and plot bindings | Verify every plotted mark |
 | Llama 3.1 8B follow-up result | Separate placement, SAE, dense, and J-lens summaries | Audit replication without opening raw prompts or generations |
+| Llama 3.1 8B coarse-patch result | Separate restoring, reciprocal, and control estimates for both placements | Audit the no-eligible-layer causal stop |
 | Schemas and analysis code | Machine-checkable receipt contracts and deterministic analysis | Re-run local validation |
 
 Restricted prompt and generation text is intentionally excluded from the

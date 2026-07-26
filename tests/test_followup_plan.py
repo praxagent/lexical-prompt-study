@@ -286,3 +286,25 @@ def test_followup_plan_keeps_qwen397b_deferred() -> None:
     plan["qwen_pilot"]["qwen397b"] = "included"
     with pytest.raises(ValueError, match="397B"):
         validate_followup_plan(plan)
+
+
+def test_followup_plan_binds_patch_stop_result_bytes_and_closes_calibration() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    analysis = plan["compute"]["scientific_runs"]["g4_patch_discovery_scoring"][
+        "analysis_binding"
+    ]
+    assert sha256_file(ROOT / analysis["public_result_path"]) == analysis[
+        "public_result_sha256"
+    ]
+    assert analysis["eligible_common_layers"] == []
+    assert analysis["selected_common_layer"] is None
+    assert analysis["calibration_authorized"] is False
+
+
+def test_followup_plan_rejects_patch_calibration_after_discovery_stop() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g4_patch_discovery_scoring"][
+        "analysis_binding"
+    ]["calibration_authorized"] = True
+    with pytest.raises(ValueError, match="patch analysis result binding"):
+        validate_followup_plan(plan)

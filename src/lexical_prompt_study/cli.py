@@ -278,6 +278,18 @@ def main() -> None:
     )
     followup_patch_analysis.add_argument("--public-out", type=Path, required=True)
     followup_patch_analysis.add_argument("--private-out", type=Path, required=True)
+    followup_patch_figures = sub.add_parser("figures-followup-patch")
+    followup_patch_figures.add_argument("--result", type=Path, required=True)
+    followup_patch_figures.add_argument("--plan", type=Path, required=True)
+    followup_patch_figures.add_argument("--out", type=Path, required=True)
+    verify_followup_patch_figures_parser = sub.add_parser(
+        "verify-followup-patch-figures"
+    )
+    verify_followup_patch_figures_parser.add_argument(
+        "--result", type=Path, required=True
+    )
+    verify_followup_patch_figures_parser.add_argument("--plan", type=Path, required=True)
+    verify_followup_patch_figures_parser.add_argument("--out", type=Path, required=True)
     followup_mechanism_figures = sub.add_parser("figures-followup-mechanisms")
     followup_mechanism_figures.add_argument("--result", type=Path, required=True)
     followup_mechanism_figures.add_argument("--out", type=Path, required=True)
@@ -666,6 +678,24 @@ def main() -> None:
                     public_output_path=args.public_out,
                     private_output_path=args.private_out,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-followup-patch":
+        from .followup_patch_figures import generate_followup_patch_figures
+
+        print(
+            json.dumps(
+                generate_followup_patch_figures(args.result, args.plan, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-followup-patch-figures":
+        from .followup_patch_figures import verify_followup_patch_figures
+
+        print(
+            json.dumps(
+                verify_followup_patch_figures(args.result, args.plan, args.out),
                 sort_keys=True,
             )
         )

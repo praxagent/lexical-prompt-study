@@ -85,6 +85,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
             "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
             "llama31-g3-sae-derived-unopened; no-g3-jlens-or-qwen-outcomes",
             "llama31-g3-mechanism-inspected-and-reported; no-g4-patch-or-qwen-outcomes",
+            "llama31-g4-patch-discovery-inspected-and-stopped-no-eligible-layer; no-g4-calibration-or-qwen-outcomes",
         },
         "8B/Qwen plan outcome boundary drift",
     )
@@ -1447,7 +1448,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     if "g4_patch_discovery_scoring" in compute["scientific_runs"]:
         patch_scoring = compute["scientific_runs"]["g4_patch_discovery_scoring"]
         _require(
-            patch_scoring["status"] == "scoring_complete_analysis_unopened"
+            patch_scoring["status"] == "scoring_complete_analysis_inspected"
             and patch_scoring["amendment"] == "A049"
             and patch_scoring["partition"] == "discovery"
             and patch_scoring["gpu"] == "NVIDIA B200"
@@ -1499,7 +1500,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         )
         scoring_result = patch_scoring["result_binding"]
         _require(
-            scoring_result["status"] == "complete_analysis_unopened"
+            scoring_result["status"] == "complete_analysis_inspected"
             and scoring_result["source_commit"]
             == patch_scoring["runner_source_commit"]
             and scoring_result["public_plan_sha256"]
@@ -1528,8 +1529,36 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
             <= patch_scoring["maximum_compute_usd"]
             and scoring_result["raw_score_values_or_classifier_inputs_inspected"]
             is False
-            and scoring_result["causal_analysis_generated"] is False,
+            and scoring_result["causal_analysis_generated"] is True,
             "G4 patch scoring result binding drift",
+        )
+        analysis_binding = patch_scoring["analysis_binding"]
+        _require(
+            analysis_binding["status"] == "stopped_no_eligible_layer"
+            and analysis_binding["amendment"] == "A050"
+            and analysis_binding["source_commit"]
+            == "636b105d963747bb7fa0a03d68341a11082449cc"
+            and analysis_binding["input_public_plan_sha256"]
+            == "c20eb1ab09383cc2ef619bf44c265bd70ba799408575d683696d1d84fa978f79"
+            and analysis_binding["analysis_implementation_sha256"]
+            == "054efbef412715096755ab618c69203ea92df9f4791d69bc612ae8415d5a89b1"
+            and analysis_binding["public_result_path"]
+            == "results/g4.followup-patch-discovery.public.json"
+            and analysis_binding["public_result_sha256"]
+            == "3134f5a53f07f79b3f823cf51d2a24de79afa6111d6ddf5596b80f16dd20b07b"
+            and analysis_binding["private_result_sha256"]
+            == "6b1a13af00127e322789024a068f1151904f624cee9852dfa0f5cd4f000f7923"
+            and analysis_binding["patch_receipt_count"] == corrected_trials
+            and analysis_binding["patch_score_receipt_count"] == corrected_trials
+            and analysis_binding["placement_pooling_performed"] is False
+            and analysis_binding["eligible_common_layers"] == []
+            and analysis_binding["selected_common_layer"] is None
+            and analysis_binding["calibration_authorized"] is False
+            and analysis_binding[
+                "raw_prompts_generations_token_ids_or_replay_tensors_public"
+            ]
+            is False,
+            "G4 patch analysis result binding drift",
         )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
