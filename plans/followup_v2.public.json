@@ -1373,6 +1373,49 @@
           "raw_outcomes_or_scores_inspected": false,
           "harmbench_scores_generated": false
         }
+      },
+      "g4_patch_discovery_scoring": {
+        "status": "authorized_complete_bundle_scores_closed",
+        "amendment": "A048",
+        "runner_source_commit": "55a1be9708e46e57b8ac64901502d7e11e48a742",
+        "partition": "discovery",
+        "run_id": "g4-patch-discovery-score-a048-20260726",
+        "output_root": "/workspace/runs/followup-g4-patch-discovery-scores-a048",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.98,
+        "receipt_count": 1800,
+        "prior_scoring_receipt_count": 180,
+        "prior_scoring_elapsed_seconds": 49.28,
+        "estimated_scoring_seconds": 492.8,
+        "setup_and_verification_margin_minutes": 11.786666666666667,
+        "wall_limit_minutes": 20,
+        "maximum_compute_usd": 1.9933333333333334,
+        "no_progress_timeout_minutes": 10,
+        "automatic_fallback": false,
+        "target_generation_authorized": false,
+        "raw_outcomes_inspected": false,
+        "input_binding": {
+          "scoring_scientific_plan_sha256": "02e7b1b28da84c82682fef364ba637a4d21a6251b979c3dd1f0c9ed7f01fd5ac",
+          "generation_source_commit": "270b2818a371aeba90aa91b2892689973fba44b1",
+          "generation_public_plan_sha256": "00af10a9e9082dbe1943de599385bb3c72e6e27c87caeb1c370097e10eb86479",
+          "generation_manifest_sha256": "f45c33ba9bfc33589958db5e11d12375f26ee7a792788765106a75e1554d8017",
+          "generation_summary_sha256": "114b94cd9d61b50e202fef29604163922f7feb800bc9c11a41afc9d9a512f784",
+          "private_behavior_plan_sha256": "3f96a1860bf47f5543f96002585c1f8afc00bca53ea88216c03b2a6598d2a128",
+          "scoring_implementation_sha256": "bbb59d74e4b1f7fee1fde6a4a82d07fe0a4cd5f4a6c9136f3d3089145da72893",
+          "evaluator_repository": "cais/HarmBench-Llama-2-13b-cls",
+          "evaluator_revision": "bda705349d1144fa618770bea64d99ce54e3835b",
+          "persistent_volume_id": "u85xfo0aue"
+        },
+        "expected_outputs": {
+          "score_receipt_count": 1800,
+          "summary_count": 1,
+          "private_file_mode": "0600",
+          "raw_classifier_inputs_and_generations_public": false
+        },
+        "conservative_prelaunch_compute_usd": 97.79290482903985,
+        "conservative_postrun_cap_compute_usd": 99.78623816237318
       }
     },
     "planned_work_units": [
