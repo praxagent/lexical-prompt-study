@@ -1375,8 +1375,8 @@
         }
       },
       "g4_patch_discovery_scoring": {
-        "status": "authorized_complete_bundle_scores_closed",
-        "amendment": "A048",
+        "status": "scoring_complete_analysis_unopened",
+        "amendment": "A049",
         "runner_source_commit": "55a1be9708e46e57b8ac64901502d7e11e48a742",
         "partition": "discovery",
         "run_id": "g4-patch-discovery-score-a048-20260726",
@@ -1415,7 +1415,30 @@
           "raw_classifier_inputs_and_generations_public": false
         },
         "conservative_prelaunch_compute_usd": 97.79290482903985,
-        "conservative_postrun_cap_compute_usd": 99.78623816237318
+        "conservative_postrun_cap_compute_usd": 99.78623816237318,
+        "result_binding": {
+          "status": "complete_analysis_unopened",
+          "source_commit": "55a1be9708e46e57b8ac64901502d7e11e48a742",
+          "public_plan_sha256": "99e5bf0777120cf5402a0f9d9c00d5b9204c0ba23a4b6a26f0837f126eead9f1",
+          "run_id": "g4-patch-discovery-score-a048-20260726",
+          "summary_sha256": "b48d79b5f38c0d99b228d557c4a2d9e8007150dc07c36fb802b5be8374c77999",
+          "complete_manifest_sha256": "b5028430cad343d43cbfb50f94248bb90a9755f7cb45388a8146f41a3db23702",
+          "complete_file_count": 1801,
+          "complete_size_bytes": 1952105,
+          "score_receipt_count": 1800,
+          "evaluator_revision": "bda705349d1144fa618770bea64d99ce54e3835b",
+          "scoring_implementation_sha256": "bbb59d74e4b1f7fee1fde6a4a82d07fe0a4cd5f4a6c9136f3d3089145da72893",
+          "first_invocation_elapsed_seconds": 188.50976999208797,
+          "completed_resume_elapsed_seconds": 10.932547053904273,
+          "completed_resume_model_loaded": false,
+          "completed_resume_written": 0,
+          "task_pod_id": "q9nqmpij7w1r82",
+          "task_pod_terminated": true,
+          "returned_rate_usd_per_hour": 5.89,
+          "creation_to_confirmed_teardown_compute_upper_bound_usd": 0.859341183333333,
+          "raw_score_values_or_classifier_inputs_inspected": false,
+          "causal_analysis_generated": false
+        }
       }
     },
     "planned_work_units": [

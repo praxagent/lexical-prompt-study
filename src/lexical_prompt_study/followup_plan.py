@@ -1447,7 +1447,8 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     if "g4_patch_discovery_scoring" in compute["scientific_runs"]:
         patch_scoring = compute["scientific_runs"]["g4_patch_discovery_scoring"]
         _require(
-            patch_scoring["status"] == "authorized_complete_bundle_scores_closed"
+            patch_scoring["status"] == "scoring_complete_analysis_unopened"
+            and patch_scoring["amendment"] == "A049"
             and patch_scoring["partition"] == "discovery"
             and patch_scoring["gpu"] == "NVIDIA B200"
             and patch_scoring["count"] == 1
@@ -1495,6 +1496,40 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
             and patch_scoring["conservative_postrun_cap_compute_usd"]
             == replacement["conservative_postrun_and_scoring_cap_compute_usd"],
             "G4 patch scoring cost arithmetic drift",
+        )
+        scoring_result = patch_scoring["result_binding"]
+        _require(
+            scoring_result["status"] == "complete_analysis_unopened"
+            and scoring_result["source_commit"]
+            == patch_scoring["runner_source_commit"]
+            and scoring_result["public_plan_sha256"]
+            == "99e5bf0777120cf5402a0f9d9c00d5b9204c0ba23a4b6a26f0837f126eead9f1"
+            and scoring_result["run_id"] == patch_scoring["run_id"]
+            and scoring_result["summary_sha256"]
+            == "b48d79b5f38c0d99b228d557c4a2d9e8007150dc07c36fb802b5be8374c77999"
+            and scoring_result["complete_manifest_sha256"]
+            == "b5028430cad343d43cbfb50f94248bb90a9755f7cb45388a8146f41a3db23702"
+            and scoring_result["complete_file_count"] == 1801
+            and scoring_result["complete_size_bytes"] == 1952105
+            and scoring_result["score_receipt_count"] == corrected_trials
+            and scoring_result["evaluator_revision"]
+            == scoring_input["evaluator_revision"]
+            and scoring_result["scoring_implementation_sha256"]
+            == scoring_input["scoring_implementation_sha256"]
+            and scoring_result["completed_resume_model_loaded"] is False
+            and scoring_result["completed_resume_written"] == 0
+            and scoring_result["task_pod_id"] == "q9nqmpij7w1r82"
+            and scoring_result["task_pod_terminated"] is True
+            and scoring_result["returned_rate_usd_per_hour"]
+            <= patch_scoring["maximum_live_rate_usd_per_hour"]
+            and scoring_result[
+                "creation_to_confirmed_teardown_compute_upper_bound_usd"
+            ]
+            <= patch_scoring["maximum_compute_usd"]
+            and scoring_result["raw_score_values_or_classifier_inputs_inspected"]
+            is False
+            and scoring_result["causal_analysis_generated"] is False,
+            "G4 patch scoring result binding drift",
         )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
