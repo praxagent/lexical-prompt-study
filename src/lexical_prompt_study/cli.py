@@ -99,6 +99,12 @@ def main() -> None:
     analyze_mechanism = sub.add_parser("analyze-mechanisms")
     analyze_mechanism.add_argument("--input", type=Path, required=True)
     analyze_mechanism.add_argument("--out", type=Path, required=True)
+    mechanism_figures = sub.add_parser("figures-mechanisms")
+    mechanism_figures.add_argument("--analysis", type=Path, required=True)
+    mechanism_figures.add_argument("--out", type=Path, required=True)
+    verify_mechanism_figures = sub.add_parser("verify-mechanism-figures")
+    verify_mechanism_figures.add_argument("--analysis", type=Path, required=True)
+    verify_mechanism_figures.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -216,6 +222,24 @@ def main() -> None:
                     "gate3_artifact_sha256": result["gate3_artifact_sha256"],
                     "output": str(args.out),
                 },
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-mechanisms":
+        from .mechanism_figures import generate_mechanism_figures
+
+        print(
+            json.dumps(
+                generate_mechanism_figures(args.analysis, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-mechanism-figures":
+        from .mechanism_figures import verify_mechanism_figures
+
+        print(
+            json.dumps(
+                verify_mechanism_figures(args.analysis, args.out),
                 sort_keys=True,
             )
         )

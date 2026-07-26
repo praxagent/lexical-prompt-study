@@ -333,6 +333,7 @@ def analyze_mechanisms(input_root: Path, output_path: Path) -> dict[str, Any]:
                 "tie_break": "ascending feature ID",
             },
             "matched_controls": controls,
+            "feature_map_rows": diagnostics,
             "activation_sparsity": sae["activation_sparsity"],
             "reconstruction_relative_error": sae["reconstruction_relative_error"],
         },
