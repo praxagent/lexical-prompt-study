@@ -1300,8 +1300,8 @@
         }
       },
       "g4_patch_discovery_replacement": {
-        "status": "authorized_partial_resume_after_missing_state_stop",
-        "amendment": "A046",
+        "status": "generation_complete_scores_unopened",
+        "amendment": "A047",
         "runner_source_commit": "270b2818a371aeba90aa91b2892689973fba44b1",
         "partition": "discovery",
         "qualification_only": false,
@@ -1348,7 +1348,31 @@
         "conservative_prelaunch_compute_usd": 93.30790482903985,
         "conservative_postrun_cap_compute_usd": 97.79290482903985,
         "reserved_scoring_compute_usd": 1.9933333333333334,
-        "conservative_postrun_and_scoring_cap_compute_usd": 99.78623816237318
+        "conservative_postrun_and_scoring_cap_compute_usd": 99.78623816237318,
+        "result_binding": {
+          "status": "complete_scores_unopened",
+          "source_commit": "270b2818a371aeba90aa91b2892689973fba44b1",
+          "public_plan_sha256": "00af10a9e9082dbe1943de599385bb3c72e6e27c87caeb1c370097e10eb86479",
+          "run_id": "g4-patch-discovery-a043-20260726",
+          "summary_sha256": "114b94cd9d61b50e202fef29604163922f7feb800bc9c11a41afc9d9a512f784",
+          "derived_state_index_sha256": "034d660cbf0ddf9fc80c0c6041a7dcb3b10e243a5f5dd60b9b4b1d657f2f56b8",
+          "complete_nonlog_manifest_sha256": "f45c33ba9bfc33589958db5e11d12375f26ee7a792788765106a75e1554d8017",
+          "complete_nonlog_file_count": 5409,
+          "complete_nonlog_size_bytes": 610014628,
+          "patch_receipt_count": 1800,
+          "restricted_artifact_count": 1800,
+          "private_replay_bundle_count": 1800,
+          "derived_state_checkpoint_count": 4,
+          "predecessor_trial_count": 720,
+          "new_trial_count": 1080,
+          "runner_elapsed_seconds": 1403.0620281010633,
+          "task_pod_id": "js87bsj0oj8nsg",
+          "task_pod_terminated": true,
+          "returned_rate_usd_per_hour": 5.89,
+          "creation_to_confirmed_teardown_compute_upper_bound_usd": 3.107490375,
+          "raw_outcomes_or_scores_inspected": false,
+          "harmbench_scores_generated": false
+        }
       }
     },
     "planned_work_units": [

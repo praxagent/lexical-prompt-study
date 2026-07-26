@@ -1316,6 +1316,186 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         < compute["current_cumulative_soft_gate_usd"],
         "G4 patch discovery cumulative soft gate drift",
     )
+    replacement = compute["scientific_runs"]["g4_patch_discovery_replacement"]
+    _require(
+        replacement["status"] == "generation_complete_scores_unopened"
+        and replacement["amendment"] == "A047"
+        and replacement["runner_source_commit"]
+        == "270b2818a371aeba90aa91b2892689973fba44b1"
+        and replacement["partition"] == "discovery"
+        and replacement["qualification_only"] is False
+        and replacement["run_id"] == patch_discovery["run_id"]
+        and replacement["output_root"] == patch_discovery["output_root"]
+        and replacement["gpu"] == "NVIDIA B200"
+        and replacement["count"] == 1
+        and replacement["secure_cloud"] is True
+        and replacement["wall_limit_minutes"] == 45
+        and replacement["no_progress_timeout_minutes"] == 10
+        and replacement["automatic_fallback"] is False
+        and replacement["target_generation_authorized"] is True
+        and replacement[
+            "raw_prompts_generations_reconstructive_token_ids_and_states_public"
+        ]
+        is False,
+        "G4 patch replacement execution binding drift",
+    )
+    _require(
+        abs(
+            replacement["maximum_live_rate_usd_per_hour"]
+            * replacement["wall_limit_minutes"]
+            / 60
+            - replacement["maximum_compute_usd"]
+        )
+        < 1e-9
+        and replacement["maximum_live_rate_usd_per_hour"] == 5.98
+        and replacement["conservative_prelaunch_compute_usd"]
+        == patch_discovery["conservative_postrun_cap_compute_usd"]
+        and abs(
+            replacement["conservative_prelaunch_compute_usd"]
+            + replacement["maximum_compute_usd"]
+            - replacement["conservative_postrun_cap_compute_usd"]
+        )
+        < 1e-9
+        and abs(
+            replacement["conservative_postrun_cap_compute_usd"]
+            + replacement["reserved_scoring_compute_usd"]
+            - replacement["conservative_postrun_and_scoring_cap_compute_usd"]
+        )
+        < 1e-9
+        and replacement["conservative_postrun_and_scoring_cap_compute_usd"]
+        < compute["current_cumulative_soft_gate_usd"],
+        "G4 patch replacement cost arithmetic drift",
+    )
+    replacement_input = replacement["input_binding"]
+    _require(
+        replacement_input["patch_scientific_plan_sha256"]
+        == "d025c4414ee7aea68f6db37725821ec097fd60088eac9f3276fd0ee9d679f020"
+        and replacement_input["patch_private_plan_sha256"]
+        == patch_binding["patch_private_plan_sha256"]
+        and replacement_input["patch_private_input_plan_sha256"]
+        == patch_binding["patch_scientific_plan_sha256"]
+        and replacement_input["safe_positive_control_result_sha256"]
+        == instrument["source_result_sha256"]
+        and replacement_input["safe_throughput_result_sha256"]
+        == throughput_result["public_result_sha256"]
+        and replacement_input["discovery_input_manifest_sha256"]
+        == mechanism_input["discovery_input_manifest_sha256"]
+        and replacement_input["discovery_private_bundle_sha256"]
+        == mechanism_input["discovery_private_bundle_sha256"]
+        and replacement_input["predecessor_source_commit"]
+        == partial_resume["predecessor_source_commit"]
+        and replacement_input["predecessor_public_plan_sha256"]
+        == partial_resume["predecessor_public_plan_sha256"]
+        and replacement_input["predecessor_relative_path_hash_manifest_sha256"]
+        == partial_resume["predecessor_relative_path_hash_manifest_sha256"]
+        and replacement_input["model_revision"]
+        == plan["artifacts"]["llama31_model"]["revision"]
+        and replacement_input["persistent_volume_id"]
+        == compute["persistent_volume_id"],
+        "G4 patch replacement input binding drift",
+    )
+    replacement_scope = replacement["resume_scope"]
+    _require(
+        replacement_scope["expected_preexisting_patch_receipt_count"] == 720
+        and replacement_scope["expected_preexisting_restricted_artifact_count"]
+        == 720
+        and replacement_scope["expected_preexisting_private_replay_bundle_count"]
+        == 720
+        and replacement_scope["derived_layer_31_state_checkpoint_count"] == 4
+        and replacement_scope["new_patch_receipt_count"] == 1080
+        and replacement_scope["new_restricted_artifact_count"] == 1080
+        and replacement_scope["new_private_replay_bundle_count"] == 1080
+        and replacement_scope["final_patch_receipt_count"] == corrected_trials
+        and replacement_scope["final_restricted_artifact_count"] == corrected_trials
+        and replacement_scope["final_private_replay_bundle_count"]
+        == corrected_trials
+        and replacement_scope["completed_unit_overwrite_forbidden"] is True
+        and replacement_scope["placement_pooling_forbidden"] is True,
+        "G4 patch replacement resume topology drift",
+    )
+    replacement_result = replacement["result_binding"]
+    _require(
+        replacement_result["status"] == "complete_scores_unopened"
+        and replacement_result["source_commit"]
+        == replacement["runner_source_commit"]
+        and replacement_result["public_plan_sha256"]
+        == "00af10a9e9082dbe1943de599385bb3c72e6e27c87caeb1c370097e10eb86479"
+        and replacement_result["run_id"] == replacement["run_id"]
+        and replacement_result["summary_sha256"]
+        == "114b94cd9d61b50e202fef29604163922f7feb800bc9c11a41afc9d9a512f784"
+        and replacement_result["derived_state_index_sha256"]
+        == "034d660cbf0ddf9fc80c0c6041a7dcb3b10e243a5f5dd60b9b4b1d657f2f56b8"
+        and replacement_result["complete_nonlog_manifest_sha256"]
+        == "f45c33ba9bfc33589958db5e11d12375f26ee7a792788765106a75e1554d8017"
+        and replacement_result["complete_nonlog_file_count"] == 5409
+        and replacement_result["complete_nonlog_size_bytes"] == 610014628
+        and replacement_result["patch_receipt_count"] == corrected_trials
+        and replacement_result["restricted_artifact_count"] == corrected_trials
+        and replacement_result["private_replay_bundle_count"] == corrected_trials
+        and replacement_result["derived_state_checkpoint_count"] == 4
+        and replacement_result["predecessor_trial_count"] == 720
+        and replacement_result["new_trial_count"] == 1080
+        and replacement_result["task_pod_id"] == "js87bsj0oj8nsg"
+        and replacement_result["task_pod_terminated"] is True
+        and replacement_result["returned_rate_usd_per_hour"] <= 5.98
+        and replacement_result["creation_to_confirmed_teardown_compute_upper_bound_usd"]
+        <= replacement["maximum_compute_usd"]
+        and replacement_result["raw_outcomes_or_scores_inspected"] is False
+        and replacement_result["harmbench_scores_generated"] is False,
+        "G4 patch replacement result binding drift",
+    )
+    if "g4_patch_discovery_scoring" in compute["scientific_runs"]:
+        patch_scoring = compute["scientific_runs"]["g4_patch_discovery_scoring"]
+        _require(
+            patch_scoring["status"] == "authorized_complete_bundle_scores_closed"
+            and patch_scoring["partition"] == "discovery"
+            and patch_scoring["gpu"] == "NVIDIA B200"
+            and patch_scoring["count"] == 1
+            and patch_scoring["secure_cloud"] is True
+            and patch_scoring["receipt_count"] == corrected_trials
+            and patch_scoring["wall_limit_minutes"] == 20
+            and patch_scoring["no_progress_timeout_minutes"] == 10
+            and patch_scoring["automatic_fallback"] is False
+            and patch_scoring["raw_outcomes_inspected"] is False
+            and len(patch_scoring["runner_source_commit"]) == 40
+            and all(
+                character in "0123456789abcdef"
+                for character in patch_scoring["runner_source_commit"]
+            ),
+            "G4 patch scoring authorization drift",
+        )
+        scoring_input = patch_scoring["input_binding"]
+        _require(
+            scoring_input["generation_source_commit"]
+            == replacement_result["source_commit"]
+            and scoring_input["generation_public_plan_sha256"]
+            == replacement_result["public_plan_sha256"]
+            and scoring_input["generation_manifest_sha256"]
+            == replacement_result["complete_nonlog_manifest_sha256"]
+            and scoring_input["generation_summary_sha256"]
+            == replacement_result["summary_sha256"]
+            and scoring_input["private_behavior_plan_sha256"]
+            == compute["scientific_runs"]["g2_discovery"]["result_binding"][
+                "private_plan_sha256"
+            ]
+            and scoring_input["evaluator_revision"]
+            == "bda705349d1144fa618770bea64d99ce54e3835b",
+            "G4 patch scoring input binding drift",
+        )
+        _require(
+            abs(
+                patch_scoring["maximum_live_rate_usd_per_hour"]
+                * patch_scoring["wall_limit_minutes"]
+                / 60
+                - patch_scoring["maximum_compute_usd"]
+            )
+            < 1e-9
+            and patch_scoring["maximum_compute_usd"]
+            == replacement["reserved_scoring_compute_usd"]
+            and patch_scoring["conservative_postrun_cap_compute_usd"]
+            == replacement["conservative_postrun_and_scoring_cap_compute_usd"],
+            "G4 patch scoring cost arithmetic drift",
+        )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,
