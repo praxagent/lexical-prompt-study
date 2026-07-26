@@ -720,7 +720,38 @@
         "no_progress_timeout_minutes": 15,
         "automatic_fallback": false,
         "scoring_authorized": false,
-        "calibration_outcomes_inspected": false
+        "calibration_outcomes_inspected": false,
+        "result_binding": {
+          "status": "generation_capture_complete_scores_unopened",
+          "source_commit": "6ce5433cbaa8aaa49cc672fba9230cb37023b95e",
+          "public_plan_sha256": "5243beefaf643d69a06a3049661415edece8d88e2be168dd12b5a2bbf7c33003",
+          "private_plan_sha256": "b191e600e83408b53c913841dfeac2fd3cc8491117c511b0cc0351e66039e8cc",
+          "run_id": "g2-calibration-a029-20260726",
+          "render_preflight_sha256": "0b9ad2cd71868114e5f276a1c59cd6fa38f0016a1af0c775ed9013f718c58f29",
+          "private_bundle_sha256": "3b04804a504d7895216867c27060ad8411a7af4b209ab1dff6793623d50d94a3",
+          "receipt_count": 140,
+          "restricted_artifact_count": 140,
+          "state_bundle_count": 140,
+          "raw_outcomes_inspected": false,
+          "harmbench_scores_generated": false,
+          "amendment": "A030"
+        }
+      },
+      "g2_calibration_scoring": {
+        "status": "authorized_after_local_preflight",
+        "amendment": "A030",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.98,
+        "receipt_count": 140,
+        "measured_discovery_scoring_seconds": 37.27425298909657,
+        "setup_and_verification_margin_minutes": 19.378762450181725,
+        "wall_limit_minutes": 20,
+        "maximum_compute_usd": 1.9933333333333334,
+        "no_progress_timeout_minutes": 10,
+        "automatic_fallback": false,
+        "raw_outcomes_inspected": false
       }
     },
     "planned_work_units": [

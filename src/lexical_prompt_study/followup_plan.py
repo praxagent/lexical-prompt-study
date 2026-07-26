@@ -567,6 +567,49 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         < 1e-9,
         "G2 calibration maximum cost arithmetic drift",
     )
+    calibration_binding = calibration_run["result_binding"]
+    _require(
+        calibration_binding["status"]
+        == "generation_capture_complete_scores_unopened"
+        and calibration_binding["source_commit"]
+        == "6ce5433cbaa8aaa49cc672fba9230cb37023b95e"
+        and calibration_binding["public_plan_sha256"]
+        == "5243beefaf643d69a06a3049661415edece8d88e2be168dd12b5a2bbf7c33003"
+        and calibration_binding["private_plan_sha256"]
+        == "b191e600e83408b53c913841dfeac2fd3cc8491117c511b0cc0351e66039e8cc"
+        and calibration_binding["run_id"] == "g2-calibration-a029-20260726"
+        and calibration_binding["receipt_count"] == 140
+        and calibration_binding["restricted_artifact_count"] == 140
+        and calibration_binding["state_bundle_count"] == 140
+        and calibration_binding["raw_outcomes_inspected"] is False
+        and calibration_binding["harmbench_scores_generated"] is False
+        and calibration_binding["amendment"] == "A030",
+        "G2 calibration result binding drift",
+    )
+    calibration_scoring = compute["scientific_runs"]["g2_calibration_scoring"]
+    _require(
+        calibration_scoring["status"] == "authorized_after_local_preflight"
+        and calibration_scoring["amendment"] == "A030"
+        and calibration_scoring["gpu"] == "NVIDIA B200"
+        and calibration_scoring["count"] == 1
+        and calibration_scoring["secure_cloud"] is True
+        and calibration_scoring["receipt_count"] == 140
+        and calibration_scoring["wall_limit_minutes"] == 20
+        and calibration_scoring["no_progress_timeout_minutes"] == 10
+        and calibration_scoring["automatic_fallback"] is False
+        and calibration_scoring["raw_outcomes_inspected"] is False,
+        "G2 calibration scoring statement drift",
+    )
+    _require(
+        abs(
+            calibration_scoring["maximum_live_rate_usd_per_hour"]
+            * calibration_scoring["wall_limit_minutes"]
+            / 60
+            - calibration_scoring["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G2 calibration scoring maximum cost arithmetic drift",
+    )
     work_units = compute["planned_work_units"]
     _require(
         [row["maximum"] for row in work_units] == [860, 5400, 480, 280],

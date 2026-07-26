@@ -27,13 +27,31 @@ def _generation_receipt(
     partition: str = "discovery",
 ) -> dict:
     shared = arm == "base"
+    if partition == "calibration":
+        plan_sha256 = (
+            "5243beefaf643d69a06a3049661415edece8d88e2be168dd12b5a2bbf7c33003"
+        )
+        private_plan_sha256 = (
+            "b191e600e83408b53c913841dfeac2fd3cc8491117c511b0cc0351e66039e8cc"
+        )
+        source_commit = "6ce5433cbaa8aaa49cc672fba9230cb37023b95e"
+        run_id = "g2-calibration-a029-20260726"
+    else:
+        plan_sha256 = (
+            "c16a227bbc641ff16d202b4dca5ee5670682e98e1dad7a53868b2ad0901cbdff"
+        )
+        private_plan_sha256 = (
+            "3f96a1860bf47f5543f96002585c1f8afc00bca53ea88216c03b2a6598d2a128"
+        )
+        source_commit = "e126e5e7cd887d01a303d48d750e42a2ebcf37a8"
+        run_id = "g2-discovery-a025-20260726"
     return {
         "schema_version": "1.0",
         "study_id": "lexical-scaffold-followup-v2",
-        "plan_sha256": "c16a227bbc641ff16d202b4dca5ee5670682e98e1dad7a53868b2ad0901cbdff",
-        "private_plan_sha256": "3f96a1860bf47f5543f96002585c1f8afc00bca53ea88216c03b2a6598d2a128",
-        "source_commit": "e126e5e7cd887d01a303d48d750e42a2ebcf37a8",
-        "run_id": "g2-discovery-a025-20260726",
+        "plan_sha256": plan_sha256,
+        "private_plan_sha256": private_plan_sha256,
+        "source_commit": source_commit,
+        "run_id": run_id,
         "trial_id": trial_id,
         "partition": partition,
         "behavior_id": behavior_id,

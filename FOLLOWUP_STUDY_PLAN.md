@@ -186,6 +186,10 @@ alpha 0.05 with placement-order tie breaking, and a descriptive
 the 140-observation calibration generation/capture pass on one secure B200,
 capped at 45 minutes and `$4.485`; scoring remains closed until the completed
 bundle is hash-bound.
+After calibration capture completed, amendment A030 bound its exact
+source/public/private plans, run, render preflight, topology, and deterministic
+bundle hash. It authorizes only the 140-receipt HarmBench scoring pass on one
+secure B200, capped at 20 minutes and `$1.9934`; no fallback is authorized.
 
 The sole primary Stage-A confirmatory construct is an **EP-derived
 attack-family attempt detector** on the pinned JBB panel. The original full arm

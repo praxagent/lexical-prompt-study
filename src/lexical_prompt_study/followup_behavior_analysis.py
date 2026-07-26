@@ -286,6 +286,9 @@ def analyze_followup_behavior_calibration(
     plan = json.loads(public_plan_path.read_text())
     validate_followup_plan(plan)
     rule = plan["placement_factor"]["behavioral_family"]["calibration"]
+    generation_binding = plan["compute"]["scientific_runs"][
+        "g2_calibration_generation"
+    ]["result_binding"]
     generation_paths = sorted((generation_root / "receipts" / "trials").glob("*.json"))
     score_paths = sorted((score_root / "trials").glob("*.json"))
     if len(generation_paths) != 140 or len(score_paths) != 140:
@@ -300,6 +303,14 @@ def analyze_followup_behavior_calibration(
         receipt = FollowupTrialReceipt.model_validate_json(path.read_text())
         if receipt.partition != "calibration":
             raise ValueError(f"{path}: non-calibration generation receipt")
+        if (
+            receipt.source_commit != generation_binding["source_commit"]
+            or receipt.plan_sha256 != generation_binding["public_plan_sha256"]
+            or receipt.private_plan_sha256
+            != generation_binding["private_plan_sha256"]
+            or receipt.run_id != generation_binding["run_id"]
+        ):
+            raise ValueError(f"{path}: frozen calibration provenance drift")
         if receipt.trial_id in generations:
             raise ValueError(f"duplicate generation trial {receipt.trial_id}")
         provenance.add(

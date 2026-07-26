@@ -222,6 +222,20 @@ def test_followup_plan_binds_calibration_statistics_and_cost() -> None:
     ] = 5
     with pytest.raises(ValueError, match="calibration maximum cost arithmetic"):
         validate_followup_plan(plan)
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_calibration_generation"][
+        "result_binding"
+    ]["receipt_count"] = 139
+    with pytest.raises(ValueError, match="calibration result binding"):
+        validate_followup_plan(plan)
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_calibration_scoring"][
+        "maximum_compute_usd"
+    ] = 3
+    with pytest.raises(
+        ValueError, match="calibration scoring maximum cost arithmetic"
+    ):
+        validate_followup_plan(plan)
 
 
 def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
