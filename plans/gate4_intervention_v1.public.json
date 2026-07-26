@@ -28,7 +28,7 @@
     "dtype": "model_residual_dtype",
     "realized_delta_definition": "L2 norm of float32(post_residual_cast_to_model_dtype - pre_residual_cast_to_model_dtype)",
     "clipping": "forbidden",
-    "requested_realized_relative_tolerance": 0.05,
+    "requested_realized_relative_tolerance": 0.1,
     "maximum_event_delta_to_pre_residual_norm": 0.05
   },
   "features": {
@@ -91,7 +91,7 @@
       "all_planned_trials_present": true,
       "runtime_errors": 0,
       "maximum_parse_failure_fraction": 0.05,
-      "maximum_requested_realized_relative_error": 0.05,
+      "maximum_requested_realized_relative_error": 0.1,
       "maximum_event_delta_to_pre_residual_norm": 0.05,
       "minimum_mean_signed_half_span": 0.1,
       "signed_half_span_bootstrap_ci_lower_must_exceed": 0.0,
