@@ -627,6 +627,15 @@ identity, and random-control paths; linear scaling to 280 captured states is
 analysis, receipt validation, retrieval, and teardown. No generation is
 repeated and the two scaffold placements remain unpooled.
 
+A032 stopped before any J-lens layer because offline local loading omitted the
+tokenizer object's optional `_commit_hash`; its three private SAE/dense
+checkpoints remain unopened. A033 corrects the provenance gate without
+changing any scientific rule. Prospective amendment A034 binds exact A033
+source `23da31eb563e6386de980fd06c6dfca4454cc678` and authorizes one
+replacement secure B200, again capped at 30 minutes and `$2.99`, with a new
+provenance-bound output root. The failed A032 bundle remains unchanged and no
+generation is repeated.
+
 Those estimates include both scaffold orderings. The bounded work-unit ledger
 before qualification is:
 

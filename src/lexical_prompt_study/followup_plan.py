@@ -760,6 +760,46 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         and mechanism_outputs["placement_pooling_forbidden"] is True,
         "G3 mechanism output receipt topology drift",
     )
+    replacement_run = compute["scientific_runs"]["g3_mechanism_readout_replacement"]
+    _require(
+        replacement_run["status"]
+        == "authorized_after_a032_fail_closed_pre_jlens_stop"
+        and replacement_run["amendment"] == "A034"
+        and replacement_run["runner_source_commit"]
+        == "23da31eb563e6386de980fd06c6dfca4454cc678"
+        and replacement_run["gpu"] == "NVIDIA B200"
+        and replacement_run["count"] == 1
+        and replacement_run["secure_cloud"] is True
+        and replacement_run["state_bundle_count"] == 280
+        and replacement_run["wall_limit_minutes"] == 30
+        and replacement_run["no_progress_timeout_minutes"] == 10
+        and replacement_run["automatic_fallback"] is False
+        and replacement_run["prior_task_pod_id"] == "g0shaklamkn312"
+        and replacement_run["prior_task_pod_terminated"] is True
+        and replacement_run["prior_public_result_exists"] is False
+        and replacement_run["prior_jlens_layer_receipt_count"] == 0
+        and replacement_run["prior_private_sae_and_dense_values_inspected"] is False
+        and replacement_run[
+            "raw_prompts_generations_and_reconstructive_token_ids_opened"
+        ]
+        is False,
+        "G3 replacement compute statement drift",
+    )
+    _require(
+        abs(
+            replacement_run["maximum_live_rate_usd_per_hour"]
+            * replacement_run["wall_limit_minutes"]
+            / 60
+            - replacement_run["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G3 replacement maximum cost arithmetic drift",
+    )
+    _require(
+        replacement_run["input_binding"] == mechanism_input
+        and replacement_run["expected_outputs"] == mechanism_outputs,
+        "G3 replacement input/output binding drift",
+    )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,
