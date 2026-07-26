@@ -219,6 +219,9 @@ def main() -> None:
     )
     followup_behavior_analysis.add_argument("--score-root", type=Path, required=True)
     followup_behavior_analysis.add_argument("--out", type=Path, required=True)
+    followup_behavior_analysis.add_argument(
+        "--partition", choices=["discovery", "calibration"], required=True
+    )
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -511,11 +514,19 @@ def main() -> None:
             )
         )
     elif args.command == "analyze-followup-behavior":
-        from .followup_behavior_analysis import analyze_followup_behavior_discovery
+        from .followup_behavior_analysis import (
+            analyze_followup_behavior_calibration,
+            analyze_followup_behavior_discovery,
+        )
 
+        analyzer = (
+            analyze_followup_behavior_discovery
+            if args.partition == "discovery"
+            else analyze_followup_behavior_calibration
+        )
         print(
             json.dumps(
-                analyze_followup_behavior_discovery(
+                analyzer(
                     public_plan_path=args.public_plan,
                     generation_root=args.generation_root,
                     score_root=args.score_root,

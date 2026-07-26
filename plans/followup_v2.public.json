@@ -279,7 +279,15 @@
         "minimum_mean_paired_effect": 0.15,
         "minimum_positive_sign_fraction": 0.7,
         "test": "two-sided paired sign-flip randomization",
+        "randomization_draws": 65536,
+        "randomization_seed": 20260729,
+        "randomization_stream_rule": "numpy_default_rng_seed_plus_order_index",
+        "p_value_rule": "plus_one_two_sided_absolute_mean",
         "multiplicity": "Holm across two ordering-specific tests at family alpha 0.05",
+        "family_alpha": 0.05,
+        "holm_tie_break": "placement_order_ep_before_request_then_ep_after_request",
+        "interaction_bootstrap_replicates": 10000,
+        "interaction_bootstrap_seed": 20260731,
         "both_orderings_required": true
       },
       "one_order_disposition": "ordering_specific_behavioral_transfer_only_and_stop_common_site_causal_confirmation",
@@ -695,6 +703,24 @@
         "no_progress_timeout_minutes": 10,
         "automatic_fallback": false,
         "raw_outcomes_inspected": false
+      },
+      "g2_calibration_generation": {
+        "status": "authorized_after_local_preflight",
+        "amendment": "A029",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "maximum_live_rate_usd_per_hour": 5.98,
+        "trial_count": 140,
+        "maximum_generated_tokens_per_trial": 1024,
+        "measured_discovery_generation_capture_seconds": 569.3095198529772,
+        "setup_and_verification_margin_minutes": 35.51150800245038,
+        "wall_limit_minutes": 45,
+        "maximum_compute_usd": 4.485,
+        "no_progress_timeout_minutes": 15,
+        "automatic_fallback": false,
+        "scoring_authorized": false,
+        "calibration_outcomes_inspected": false
       }
     },
     "planned_work_units": [

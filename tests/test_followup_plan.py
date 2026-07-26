@@ -209,6 +209,21 @@ def test_followup_plan_binds_discovery_bundle_and_scoring_cost() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_calibration_statistics_and_cost() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["behavioral_family"]["calibration"][
+        "randomization_seed"
+    ] = 1
+    with pytest.raises(ValueError, match="behavioral calibration family"):
+        validate_followup_plan(plan)
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_calibration_generation"][
+        "maximum_compute_usd"
+    ] = 5
+    with pytest.raises(ValueError, match="calibration maximum cost arithmetic"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["compute"]["qualification"]["gpu"] = "NVIDIA RTX A6000"

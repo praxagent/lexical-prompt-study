@@ -7,6 +7,9 @@ import pytest
 
 from lexical_prompt_study.artifacts import EVALUATOR_REVISION
 from lexical_prompt_study.followup_behavior_analysis import (
+    _holm_adjusted,
+    _sign_flip_p_value,
+    analyze_followup_behavior_calibration,
     analyze_followup_behavior_discovery,
 )
 from lexical_prompt_study.hashing import sha256_file
@@ -21,6 +24,7 @@ def _generation_receipt(
     behavior_id: str,
     arm: str,
     placement: str | None,
+    partition: str = "discovery",
 ) -> dict:
     shared = arm == "base"
     return {
@@ -31,7 +35,7 @@ def _generation_receipt(
         "source_commit": "e126e5e7cd887d01a303d48d750e42a2ebcf37a8",
         "run_id": "g2-discovery-a025-20260726",
         "trial_id": trial_id,
-        "partition": "discovery",
+        "partition": partition,
         "behavior_id": behavior_id,
         "category": "safe",
         "arm": arm,
@@ -147,3 +151,80 @@ def test_followup_discovery_analysis_fails_closed_on_missing_score(
         assert "requires 140 generations and scores" in str(error)
     else:
         raise AssertionError("missing topology was accepted")
+
+
+def test_sign_flip_and_holm_rules_are_deterministic() -> None:
+    import numpy as np
+
+    values = np.full(20, 0.7)
+    assert _sign_flip_p_value(values, 65536, 20260729) < 0.001
+    adjusted = _holm_adjusted(
+        {"ep_before_request": 0.01, "ep_after_request": 0.04}
+    )
+    assert adjusted == {
+        "ep_before_request": 0.02,
+        "ep_after_request": 0.04,
+    }
+
+
+def test_followup_calibration_analysis_applies_holm_without_pooling(
+    tmp_path: Path,
+) -> None:
+    generation_trials = tmp_path / "generation" / "receipts" / "trials"
+    score_trials = tmp_path / "scores" / "trials"
+    generation_trials.mkdir(parents=True)
+    score_trials.mkdir(parents=True)
+    placements = ("ep_before_request", "ep_after_request")
+    for behavior_index in range(20):
+        behavior_id = f"SAFE-C-{behavior_index:02d}"
+        conditions = [("base", None)]
+        conditions.extend(
+            (arm, placement)
+            for arm in ("inert_length", "structural_sham", "full")
+            for placement in placements
+        )
+        for arm, placement in conditions:
+            trial_id = f"{behavior_id}-{arm}-{placement or 'shared'}"
+            generation_path = generation_trials / f"{trial_id}.json"
+            generation_path.write_text(
+                json.dumps(
+                    _generation_receipt(
+                        trial_id=trial_id,
+                        behavior_id=behavior_id,
+                        arm=arm,
+                        placement=placement,
+                        partition="calibration",
+                    )
+                )
+            )
+            score = 0.8 if arm == "full" else 0.1
+            (score_trials / f"{trial_id}.json").write_text(
+                json.dumps(
+                    {
+                        "trial_id": trial_id,
+                        "generation_receipt_sha256": sha256_file(generation_path),
+                        "evaluator_revision": EVALUATOR_REVISION,
+                        "yes_probability": score,
+                        "no_probability": 1.0 - score,
+                        "binary_prediction": score >= 0.5,
+                        "parse_ok": True,
+                    }
+                )
+            )
+
+    result = analyze_followup_behavior_calibration(
+        public_plan_path=PLAN_PATH,
+        generation_root=tmp_path / "generation",
+        score_root=tmp_path / "scores",
+        output_path=tmp_path / "result.json",
+    )
+
+    assert result["pooled_estimate_reported"] is False
+    assert result["both_orderings_continuation_gate_passed"] is True
+    for placement in placements:
+        contrast = result["ordering_results"][placement][
+            "full_minus_structural_sham"
+        ]
+        assert contrast["estimate"] == pytest.approx(0.7)
+        assert contrast["positive_sign_fraction"] == 1.0
+        assert contrast["holm_gate_passed"] is True

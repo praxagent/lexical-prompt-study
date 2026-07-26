@@ -179,6 +179,13 @@ randomization p-value below 0.05. Both discovery screens and both calibration
 tests must pass for a common placement-robust mechanistic arm. A one-order pass
 is reported only as ordering-specific behavioral transfer and stops common-site
 causal confirmation.
+Amendment A029 freezes 65,536 plus-one, two-sided absolute-mean sign-flip
+draws at seeds 20260729 and 20260730 for the before/after strata, Holm family
+alpha 0.05 with placement-order tie breaking, and a descriptive
+10,000-bootstrap placement interaction at seed 20260731. It authorizes only
+the 140-observation calibration generation/capture pass on one secure B200,
+capped at 45 minutes and `$4.485`; scoring remains closed until the completed
+bundle is hash-bound.
 
 The sole primary Stage-A confirmatory construct is an **EP-derived
 attack-family attempt detector** on the pinned JBB panel. The original full arm

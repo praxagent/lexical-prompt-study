@@ -224,10 +224,21 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         and discovery_behavioral["both_orderings_required"] is True,
         "behavioral discovery screen drift",
     )
+    calibration_behavioral = behavioral["calibration"]
     _require(
-        behavioral["calibration"]["status"] == "formal_test"
-        and behavioral["calibration"]["minimum_mean_paired_effect"] == 0.15
-        and behavioral["calibration"]["both_orderings_required"] is True,
+        calibration_behavioral["status"] == "formal_test"
+        and calibration_behavioral["minimum_mean_paired_effect"] == 0.15
+        and calibration_behavioral["minimum_positive_sign_fraction"] == 0.7
+        and calibration_behavioral["randomization_draws"] == 65536
+        and calibration_behavioral["randomization_seed"] == 20260729
+        and calibration_behavioral["randomization_stream_rule"]
+        == "numpy_default_rng_seed_plus_order_index"
+        and calibration_behavioral["p_value_rule"]
+        == "plus_one_two_sided_absolute_mean"
+        and calibration_behavioral["family_alpha"] == 0.05
+        and calibration_behavioral["interaction_bootstrap_replicates"] == 10000
+        and calibration_behavioral["interaction_bootstrap_seed"] == 20260731
+        and calibration_behavioral["both_orderings_required"] is True,
         "behavioral calibration family drift",
     )
     _require(
@@ -529,6 +540,32 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         )
         < 1e-9,
         "G2 scoring maximum cost arithmetic drift",
+    )
+    calibration_run = compute["scientific_runs"]["g2_calibration_generation"]
+    _require(
+        calibration_run["status"] == "authorized_after_local_preflight"
+        and calibration_run["amendment"] == "A029"
+        and calibration_run["gpu"] == "NVIDIA B200"
+        and calibration_run["count"] == 1
+        and calibration_run["secure_cloud"] is True
+        and calibration_run["trial_count"] == 140
+        and calibration_run["maximum_generated_tokens_per_trial"] == 1024
+        and calibration_run["wall_limit_minutes"] == 45
+        and calibration_run["no_progress_timeout_minutes"] == 15
+        and calibration_run["automatic_fallback"] is False
+        and calibration_run["scoring_authorized"] is False
+        and calibration_run["calibration_outcomes_inspected"] is False,
+        "G2 calibration generation statement drift",
+    )
+    _require(
+        abs(
+            calibration_run["maximum_live_rate_usd_per_hour"]
+            * calibration_run["wall_limit_minutes"]
+            / 60
+            - calibration_run["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G2 calibration maximum cost arithmetic drift",
     )
     work_units = compute["planned_work_units"]
     _require(
