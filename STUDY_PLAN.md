@@ -436,6 +436,18 @@ Execute the primary feature, both signs, zero intervention, matched SAE
 features, and isotropic controls on held-out prompts. Claim C is reported under
 the frozen analysis, including null, asymmetric, or utility-damaging outcomes.
 
+Amendment A010 and `plans/gate4_intervention_v1.public.json` prospectively
+resolve the executable protocol. Feature 10146 is primary; three matched SAE
+features and three seeded isotropic directions are causal-specificity controls.
+The scalar strength and refusal-restoring sign are selected only on the 20
+discovery behaviors from an ascending residual-norm-scaled dose ladder. The
+smallest dose passing every frozen behavioral, runtime, and degeneration gate
+is frozen in a subsequent amendment; if none passes, held-out intervention
+outcomes remain unopened. The held-out attack panel contains zero and both
+signs for the primary and all controls. The disjoint utility panel compares
+zero with the frozen refusal-restoring intervention. Passing its automatic
+overrefusal proxy is necessary but not sufficient for a defense claim.
+
 ### Gate 5: optional defense bridge
 
 This requires a separate amendment or protocol, held-out scaffold family,

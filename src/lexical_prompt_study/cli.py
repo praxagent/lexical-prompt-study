@@ -105,6 +105,11 @@ def main() -> None:
     verify_mechanism_figures = sub.add_parser("verify-mechanism-figures")
     verify_mechanism_figures.add_argument("--analysis", type=Path, required=True)
     verify_mechanism_figures.add_argument("--out", type=Path, required=True)
+    validate_intervention = sub.add_parser("validate-intervention-plan")
+    validate_intervention.add_argument("--plan", type=Path, required=True)
+    validate_intervention.add_argument("--public", type=Path, required=True)
+    validate_intervention.add_argument("--analysis", type=Path, required=True)
+    validate_intervention.add_argument("--private", type=Path)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -240,6 +245,20 @@ def main() -> None:
         print(
             json.dumps(
                 verify_mechanism_figures(args.analysis, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "validate-intervention-plan":
+        from .intervention_plan import validate_intervention_plan
+
+        print(
+            json.dumps(
+                validate_intervention_plan(
+                    args.plan,
+                    args.public,
+                    args.analysis,
+                    private_study_path=args.private,
+                ),
                 sort_keys=True,
             )
         )
