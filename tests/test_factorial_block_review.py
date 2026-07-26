@@ -9,6 +9,7 @@ from lexical_prompt_study.factorial_block_review import (
     BOUNDARY_MARKER,
     MATERIAL_FILES,
     compile_factorial_block_review,
+    write_factorial_block_review_aid,
 )
 from lexical_prompt_study.hashing import sha256_text
 
@@ -17,6 +18,16 @@ class SafeTokenizer:
     def encode(self, text, *, add_special_tokens):
         assert not add_special_tokens
         return [ord(character) for character in text]
+
+    def __call__(self, text, *, add_special_tokens, return_offsets_mapping):
+        assert not add_special_tokens
+        assert return_offsets_mapping
+        return {
+            "input_ids": self.encode(text, add_special_tokens=False),
+            "offset_mapping": [
+                (index, index + 1) for index in range(len(text))
+            ],
+        }
 
 
 def _manifest(tmp_path: Path, *, mismatched: bool = False) -> Path:
@@ -85,3 +96,25 @@ def test_human_block_compiler_rejects_non_boundary_edits(tmp_path: Path) -> None
             tokenizer=SafeTokenizer(),
             output_path=tmp_path / "blocks.private.json",
         )
+
+
+def test_human_block_review_aid_is_private_and_returns_only_metadata(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "review.private.html"
+    result = write_factorial_block_review_aid(
+        manifest_path=_manifest(tmp_path),
+        tokenizer=SafeTokenizer(),
+        output_path=output,
+    )
+    assert result["status"] == "human_only_factorial_block_review_aid_written"
+    assert result["raw_text_returned"] is False
+    assert result["materials"]["full_scaffold"] == {
+        "marker_count": 2,
+        "current_cumulative_token_counts": [4, 8, 12],
+        "canonical_token_count": 12,
+    }
+    assert output.stat().st_mode & 0o777 == 0o600
+    rendered = output.read_text()
+    assert "CURRENT B1" in rendered
+    assert "T012" in rendered
