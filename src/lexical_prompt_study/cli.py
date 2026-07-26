@@ -105,6 +105,12 @@ def main() -> None:
     verify_mechanism_figures = sub.add_parser("verify-mechanism-figures")
     verify_mechanism_figures.add_argument("--analysis", type=Path, required=True)
     verify_mechanism_figures.add_argument("--out", type=Path, required=True)
+    replay_figures = sub.add_parser("figures-replay")
+    replay_figures.add_argument("--result", type=Path, required=True)
+    replay_figures.add_argument("--out", type=Path, required=True)
+    verify_replay_figures = sub.add_parser("verify-replay-figures")
+    verify_replay_figures.add_argument("--result", type=Path, required=True)
+    verify_replay_figures.add_argument("--out", type=Path, required=True)
     validate_intervention = sub.add_parser("validate-intervention-plan")
     validate_intervention.add_argument("--plan", type=Path, required=True)
     validate_intervention.add_argument("--public", type=Path, required=True)
@@ -280,6 +286,24 @@ def main() -> None:
         print(
             json.dumps(
                 verify_mechanism_figures(args.analysis, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-replay":
+        from .replay_figures import generate_replay_figure
+
+        print(
+            json.dumps(
+                generate_replay_figure(args.result, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-replay-figures":
+        from .replay_figures import verify_replay_figure
+
+        print(
+            json.dumps(
+                verify_replay_figure(args.result, args.out),
                 sort_keys=True,
             )
         )

@@ -20,6 +20,21 @@ EXPECTED_STAGES = [
 ]
 
 REQUIRED_ARMS = {"base", "inert_length", "structural_sham", "full"}
+REQUIRED_PLACEMENTS = {"ep_before_request", "ep_after_request"}
+REQUIRED_POSITIVE_STRATA = {
+    "full:ep_before_request",
+    "full:ep_after_request",
+}
+REQUIRED_NEGATIVE_STRATA = {
+    "base",
+    "inert_length:ep_before_request",
+    "inert_length:ep_after_request",
+    "structural_sham:ep_before_request",
+    "structural_sham:ep_after_request",
+    "ordinary_benign",
+    "structured_benign:ep_before_request",
+    "structured_benign:ep_after_request",
+}
 REQUIRED_PATCH_CONTROLS = {
     "full_into_full_identity",
     "sham_into_sham_identity",
@@ -57,15 +72,24 @@ def _require(condition: bool, message: str) -> None:
 
 
 def validate_followup_plan(plan: dict[str, Any]) -> None:
-    _require(plan["schema_version"] == "2.1", "follow-up schema drift")
+    _require(plan["schema_version"] == "2.2", "follow-up schema drift")
     _require(plan["study_id"] == "lexical-scaffold-followup-v2", "wrong study namespace")
-    _require(plan["outcome_status"] == "outcome-free", "plan must be outcome-free")
+    _require(
+        plan["outcome_status"]
+        == "four-arm-replay-inspected; no-8b-or-qwen-target-outcomes",
+        "8B/Qwen plan outcome boundary drift",
+    )
     _require(plan["stage_order"] == EXPECTED_STAGES, "stage order drift")
     review = plan["review_gate"]
     _require(review["authoritative_reasoning_effort"] == "high", "review effort drift")
     _require(review["completed_bundle_preflight"] == "passed", "review bundle not validated")
     _require(review["unresolved_blockers"] == 0, "review blockers unresolved")
     _require(len(review["review_sha256"]) == 64, "review hash missing")
+    _require(
+        review["placement_amendment_successor_review"]
+        == "required_before_paid_8b_compute",
+        "placement amendment review gate drift",
+    )
 
     attack = plan["attack_handling"]
     _require(attack["existing_artifact_only"] is True, "attack artifact must remain pinned")
@@ -93,19 +117,50 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         "multiple 8B detectors reach confirmation",
     )
     _require(
-        set(replication["positive_classes"]) == {"full"},
-        "detector positive-class drift",
+        set(replication["positive_strata"]) == REQUIRED_POSITIVE_STRATA,
+        "detector positive-strata drift",
     )
     _require(
-        set(replication["negative_classes"])
-        == {
-            "base",
-            "inert_length",
-            "structural_sham",
-            "ordinary_benign",
-            "structured_benign",
-        },
-        "detector negative-class drift",
+        set(replication["negative_strata"]) == REQUIRED_NEGATIVE_STRATA,
+        "detector negative-strata drift",
+    )
+
+    placement = plan["placement_factor"]
+    _require(set(placement["levels"]) == REQUIRED_PLACEMENTS, "placement levels drift")
+    _require(
+        set(placement["applies_to_arms"])
+        == {"inert_length", "structural_sham", "full", "structured_benign"},
+        "placement arm topology drift",
+    )
+    matching = placement["within_arm_matching"]
+    for field in (
+        "same_request_bytes",
+        "same_scaffold_or_control_bytes",
+        "same_separator_bytes",
+        "same_conversation_turn",
+        "same_context_ceiling",
+        "same_generation_budget",
+        "require_equal_prompt_token_count",
+    ):
+        _require(matching[field] is True, f"placement matching drift: {field}")
+    _require(
+        matching["token_count_mismatch_disposition"] == "stop_before_target_generation",
+        "placement token mismatch is not fail closed",
+    )
+    placement_analysis = placement["analysis"]
+    for field in (
+        "behavioral_outcomes_separate",
+        "sae_readouts_separate",
+        "jlens_readouts_separate",
+        "pooled_estimates_forbidden",
+        "pooled_feature_ranking_forbidden",
+        "pooled_threshold_fit_forbidden",
+        "shared_references_not_duplicated",
+    ):
+        _require(placement_analysis[field] is True, f"placement analysis drift: {field}")
+    _require(
+        placement["candidate_rule"]["maximum_common_candidates_for_confirmation"] == 1,
+        "placement detector multiplicity",
     )
 
     prerequisite = plan["llama33_four_arm_prerequisite"]
@@ -120,6 +175,15 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         == "retire_feature_10146_from_confirmatory_detector_shadow_and_defense_claims",
         "feature retirement rule drift",
     )
+    _require(
+        prerequisite["observed_status"] == "completed_failed_candidate_gate",
+        "four-arm result status drift",
+    )
+    _require(
+        prerequisite["observed_disposition"] == prerequisite["failure_disposition"],
+        "feature retirement was not enforced",
+    )
+    _require(len(prerequisite["result_sha256"]) == 64, "four-arm result hash missing")
 
     causal = plan["causal_localization"]
     _require(
@@ -162,7 +226,9 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         "positive-control failure is not invalidating",
     )
     confirmatory = causal["confirmatory_rule"]
-    _require(confirmatory["maximum_confirmatory_tests"] == 1, "causal multiplicity drift")
+    _require(confirmatory["maximum_confirmatory_tests"] == 2, "causal multiplicity drift")
+    _require(set(confirmatory["strata"]) == REQUIRED_PLACEMENTS, "causal placement drift")
+    _require(confirmatory["pooled_estimate_forbidden"] is True, "causal pooling enabled")
     _require(confirmatory["smallest_effect_of_interest"] == -0.1, "causal effect gate drift")
     _require(
         confirmatory["behavioral_equivalence_bounds"] == [-0.05, 0.05],
@@ -180,9 +246,19 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(qwen["native_qwen_attack_claim"] is False, "Qwen native-attack overclaim")
     _require(qwen["sae_available"] is False, "Qwen SAE must not be implied")
     _require(qwen["no_silent_model_substitution"] is True, "Qwen substitution must fail closed")
+    _require(set(qwen["placement_orderings"]) == REQUIRED_PLACEMENTS, "Qwen placement drift")
+    _require(qwen["pooled_estimate_forbidden"] is True, "Qwen placement pooling enabled")
     _require(qwen["qwen397b"] == "deferred_separate_authorization", "397B is not authorized")
 
     detectors = plan["detectors"]
+    _require(
+        set(detectors["positive_strata"]) == REQUIRED_POSITIVE_STRATA,
+        "confirmatory detector positive-strata drift",
+    )
+    _require(
+        set(detectors["negative_strata"]) == REQUIRED_NEGATIVE_STRATA,
+        "confirmatory detector negative-strata drift",
+    )
     _require(
         detectors["maximum_llama31_confirmatory_candidates"] == 1,
         "detector candidate multiplicity",
@@ -190,8 +266,16 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(detectors["confirmatory_success"]["joint"] is True, "detector gate is not joint")
     _require(
         detectors["confirmatory_success"]["multiplicity"]
-        == "Bonferroni across six one-sided Clopper-Pearson bounds",
+        == "Bonferroni across ten one-sided Clopper-Pearson bounds",
         "detector multiplicity drift",
+    )
+    _require(
+        detectors["confirmatory_success"]["bound_count"] == 10,
+        "detector bound-count drift",
+    )
+    _require(
+        detectors["confirmatory_success"]["pooled_estimate_forbidden"] is True,
+        "detector placement pooling enabled",
     )
 
     breaker = plan["circuit_breaker"]

@@ -29,12 +29,13 @@ def test_followup_plan_binds_review_adjudication_and_replay_plan() -> None:
     assert sha256_file(ROOT / review["adjudication"]) == review["adjudication_sha256"]
     replay = plan["llama33_four_arm_prerequisite"]
     assert sha256_file(ROOT / replay["plan"]) == replay["plan_sha256"]
+    assert sha256_file(ROOT / replay["result"]) == replay["result_sha256"]
 
 
 def test_followup_plan_rejects_outcome_contamination() -> None:
     plan = load_followup_plan(PLAN_PATH)
-    plan["outcome_status"] = "outcomes-inspected"
-    with pytest.raises(ValueError, match="outcome-free"):
+    plan["outcome_status"] = "8b-outcomes-inspected"
+    with pytest.raises(ValueError, match="outcome boundary"):
         validate_followup_plan(plan)
 
 
@@ -56,6 +57,41 @@ def test_followup_plan_rejects_multiple_confirmatory_detectors() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["detectors"]["maximum_llama31_confirmatory_candidates"] = 2
     with pytest.raises(ValueError, match="multiplicity"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_missing_scaffold_ordering() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["levels"] = ["ep_before_request"]
+    with pytest.raises(ValueError, match="placement levels"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_pooled_sae_readout() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["analysis"]["sae_readouts_separate"] = False
+    with pytest.raises(ValueError, match="sae_readouts_separate"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_unequal_order_token_budgets() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["placement_factor"]["within_arm_matching"]["require_equal_prompt_token_count"] = False
+    with pytest.raises(ValueError, match="require_equal_prompt_token_count"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_pooled_or_missing_detector_ordering() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["detectors"]["positive_strata"] = ["full"]
+    with pytest.raises(ValueError, match="confirmatory detector positive-strata"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_rejects_missing_order_specific_negative_stratum() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["detectors"]["negative_strata"].remove("inert_length:ep_after_request")
+    with pytest.raises(ValueError, match="confirmatory detector negative-strata"):
         validate_followup_plan(plan)
 
 

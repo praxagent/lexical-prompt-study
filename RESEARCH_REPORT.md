@@ -1,7 +1,8 @@
 # A Strong Lexical Effect, but No Causal SAE Handle Yet
 
-**Status:** Complete through the frozen Gate 4 discovery calibration. The
-held-out confirmatory intervention outcomes were not opened.
+**Status:** Complete through the frozen Gate 4 discovery calibration and the
+post-study four-arm SAE replay. The held-out confirmatory intervention outcomes
+were not opened.
 
 > **Draft and AI-use status.** Generative-AI tools helped implement, audit,
 > execute, interpret, visualize, and draft this study. The author selected the
@@ -31,6 +32,14 @@ met the frozen efficacy rule. The largest mean signed half-span was
 The selector therefore stopped with no eligible alpha, and the held-out
 confirmatory outcomes remained unopened.
 
+A hash-gated replay then applied the same SAE to preserved discovery states
+from all four behavioral arms. Feature `10146` activated in `0/20` base,
+`14/20` inert-length, `0/20` structural-sham, and `20/20` full-scaffold
+observations. It therefore failed the prospectively frozen non-full prevalence
+ceiling and is retired from confirmatory detector, circuit-breaker, and defense
+claims. The full arm remained quantitatively stronger than inert length, but
+the feature is demonstrably sensitive to formatting or length.
+
 The behavioral vulnerability is well supported on this checkpoint and
 protocol. The selected SAE direction is not yet a validated causal mechanism
 or defense handle.
@@ -41,6 +50,7 @@ or defense handle.
 |---|---|---|
 | The full lexical scaffold changes behavior relative to structural controls | Passed | Confirmatory, paired, receipt-backed |
 | The fitted lens and layer-50 SAE expose internal differences associated with the effect | Described | Discovery-only |
+| Feature 10146 is specific enough for a held-out attack-family detector | Failed replay gate | Inert-length activated it in 14/20 discovery cases |
 | The selected SAE direction causes a practically large bidirectional behavioral change | Did not pass calibration | Prospective discovery calibration |
 | The direction supports a held-out defense | Not tested | Confirmatory outcomes unopened |
 
@@ -162,12 +172,10 @@ full-minus-sham deltas were `0.9928309748`, `0.9847804216`,
 `0.9791809512`, and `0.9768136882`. Each activated on all full-arm discovery
 observations and on none of the sham observations. The original SAE selection
 artifact did not report prevalence in the base-request or inert-length arms.
-Therefore this is currently a full-versus-structural-sham fingerprint, not
-evidence that feature `10146` is independent of harmful content, unusual
-formatting, or prompt length. Those two missing arm summaries are recoverable
-from preserved states and are frozen as a separate replay before detector
-interpretation. The matched negative-control features were `26453`, `9105`,
-and `40804`.
+Therefore the original result established a full-versus-structural-sham
+fingerprint, not independence from harmful content, unusual formatting, or
+prompt length. The matched negative-control features were `26453`, `9105`, and
+`40804`.
 
 ![SAE candidate and control map](figures/gate3/E05-sae-candidate-map.png)
 
@@ -180,6 +188,39 @@ The SAE reconstruction relative error was substantial: mean `0.5983428955`
 and maximum `0.6649254560`. That fact further limits how literally the sparse
 features should be interpreted. The candidates were useful intervention
 hypotheses, not decoded ground truth.
+
+### Four-arm replay: the missing control changes the interpretation
+
+Before the replay, we froze a candidate gate: full prevalence at least `0.90`;
+prevalence in each non-full arm at most `0.10`; and every paired
+full-minus-non-full contrast with at least `0.80` positive-delta concordance
+and a 95% bootstrap lower bound above zero. The runner first reproduced the
+previous full-versus-sham result within `1e-6`, then exposed base and
+inert-length.
+
+![Feature 10146 four-arm replay](figures/gate3/E05b-feature-10146-four-arm-replay.png)
+
+*Figure E05b. Left: feature-10146 prevalence in the four preserved discovery
+arms. Inert length activated the feature in `14/20` observations, above the
+frozen `0.10` ceiling. Right: the full arm still had substantially higher mean
+activation than every control. Source:
+[four-arm replay result](results/gate3.sae-four-arm-replay.discovery.json).
+Figure receipt:
+[E05b receipt](figures/gate3/E05b-feature-10146-four-arm-replay.receipt.json).*
+
+| Arm | Positive | Prevalence | Mean activation |
+|---|---:|---:|---:|
+| Base | `0/20` | `0.00` | `0.0000000000` |
+| Inert length | `14/20` | `0.70` | `0.0449786149` |
+| Structural sham | `0/20` | `0.00` | `0.0000000000` |
+| Full scaffold | `20/20` | `1.00` | `0.8233345151` |
+
+The full-minus-inert paired mean was `0.7783558965`, with a 95% bootstrap
+interval of `[0.7368553281, 0.8210785046]` and `20/20` positive paired
+differences. So the replay does not reduce the signal to inert length alone.
+It does show that binary activation of feature `10146` is not specific to the
+full scaffold. The frozen gate failed, and the feature is no longer a candidate
+for the planned held-out detector or breaker.
 
 ## Gate 4: the frozen causal selector stopped
 
@@ -229,9 +270,11 @@ under the tested safe dose ladder, did not earn a held-out defense test.
 The cleanest conclusion is asymmetric. We have strong evidence that the full
 lexical scaffold changes the pinned model's behavior relative to controls. We
 also have discovery evidence that its internal trajectory differs and that a
-small set of SAE features separates full from sham examples at layer 50. We do
-not have evidence that the primary feature direction is a practically useful
-causal handle.
+small set of SAE features separates full from sham examples at layer 50.
+Feature `10146` additionally responds to inert length or formatting, although
+the full scaffold activates it much more strongly. We do not have evidence that
+the primary feature direction is a practically useful causal handle or a
+specific detector.
 
 The stop is informative. It prevents a vivid discovery correlation from being
 promoted into a mechanism claim merely because a feature separates conditions.
@@ -270,11 +313,12 @@ moves harmful behavior in the desired direction while preserving benign
 utility and avoiding overrefusal.
 
 The most defensible near-term defense work is therefore diagnostic rather than
-deployment-ready. A detector based on feature `10146` could still be explored,
-but the current evidence is only a discovery-perfect full-versus-sham
-fingerprint: base-request and inert-length prevalence have not yet been
-replayed, and no held-out detector result exists. A detector alone also does
-not explain or repair the vulnerability.
+deployment-ready. The four-arm replay retires feature `10146` itself as the
+planned detector because inert length activated it in `14/20` discovery cases.
+The next study must independently select and freeze any 8B feature or subspace,
+carry all four harmful arms plus benign controls into confirmation, and compare
+against dense and lexical baselines. A detector alone would still not explain
+or repair the vulnerability.
 
 ## Reproducibility and provenance ledger
 
@@ -287,6 +331,9 @@ not explain or repair the vulnerability.
 | Gate 3 result | [results/gate3.discovery.json](results/gate3.discovery.json) | `a6e6637b55c5a4869cbe9e8979a80c6d95506a5c8397973497e14a8b17a10b39` |
 | Gate 3 run commit | artifact field | `be65d606e84465d55bb0d60f3ba73f31321dc47d` |
 | Gate 3 figures | [figures/gate3/provenance.json](figures/gate3/provenance.json) | Per-output hashes and source pointers inside |
+| Four-arm replay plan | [plans/gate3_sae_four_arm_replay_v1.public.json](plans/gate3_sae_four_arm_replay_v1.public.json) | `e919ddb1556730e53185b0487edb8bb799fc21e40e644530559d81c07610655d` |
+| Four-arm replay result | [results/gate3.sae-four-arm-replay.discovery.json](results/gate3.sae-four-arm-replay.discovery.json) | `eb55af44435b53a8a3827de6e7cee7e833892f3229ffe2c87d4c906f2b867d38` |
+| Four-arm replay figure | [figures/gate3/provenance.replay.json](figures/gate3/provenance.replay.json) | Per-output hashes and source pointers inside |
 | Gate 4 intervention plan | [plans/gate4_intervention_v1.public.json](plans/gate4_intervention_v1.public.json) | `0e8e47a6569de4d2e03ac5d53b54c7c65c893f0c411a61ae48637642918b0047` |
 | Gate 4 result | [results/gate4.calibration.discovery.json](results/gate4.calibration.discovery.json) | `e09c6c771f4fb2b313f7b6dcd31e8e657f1ce8ecec950814bbdc843b58f2a1f5` |
 | Gate 4 run and analysis commit | artifact field | `fe82c68cbaa91d3e8b858866f24b40a8d88f1ebe` |
@@ -305,7 +352,7 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
 - Gate 4: SHA-256
   `d5075a3653e0169293228fbbe6b62c92b4eeae07ac8c212e0cc2ae8c9511a5b5`
 
-All six empirical figures ship as SVG, PNG, and PDF with individual receipt
+All seven empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
@@ -333,6 +380,7 @@ receipt hash, and retention review date are recorded in
 | Public plans and amendments | The rules frozen before each stage | Audit researcher degrees of freedom |
 | Gate 2 result JSON | Behavioral scores, controls, and paired uncertainty | Verify the confirmatory effect |
 | Gate 3 result JSON | Layerwise lens and SAE discovery summaries | Reproduce descriptive plots and candidate selection |
+| Four-arm SAE replay JSON | Feature prevalence and paired contrasts for every behavioral arm | Test content and formatting alternatives without a new 70B forward pass |
 | Gate 4 result JSON | Dose selection, efficacy, safety, and stop state | Verify that no alpha qualified |
 | Figure receipts and provenance | Exact inputs, output hashes, and plot bindings | Verify every plotted mark |
 | Schemas and analysis code | Machine-checkable receipt contracts and deterministic analysis | Re-run local validation |

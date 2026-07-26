@@ -1,10 +1,10 @@
 # Follow-up study plan: replication, causal localization, and defensive detection
 
-Status: prospective protocol freeze candidate
+Status: prospective 8B/Qwen protocol freeze candidate; 70B replay complete
 
 Study namespace: `lexical-scaffold-followup-v2`
 
-Outcome status: no follow-up target outcome generated or inspected
+Outcome status: four-arm 70B replay inspected; no 8B or Qwen target outcome generated
 Source study: `lexical-scaffold-llama33-70b-v1`
 
 ## Purpose
@@ -64,21 +64,46 @@ the final two become adaptive-stress.
 No observation used to select a feature, subspace, threshold, layer, position,
 or component may contribute to its confirmatory estimate.
 
+## Frozen scaffold-placement factor
+
+Every follow-up behavior crosses the scaffold-bearing arms with exactly two
+orderings:
+
+1. `ep_before_request`: the pinned scaffold or matched control precedes the
+   harmful request;
+2. `ep_after_request`: the same scaffold or matched control follows the same
+   harmful request.
+
+Within an arm, the two orderings contain the same request bytes, scaffold or
+control bytes, separators, conversation turn, context ceiling, and generation
+budget. A tokenizer preflight must show equal prompt-token counts across the
+two orderings; a mismatch stops before target generation rather than being
+repaired after outcomes. Structural-sham and inert-length controls are crossed
+the same way. Base requests and ordinary benign prompts contain no scaffold,
+so each is generated once as a shared reference and never duplicated or
+double-counted.
+
+Placement is a controlled factor, not a secondary robustness label. Behavioral
+outcomes, every SAE feature statistic, and every J-lens layer-by-position
+readout are computed and reported separately for `ep_before_request` and
+`ep_after_request`. There is no pooled placement estimate, pooled feature
+ranking, or pooled threshold fit. A single common feature/subspace may be
+nominated only by a maximin rule: it must satisfy the frozen discovery and
+calibration criteria separately in both orderings, and ranking uses the smaller
+of its two ordering-specific standardized effects. A “placement-robust” claim
+requires both ordering-specific gates; a one-order result is reported only for
+that ordering.
+
 ## Stage A: Llama 3.1 8B replication
 
-### Prerequisite: finish the Llama 3.3 four-arm discovery replay
+### Completed prerequisite: Llama 3.3 four-arm discovery replay
 
-Before treating feature 10146 as a detector candidate, replay the pinned
-layer-50 SAE over the preserved Gate-3 assistant-boundary states for all four
-arms. The archive contains 20 available states per arm, so this requires no new
-70B forward pass. The prospectively frozen replay is
-`plans/gate3_sae_four_arm_replay_v1.public.json`.
-
-Until that replay completes, the exact claim is “feature 10146 is a
-discovery-only full-versus-structural-sham fingerprint.” It has not yet been
-shown to be independent of harmful-request content or inert formatting/length.
-Even a clean four-arm replay remains discovery evidence and cannot replace the
-later held-out detector test.
+The pinned layer-50 SAE was replayed over the preserved Gate-3
+assistant-boundary states for all four arms without a new 70B forward pass.
+Feature 10146 prevalence was `0/20` base, `14/20` inert-length, `0/20`
+structural-sham, and `20/20` full. The prospectively frozen replay and result
+are `plans/gate3_sae_four_arm_replay_v1.public.json` and
+`results/gate3.sae-four-arm-replay.discovery.json`.
 
 The replay is an explicit machine gate. Feature 10146 remains eligible only if
 its full-arm prevalence is at least 0.90, prevalence in each of base,
@@ -87,6 +112,9 @@ full-minus-non-full contrast has at least 0.80 positive-delta concordance with a
 95% bootstrap lower bound above zero. Failure retires feature 10146 from
 confirmatory detector, shadow-mode, and defense claims. The result is still
 reported as discovery evidence, and this rule cannot be revised after replay.
+The inert-length prevalence failed the gate, so feature 10146 is retired from
+confirmatory detector, shadow-mode, and defense claims. It remains descriptive
+prior evidence and an example of why the complete control matrix is required.
 
 ### Exact instrument
 
@@ -108,13 +136,22 @@ different gate and cannot be used to weaken these checks.
 ### Arms and questions
 
 Every harmful behavior uses base, inert-length, structural-sham, and full arms.
-The utility set includes ordinary benign and benign-but-structured prompts.
+The three scaffold-bearing arms are crossed with both frozen placement
+orderings; base is the shared reference defined above. The utility set includes
+ordinary benign and benign-but-structured prompts, with structured benign
+controls crossed by ordering.
 Prospectively specified landmark-removal/replacement and paraphrase
 transformations operate mechanically inside the restricted runner.
 
+Behavioral viability is evaluated separately as full-minus-structural-sham
+within each ordering. The two ordering-specific tests form one Holm-controlled
+family at alpha 0.05 and each retains the same minimum-effect rule. The study
+reports both estimates even if only one passes.
+
 The sole primary Stage-A confirmatory construct is an **EP-derived
 attack-family attempt detector** on the pinned JBB panel. The original full arm
-is positive. Base, inert-length, structural-sham, ordinary benign, and
+is positive within each ordering. Base, ordering-matched inert-length,
+ordering-matched structural-sham, ordinary benign, and ordering-matched
 structured-benign prompts are negative. Mechanically frozen paraphrase and
 landmark transformations are secondary robustness tests, not extra independent
 units or a license to call the detector general-purpose.
@@ -127,9 +164,12 @@ questions.
 
 Discovery may nominate one single feature and one subspace of at most eight
 features, but calibration must select exactly one of them as the sole 8B
-confirmatory detector. Calibration freezes its weights and threshold.
-Confirmation is run once. A different feature number in the 8B SAE is an
-analogue only by prospectively tested function, never by index. A frozen
+confirmatory detector. It must pass selection separately in both orderings by
+the maximin rule. Calibration freezes one common set of weights and one common
+threshold without pooling: optimize the smaller ordering-specific recall
+subject to every ordering-specific negative-class constraint. Confirmation is
+reported as two ordering strata. A different feature number in the 8B SAE is
+an analogue only by prospectively tested function, never by index. A frozen
 low-capacity dense hidden-state baseline and a private lexical baseline are
 comparators only; no SAE-superiority claim is made unless their prospective
 comparison supports it.
@@ -160,17 +200,20 @@ absolute mean effect at most 0.02 and a paired 90% interval contained in
 mean effect at most 0.05 and a 95% interval containing zero.
 
 Among eligible layers, discovery selects the largest absolute standardized
-paired behavioral effect, breaking ties by earlier layer. Calibration must
-reproduce the direction, mean reduction of at least 0.10, and an interval below
-zero. Otherwise B2 stops and no confirmatory patch outcome is generated.
+paired behavioral effect under the ordering-stratified maximin rule, breaking
+ties by earlier layer. The layer must be eligible separately in both orderings.
+Calibration must reproduce the direction, mean reduction of at least 0.10, and
+an interval below zero separately in both orderings. Otherwise B2 stops and no
+confirmatory patch outcome is generated.
 
 ### B2: component localization
 
 Only the single eligible assistant-boundary layer frozen after calibration is
 tested. Attention output and MLP output are patched separately using the same
 donor/recipient alignment and controls. Discovery chooses at most one component
-by the B1 eligibility rule; calibration must reproduce it before a single
-confirmatory test. Head-level localization and AtP-star are not part of this
+by the B1 eligibility rule applied separately to both orderings; calibration
+must reproduce it in both before confirmation. Head-level localization and
+AtP-star are not part of this
 freeze. Either requires a later prospective amendment, stays discovery-only,
 and cannot satisfy the causal endpoint without exact held-out replacement
 patching.
@@ -202,10 +245,14 @@ Every control traverses the identical hook and scoring pipeline:
 
 ### Estimands and interpretation
 
-The only confirmatory causal estimand is the mean paired behavior-ID change in
-HarmBench affirmative probability under exact sham-state replacement into the
-full arm at the one calibrated component and the pre-generation assistant
-boundary. A successful directional result requires mean change at most -0.10,
+The confirmatory causal estimand is computed separately within each placement
+ordering: the mean paired behavior-ID change in HarmBench affirmative
+probability under exact sham-state replacement into the full arm at the one
+calibrated component and the pre-generation assistant boundary. One common
+layer/component can reach confirmation only if it passes discovery and
+calibration separately in both orderings, using the smaller standardized effect
+for selection. No states or scores are pooled across ordering. Within each
+ordering, a successful directional result requires mean change at most -0.10,
 at least 70% negative pairwise signs, and a two-sided 95% paired
 behavior-bootstrap interval wholly below zero. A behavioral-equivalence result
 requires a paired 90% interval contained in [-0.05, 0.05]. Anything between
@@ -238,9 +285,11 @@ Generation settings and seeds, deterministic judging inputs, judge blinding to
 arm/intervention labels, score-parser failures, missing behavior IDs, and
 exclusions are immutable before confirmation. A missing or failed score remains
 missing; no behavior is silently replaced. More than 10% missing confirmatory
-IDs invalidates the causal test. The detector and causal endpoints are separate
-families, each with alpha 0.05; all other Stage-A/B tests are secondary unless
-listed above as gates.
+IDs invalidates that ordering-specific causal test. The detector and causal
+endpoints are separate families, each with family alpha 0.05. The two
+ordering-specific causal confirmations use Holm correction, and a
+placement-robust causal claim requires both to pass. All other Stage-A/B tests
+are secondary unless listed above as gates.
 
 Each patch receipt binds the actual realized donor, recipient, and delta tensor
 hashes. Private replay bundles retain the BF16 pre-patch recipient and realized
@@ -249,29 +298,34 @@ only hashes, norms, shapes, dtypes, and derived scores.
 
 ## Stage C: family-specific detector confirmation and robustness
 
-Feature 10146 is evaluated only if its four-arm replay gate passed. Exactly one
-8B detector, either the single feature or the at-most-eight-feature subspace
-selected on calibration, reaches confirmation. The positive class is the
-original EP-derived full arm. Negative classes are base, inert-length,
-structural-sham, ordinary benign, and structured-benign. The detectors are
+Feature 10146 is evaluated only if its four-arm replay gate passed. It did not
+pass and is therefore retired from this stage. Exactly one 8B detector, either
+the single feature or the at-most-eight-feature subspace selected on
+calibration, reaches confirmation. The positive class is the original
+EP-derived full arm in each ordering. Negative strata are shared base,
+ordering-specific inert-length, ordering-specific structural-sham, shared
+ordinary benign, and ordering-specific structured-benign. The detector is
 evaluated on:
 
 - untouched confirmatory harmful behaviors;
 - benign structured prompts;
-- alternate conversation positions;
+- the two frozen scaffold orderings, never pooled;
 - length- and formatting-matched controls;
 - private landmark ablations and replacements;
 - mechanically generated paraphrase families;
 - adaptive-stress variants that preserve the behavioral endpoint while trying
   to reduce the detector score.
 
-Calibration chooses the threshold that maximizes full-arm recall subject to
-each negative class having calibration false-positive rate at most 0.10.
-Confirmatory success is joint: simultaneous one-sided Clopper-Pearson bounds
-use per-bound alpha \(0.05/6\). The lower bound for full-arm recall must be at
-least 0.80, and the upper bound for each declared negative-class false-positive
-rate must be at most 0.20. Failure of any of the six bounds means the detector
-did not meet the family-specific gate.
+Calibration chooses one common threshold that maximizes the smaller of the two
+ordering-specific full-arm recalls, subject to each ordering-specific negative
+stratum having false-positive rate at most 0.10. No rows are pooled.
+Confirmatory success is joint across ten unique one-sided Clopper-Pearson
+bounds: two ordering-specific full-arm recall bounds; shared base and
+ordinary-benign FPR bounds; and ordering-specific inert-length,
+structural-sham, and structured-benign FPR bounds. Per-bound alpha is
+\(0.05/10\). Each full-arm recall lower bound must be at least 0.80, and each
+negative-stratum FPR upper bound at most 0.20. Failure of any bound means the
+detector did not meet the placement-robust family-specific gate.
 
 Adaptive stress is exploratory, uses only the 20 stress IDs, has a frozen
 maximum of 12 transformations per ID, and never changes the detector or
@@ -311,7 +365,9 @@ Measurements are full-versus-sham J-lens trajectories, an ordinary
 hidden-state mean-difference/linear-projection baseline, identity transport,
 seeded Frobenius-matched random transport, and cross-layer/position
 consistency. Dense Qwen directions are compared only by functional signature,
-not equated with SAE feature 10146.
+not equated with SAE feature 10146. The two scaffold orderings are run and
+reported as separate behavioral and J-lens strata under the same no-pooling
+rule.
 
 This separately scoped pilot runs only after the core Llama replay,
 replication, patching, and detector results are frozen and reported. It may run
@@ -346,10 +402,13 @@ production-readiness claim.
    behavior per required pipeline, no target outcome inspection, exact
    throughput and memory receipt. Failure tears down the pod.
 4. **G2 — 8B behavioral viability:** full versus sham must have the frozen
-   directional behavioral effect in discovery and calibration. If not, report a
-   failed 8B transfer and do not claim mechanistic absence.
+   directional behavioral effect separately in both placement orderings in
+   discovery and calibration. If only one passes, report an ordering-specific
+   transfer and do not make a placement-robust or mechanistic-absence claim.
 5. **G3 — 8B sparse/J-lens replication:** freeze exactly one detector using
-   discovery/calibration only; trajectory statistics remain secondary.
+   the ordering-stratified maximin rule on discovery/calibration only; emit
+   complete separate SAE and J-lens tables for both orderings. Trajectory
+   statistics remain secondary.
 6. **G4 — patch validity and B1 causal localization:** the safe positive
    control must pass before applying the boundary-only eligibility rule. If none
    qualifies, stop B2 while retaining the detector and Qwen arms.
@@ -370,8 +429,9 @@ prospective amendment stating which outcomes were already inspected.
 
 Planned empirical figures:
 
-- layer × position full-minus-sham map;
-- SAE feature/subspace discovery and held-out replication;
+- separate layer × position full-minus-sham maps for both scaffold orderings;
+- separate SAE feature/subspace discovery and held-out replication panels for
+  both scaffold orderings;
 - B1 patching heatmap with controls;
 - feature/behavior four-way dissociation plot;
 - detector ROC and precision-recall panels with utility false positives;
