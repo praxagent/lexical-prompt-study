@@ -286,7 +286,7 @@ detector alone does not explain or repair the vulnerability.
 | Gate 4 score receipt aggregate | artifact field | `a09d306f4f643bf502fcae9e371ea0911624287e17abe7d9d87d6db00b30ca75` |
 | Gate 4 analysis rows | artifact field | `fdb1d70c559b8f648e63229bd26b7d74fe9ec056b2d930174a4aecc1bf90cd98` |
 | Gate 4 figure | [figures/gate4/provenance.json](figures/gate4/provenance.json) | `9f3d61afce4e81e35a1d3a3ea3a34f0e275497f187d1516b2131d94dc225adab` |
-| Compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | Exact task pod billing plus derived task-volume accrual |
+| Compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 
 Private, non-raw checkpoint bundles are retained locally for receipt audit:
 
