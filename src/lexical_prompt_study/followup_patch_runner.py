@@ -525,6 +525,20 @@ def load_frozen_safe_positive_control(
     return result
 
 
+def projected_discovery_maximum_tokens(plan: dict[str, Any]) -> int:
+    return (
+        2
+        * len(
+            plan["causal_localization"]["instrument_strength_calibration"][
+                "target_candidate_layers"
+            ]
+        )
+        * len(plan["causal_localization"]["execution"]["condition_kinds"])
+        * 20
+        * int(plan["replication"]["decoding"]["max_new_tokens"])
+    )
+
+
 def run_safe_throughput_qualification(
     *,
     torch,
@@ -607,13 +621,7 @@ def run_safe_throughput_qualification(
             ],
         },
     )
-    maximum_target_tokens = (
-        2
-        * len(plan["causal_localization"]["coarse_residual_post_layers"])
-        * len(plan["causal_localization"]["execution"]["condition_kinds"])
-        * 20
-        * int(plan["replication"]["decoding"]["max_new_tokens"])
-    )
+    maximum_target_tokens = projected_discovery_maximum_tokens(plan)
     result = {
         "schema_version": "1.0",
         "status": "passed",

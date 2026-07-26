@@ -17,8 +17,11 @@ from lexical_prompt_study.followup_patch import (
     magnitude_matched_random_deltas,
     select_cross_behavior_donors,
 )
-from lexical_prompt_study.followup_patch_runner import validate_patch_run_authorization
-from lexical_prompt_study.followup_patch_runner import load_frozen_safe_positive_control
+from lexical_prompt_study.followup_patch_runner import (
+    load_frozen_safe_positive_control,
+    projected_discovery_maximum_tokens,
+    validate_patch_run_authorization,
+)
 from lexical_prompt_study.hashing import sha256_file, write_json_atomic
 
 
@@ -266,3 +269,7 @@ def test_frozen_safe_control_validates_layer_specific_instrument(
     instrument["source_result_sha256"] = sha256_file(path)
     with pytest.raises(ValueError, match="layer partition drift"):
         load_frozen_safe_positive_control(path=path, plan=plan)
+
+
+def test_target_projection_uses_only_instrument_passing_layers() -> None:
+    assert projected_discovery_maximum_tokens(PLAN) == 1_843_200

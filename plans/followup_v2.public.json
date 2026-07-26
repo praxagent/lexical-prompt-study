@@ -1162,6 +1162,29 @@
           "summary_count": 1,
           "target_patch_receipt_count": 0,
           "private_file_mode": "0600"
+        },
+        "result_binding": {
+          "status": "complete_target_closed",
+          "amendment": "A042",
+          "source_commit": "9496d4fdeb1c77963702979751aae97d6979ff63",
+          "public_plan_sha256": "027a2d9aacea3992b61b98b98a2afc70d47a0643b585c92c5786feb876ebc519",
+          "run_id": "g4-patch-throughput-a040-20260726",
+          "public_result_path": "results/followup-g4-safe-throughput.public.json",
+          "public_result_sha256": "50449028a4268346ccdce7f4fe1b897dd280722215bca3e60fa8f88745514abc",
+          "private_outputs_sha256": "34984f9f7bc4cd3c46470cc2b1888b808453c49238cccac41cf37399b9eb802d",
+          "batch_size": 20,
+          "aggregate_generated_tokens": 20480,
+          "elapsed_seconds": 24.40561218210496,
+          "aggregate_generated_tokens_per_second": 839.1512512444431,
+          "peak_memory_bytes": 19270214656,
+          "runner_reported_original_layer_count": 9,
+          "runner_reported_projected_tokens": 3317760,
+          "corrected_target_candidate_layer_count": 5,
+          "corrected_discovery_trial_count": 1800,
+          "corrected_projected_tokens": 1843200,
+          "corrected_projected_generation_seconds": 2196.5050963894464,
+          "target_patch_trial_count": 0,
+          "raw_output_public": false
         }
       }
     },

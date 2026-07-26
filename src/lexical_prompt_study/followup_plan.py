@@ -1089,6 +1089,67 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         },
         "G4 patch throughput scope or topology drift",
     )
+    throughput_result = patch_throughput["result_binding"]
+    _require(
+        throughput_result["status"] == "complete_target_closed"
+        and throughput_result["amendment"] == "A042"
+        and throughput_result["source_commit"]
+        == patch_throughput["runner_source_commit"]
+        and throughput_result["public_plan_sha256"]
+        == "027a2d9aacea3992b61b98b98a2afc70d47a0643b585c92c5786feb876ebc519"
+        and throughput_result["run_id"] == patch_throughput["run_id"]
+        and throughput_result["public_result_path"]
+        == "results/followup-g4-safe-throughput.public.json"
+        and throughput_result["public_result_sha256"]
+        == "50449028a4268346ccdce7f4fe1b897dd280722215bca3e60fa8f88745514abc"
+        and throughput_result["private_outputs_sha256"]
+        == "34984f9f7bc4cd3c46470cc2b1888b808453c49238cccac41cf37399b9eb802d"
+        and throughput_result["batch_size"] == 20
+        and throughput_result["aggregate_generated_tokens"] == 20480
+        and throughput_result["peak_memory_bytes"] == 19270214656
+        and throughput_result["target_patch_trial_count"] == 0
+        and throughput_result["raw_output_public"] is False,
+        "G4 patch throughput result binding drift",
+    )
+    corrected_trials = (
+        2
+        * len(instrument["target_candidate_layers"])
+        * len(causal["execution"]["condition_kinds"])
+        * 20
+    )
+    corrected_tokens = corrected_trials * plan["replication"]["decoding"][
+        "max_new_tokens"
+    ]
+    _require(
+        throughput_result["runner_reported_original_layer_count"]
+        == len(causal["coarse_residual_post_layers"])
+        and throughput_result["runner_reported_projected_tokens"]
+        == (
+            2
+            * len(causal["coarse_residual_post_layers"])
+            * len(causal["execution"]["condition_kinds"])
+            * 20
+            * plan["replication"]["decoding"]["max_new_tokens"]
+        )
+        and throughput_result["corrected_target_candidate_layer_count"]
+        == len(instrument["target_candidate_layers"])
+        and throughput_result["corrected_discovery_trial_count"]
+        == corrected_trials
+        and throughput_result["corrected_projected_tokens"] == corrected_tokens
+        and abs(
+            throughput_result["aggregate_generated_tokens"]
+            / throughput_result["elapsed_seconds"]
+            - throughput_result["aggregate_generated_tokens_per_second"]
+        )
+        < 1e-9
+        and abs(
+            corrected_tokens
+            / throughput_result["aggregate_generated_tokens_per_second"]
+            - throughput_result["corrected_projected_generation_seconds"]
+        )
+        < 1e-9,
+        "G4 patch throughput corrected projection drift",
+    )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,

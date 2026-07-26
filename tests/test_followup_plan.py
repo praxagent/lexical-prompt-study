@@ -25,6 +25,16 @@ def test_followup_plan_binds_safe_instrument_result_bytes() -> None:
     ]
 
 
+def test_followup_plan_binds_safe_throughput_result_bytes() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    result = plan["compute"]["scientific_runs"][
+        "g4_patch_throughput_qualification"
+    ]["result_binding"]
+    assert sha256_file(ROOT / result["public_result_path"]) == result[
+        "public_result_sha256"
+    ]
+
+
 def test_followup_plan_binds_unchanged_source_plan() -> None:
     plan = load_followup_plan(PLAN_PATH)
     source = ROOT / plan["partitions"]["source"]
