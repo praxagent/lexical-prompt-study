@@ -1,0 +1,303 @@
+{
+  "schema_version": "2.0",
+  "study_id": "lexical-scaffold-followup-v2",
+  "created_utc": "2026-07-26T06:45:00Z",
+  "outcome_status": "outcome-free",
+  "source_study": {
+    "study_id": "lexical-scaffold-llama33-70b-v1",
+    "public_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "gate3_discovery_sha256": "a6e6637b55c5a4869cbe9e8979a80c6d95506a5c8397973497e14a8b17a10b39",
+    "gate4_calibration_sha256": "e09c6c771f4fb2b313f7b6dcd31e8e657f1ce8ecec950814bbdc843b58f2a1f5",
+    "frozen_llama33_feature": 10146
+  },
+  "attack_handling": {
+    "existing_artifact_only": true,
+    "repository": "elder-plinius/L1B3RT4S",
+    "revision": "64960b783249d36f76a48a33103cc4b168332b9b",
+    "path": "META.mkd",
+    "git_blob_oid": "d5f87609877a7f24dc0b29d000dc97daf4406cbd",
+    "inspect_additional_attack_text": false,
+    "future_model_specific_artifact": "human-supplied, restricted, hash-only in public receipts"
+  },
+  "partitions": {
+    "source": "plans/study_v1.public.json",
+    "source_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "discovery": {
+      "count": 20,
+      "sorted_id_list_sha256": "e44e968d5fba26ae23a226be2792c986c81d1b02fc690b7c059a2789fb32fda1"
+    },
+    "calibration": {
+      "count": 20,
+      "derivation": "within each reserve category, canonical behavior-id sort positions 0:2",
+      "sorted_id_list_sha256": "05578908e9e2ee23c07afc3033bbc8b2660611ec01d702ecd718586fd6073084"
+    },
+    "confirmatory": {
+      "count": 40,
+      "sorted_id_list_sha256": "c7917a08fe2048091460ed3056548d77675f1ba39177b5918edd0dfe3c8ecc91"
+    },
+    "adaptive_stress": {
+      "count": 20,
+      "derivation": "within each reserve category, canonical behavior-id sort positions 2:4",
+      "sorted_id_list_sha256": "c58c877f4a399959f604bd61374e6baf5365851104934061319b0c28ff78ebad"
+    },
+    "utility_calibration": {
+      "count": 50,
+      "derivation": "all pinned JBB benign behaviors; within each category, v1 seeded rank positions 0:5",
+      "sorted_id_list_sha256": "b54b2eca200c60adb130a914d9a9a1b440999a6502aa58ebad2b7399215e1ecb"
+    },
+    "utility_confirmatory": {
+      "count": 50,
+      "derivation": "all pinned JBB benign behaviors; within each category, v1 seeded rank positions 5:10",
+      "sorted_id_list_sha256": "cb094737de97e0aead2347edb814e05dfce8d5e6ee9f72023b014e9e4a9e6a1c"
+    }
+  },
+  "artifacts": {
+    "llama31_model": {
+      "repository": "meta-llama/Llama-3.1-8B-Instruct",
+      "revision": "0e9e39f249a16976918f6564b8830bc894c89659"
+    },
+    "llama31_sae": {
+      "repository": "Goodfire/Llama-3.1-8B-Instruct-SAE-l19",
+      "revision": "f6775a221e47b44233af4bac2c7b65189265519a",
+      "path": "Llama-3.1-8B-Instruct-SAE-l19.pth",
+      "sha256": "bbdc6fad591d3d420e8859dcb6eefa4ec642026090f7f39a963b1c0f27290e4f",
+      "size_bytes": 2147764320,
+      "hook_layer": 19
+    },
+    "llama31_lens": {
+      "repository": "neuronpedia/jacobian-lens",
+      "revision": "a4114d7752d11eb546e6cf372213d7e75526d3a1",
+      "path": "llama3.1-8b-it/jlens/Salesforce-wikitext/Llama-3.1-8B-Instruct_jacobian_lens.pt",
+      "sha256": "d5300a1575c0b5ad6e01b098c75adb072f3a6c246f184ce2fb35a3550fc8c68b",
+      "size_bytes": 1040197778
+    },
+    "qwen_model": {
+      "repository": "Qwen/Qwen3.5-4B",
+      "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "architecture": "Qwen3_5ForConditionalGeneration"
+    },
+    "qwen_lens": {
+      "repository": "neuronpedia/jacobian-lens",
+      "revision": "b62c39069a0740aebcc70462231b68612cae367f",
+      "path": "qwen3.5-4b/jlens/Salesforce-wikitext/Qwen3.5-4B_jacobian_lens_n1000.pt",
+      "sha256": "1f9a8f8fd593f0ffec1a9640993257ca4560f8ae3e5602315643d5cc6818534e",
+      "size_bytes": 406332644
+    }
+  },
+  "stage_order": [
+    "G0_local_integrity",
+    "G0b_llama33_four_arm_sae_replay",
+    "G1_one_unit_qualification",
+    "G2_llama31_behavioral_viability",
+    "G3_llama31_sparse_and_jlens_replication",
+    "G4_coarse_causal_localization",
+    "G5_component_causal_localization",
+    "G6_detector_confirmation_and_shadow_mode",
+    "G7_qwen_cross_family_pilot"
+  ],
+  "replication": {
+    "model_family": "llama",
+    "arms": [
+      "base",
+      "inert_length",
+      "structural_sham",
+      "full"
+    ],
+    "feature_selection_partition": "discovery",
+    "threshold_partition": "calibration",
+    "test_partition": "confirmatory",
+    "maximum_subspace_features": 8,
+    "robustness_families": [
+      "benign_structured",
+      "alternate_conversation_position",
+      "length_format_matched",
+      "landmark_ablation_replacement",
+      "mechanical_paraphrase"
+    ]
+  },
+  "causal_localization": {
+    "model": "llama31_model",
+    "primary_position": "turn2_assistant_boundary_before_first_generated_token",
+    "secondary_positions": {
+      "scaffold_fractions": [
+        0.25,
+        0.5,
+        0.75,
+        1.0
+      ],
+      "early_generated_indices": [
+        0,
+        1,
+        2,
+        4,
+        8
+      ],
+      "generated_alignment": "shared teacher-forced full baseline prefix, then free generation"
+    },
+    "coarse_residual_post_layers": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      31
+    ],
+    "directions": [
+      "sham_into_full",
+      "full_into_sham"
+    ],
+    "controls": [
+      "full_into_full_identity",
+      "sham_into_sham_identity",
+      "no_op_hook",
+      "same_site_magnitude_matched_seeded_random_delta",
+      "irrelevant_layer",
+      "irrelevant_token_position",
+      "cross_behavior_category_and_length_matched_donor"
+    ],
+    "primary_estimand": "behavior-id-clustered paired change in frozen harmful-compliance/refusal score under sham-into-full patch",
+    "secondary_estimands": [
+      "frozen SAE single-feature or subspace score change",
+      "frozen Jacobian-lens refusal-minus-compliance margin change"
+    ],
+    "eligibility": {
+      "minimum_sign_concordance": 0.7,
+      "cluster_bootstrap_interval": 0.95,
+      "primary_interval_excludes_zero": true,
+      "reciprocal_opposite_sign": true,
+      "identity_and_noop_max_fraction_of_primary_abs_mean": 0.25,
+      "random_and_irrelevant_max_fraction_of_primary_abs_mean": 0.5,
+      "selection": "largest absolute standardized paired behavioral effect; ties earlier layer then earlier position"
+    },
+    "component_stage": {
+      "conditional_on_calibration_pass": true,
+      "components": [
+        "attention_output",
+        "mlp_output"
+      ],
+      "maximum_confirmatory_components": 1,
+      "head_localization": "deferred_pending_new_prospective_amendment"
+    },
+    "private_replay_bundle": {
+      "retain_recipient_pre_patch_bf16": true,
+      "retain_realized_delta_bf16": true,
+      "public_values": [
+        "tensor_hashes",
+        "norms",
+        "shapes",
+        "dtypes",
+        "derived_scores"
+      ]
+    }
+  },
+  "detectors": {
+    "llama33_single_feature": 10146,
+    "llama33_prerequisite": "complete plans/gate3_sae_four_arm_replay_v1.public.json before detector interpretation",
+    "llama31_single_feature": "selected_on_discovery_only",
+    "llama31_subspace": "at most eight features selected on discovery only",
+    "threshold_selection": "calibration only; maximize recall subject to calibration false-positive rate <= 0.05",
+    "test_partition": "confirmatory",
+    "adaptive_partition": "adaptive_stress",
+    "adaptive_max_transformations_per_behavior": 12,
+    "comparators": [
+      "single_feature",
+      "frozen_linear_subspace",
+      "private_lexical_baseline"
+    ],
+    "metrics": [
+      "recall",
+      "false_positive_rate",
+      "precision_at_observed_prevalence",
+      "precision_at_1_5_10_percent_attack_prevalence",
+      "auroc",
+      "average_precision",
+      "behavior_id_cluster_uncertainty"
+    ]
+  },
+  "qwen_pilot": {
+    "scope": "cross-model transfer of existing pinned Meta scaffold",
+    "native_qwen_attack_claim": false,
+    "sae_available": false,
+    "compatibility_gate": [
+      "exact text backbone",
+      "layer mapping",
+      "hidden width",
+      "output head",
+      "Jacobian shapes",
+      "hook semantics"
+    ],
+    "no_silent_model_substitution": true,
+    "measurements": [
+      "full-versus-sham Jacobian-lens trajectories",
+      "hidden-state mean-difference linear projection",
+      "identity transport",
+      "seeded Frobenius-matched random transport",
+      "cross-layer and position consistency"
+    ],
+    "qwen397b": "deferred_separate_authorization"
+  },
+  "circuit_breaker": {
+    "requires_frozen_detector": true,
+    "mode": "shadow",
+    "decision_time": "after prefill and before first output token release",
+    "action": "cancel_request_not_server",
+    "hide_internal_scores_and_thresholds": true,
+    "comparators": [
+      "single_feature",
+      "frozen_subspace",
+      "private_lexical_baseline"
+    ]
+  },
+  "raw_data_policy": {
+    "public_raw_prompts": false,
+    "public_raw_generations": false,
+    "public_reconstructive_token_ids": false,
+    "public_replayable_tensors": false,
+    "private_receipt_bundles": true
+  },
+  "figure_contract": {
+    "programmatic_from_audited_receipts_only": true,
+    "formats": [
+      "svg",
+      "png",
+      "pdf"
+    ],
+    "sidecar_requires": [
+      "source receipt hashes",
+      "analysis code hash",
+      "source commit",
+      "plan hash",
+      "parameters",
+      "row counts",
+      "output hashes",
+      "deterministic byte-verification status"
+    ]
+  },
+  "compute": {
+    "provider": "RunPod",
+    "persistent_volume_id": "u85xfo0aue",
+    "persistent_volume_size_gb": 500,
+    "persistent_volume_region": "US-CA-2",
+    "volume_estimated_daily_usd": 1.17,
+    "qualification": {
+      "gpu": "NVIDIA A40",
+      "count": 1,
+      "secure_cloud": true,
+      "live_rate_usd_per_hour": 0.44,
+      "wall_limit_minutes": 90,
+      "max_compute_usd": 0.66,
+      "no_progress_timeout_minutes": 20,
+      "target_outcomes_inspected": false,
+      "automatic_fallback": false
+    },
+    "scientific_run_requires_measured_throughput": true,
+    "scientific_run_requires_separate_exact_cost_statement": true,
+    "incremental_soft_usd": 50,
+    "incremental_hard_usd": 75,
+    "prior_estimated_spend_usd": 69.3810094824,
+    "existing_cumulative_hard_ceiling_usd": 200
+  }
+}

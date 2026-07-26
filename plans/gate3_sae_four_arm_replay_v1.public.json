@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "replay_id": "gate3-sae-four-arm-replay-v1",
+  "created_utc": "2026-07-26T07:15:00Z",
+  "outcome_status": "base-and-inert-feature-outcomes-unopened",
+  "interpretation": "discovery-only four-arm feature fingerprint replay",
+  "source_study_id": "lexical-scaffold-llama33-70b-v1",
+  "source_split": "discovery",
+  "independent_unit": "behavior ID",
+  "primary_position": "turn-2 assistant boundary before first generated token",
+  "hook_layer": 50,
+  "arms": ["base", "inert_length", "structural_sham", "full"],
+  "primary_feature_id": 10146,
+  "secondary_feature_ids": [44802, 4057, 3907],
+  "matched_control_feature_ids": [26453, 9105, 40804],
+  "primary_questions": {
+    "base": "Does the harmful request alone activate feature 10146?",
+    "inert_length": "Does unusual formatting or matched length activate feature 10146?",
+    "structural_sham": "Does matched structure without the full inversion activate feature 10146?",
+    "full": "Does the complete scaffold activate feature 10146?"
+  },
+  "statistics": {
+    "activation_rule": "strict ReLU encoder activation greater than zero",
+    "per_arm": ["count", "positive_count", "prevalence", "mean", "median", "maximum"],
+    "paired_contrasts": [
+      "full-minus-base",
+      "full-minus-inert_length",
+      "full-minus-structural_sham",
+      "structural_sham-minus-base",
+      "inert_length-minus-base"
+    ],
+    "interval": "behavior-ID paired percentile bootstrap",
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260726,
+    "multiplicity": "primary prevalence table is descriptive; contrast intervals are simultaneous Holm-controlled only if used inferentially"
+  },
+  "source_artifacts": {
+    "private_checkpoint_tar_sha256": "16271bebbedc8952c731a28dc6e78cdcf3263c060bda8f5b59feafd9aed6dd7e",
+    "captured_states_sha256": "93d4fc47798043e9b53d8ac874e0cc960fb306b8fa2fdee3a3d1145f0dc53216",
+    "observation_manifest_sha256": "1bb2086deadfae849b233f3bc0fcc6e00fd636b2f691d04c2631e52bf3ab920f",
+    "prior_sae_discovery_sha256": "38ac37a8d50e59a6ac8038b968d9fef61b07e63239b5519f5ec4420140dae7bf",
+    "sae_sha256": "81cfce8ea035564cb585d6e0f04efbf0eb114cab412a30a013762fe11f6d8ea6",
+    "model_revision": "6f6073b423013f6a7d4d9f39144961bfbfbc386b"
+  },
+  "topology": {
+    "behaviors": 20,
+    "observations_per_arm": 20,
+    "total_primary_observations": 80,
+    "require_identical_behavior_ids_across_arms": true
+  },
+  "consistency_gate": {
+    "reproduce_prior_full_prevalence": 1.0,
+    "reproduce_prior_sham_prevalence": 0.0,
+    "reproduce_prior_full_minus_sham_mean": 0.8233342051506043,
+    "absolute_tolerance": 1e-06
+  },
+  "claim_boundary_before_replay": "Feature 10146 is a discovery-only full-versus-structural-sham fingerprint; independence from harmful content and formatting or length has not been established.",
+  "claim_boundary_after_replay": "Any strengthened claim remains limited to these 20 discovery behaviors until a separately frozen held-out detector test.",
+  "raw_data_policy": {
+    "public_behavior_level_activations": false,
+    "private_behavior_level_receipts": true,
+    "public_raw_prompts_or_generations": false,
+    "public_reconstructive_token_ids": false
+  },
+  "compute": {
+    "requires_new_70b_forward_pass": false,
+    "requires_pinned_sae_weights": true,
+    "preferred_execution": "replay on retained RunPod volume or local mmap",
+    "paid_execution_requires_exact_cost_approval": true
+  }
+}

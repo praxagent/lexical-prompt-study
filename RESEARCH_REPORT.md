@@ -160,8 +160,14 @@ At layer 50, the discovery rule selected SAE features `10146`, `44802`,
 `4057`, and `3907`, with feature `10146` primary. Their paired standardized
 full-minus-sham deltas were `0.9928309748`, `0.9847804216`,
 `0.9791809512`, and `0.9768136882`. Each activated on all full-arm discovery
-observations and on none of the sham observations. The matched negative-control
-features were `26453`, `9105`, and `40804`.
+observations and on none of the sham observations. The original SAE selection
+artifact did not report prevalence in the base-request or inert-length arms.
+Therefore this is currently a full-versus-structural-sham fingerprint, not
+evidence that feature `10146` is independent of harmful content, unusual
+formatting, or prompt length. Those two missing arm summaries are recoverable
+from preserved states and are frozen as a separate replay before detector
+interpretation. The matched negative-control features were `26453`, `9105`,
+and `40804`.
 
 ![SAE candidate and control map](figures/gate3/E05-sae-candidate-map.png)
 
@@ -265,8 +271,10 @@ utility and avoiding overrefusal.
 
 The most defensible near-term defense work is therefore diagnostic rather than
 deployment-ready. A detector based on feature `10146` could still be explored,
-but its discovery-perfect separation is not a held-out detector result, and a
-detector alone does not explain or repair the vulnerability.
+but the current evidence is only a discovery-perfect full-versus-sham
+fingerprint: base-request and inert-length prevalence have not yet been
+replayed, and no held-out detector result exists. A detector alone also does
+not explain or repair the vulnerability.
 
 ## Reproducibility and provenance ledger
 
