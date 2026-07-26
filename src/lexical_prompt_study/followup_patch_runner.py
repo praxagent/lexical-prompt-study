@@ -54,6 +54,49 @@ def _source_commit() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 
 
+def validate_patch_run_authorization(
+    *,
+    plan: dict[str, Any],
+    patch_private_plan: dict[str, Any],
+    patch_private_plan_sha256: str,
+    source_commit: str,
+    partition: str,
+    qualification_only: bool,
+    run_id: str,
+) -> dict[str, Any]:
+    if qualification_only:
+        binding_name = "g4_patch_qualification"
+        expected_status = "safe_only_authorized_target_closed"
+    elif partition == "discovery":
+        binding_name = "g4_patch_discovery"
+        expected_status = "authorized_after_safe_qualification"
+    else:
+        binding_name = "g4_patch_calibration"
+        expected_status = "authorized_after_discovery_selection"
+    try:
+        authorization = plan["compute"]["scientific_runs"][binding_name]
+    except KeyError as exc:
+        raise ValueError(f"{binding_name} is not prospectively authorized") from exc
+    scientific_plan_sha = authorization["input_binding"][
+        "patch_scientific_plan_sha256"
+    ]
+    if (
+        authorization["status"] != expected_status
+        or authorization["runner_source_commit"] != source_commit
+        or authorization["partition"] != partition
+        or authorization["qualification_only"] is not qualification_only
+        or authorization["run_id"] != run_id
+        or authorization["input_binding"]["patch_private_plan_sha256"]
+        != patch_private_plan_sha256
+        or patch_private_plan["public_plan_sha256"] != scientific_plan_sha
+        or authorization["input_binding"]["patch_private_scientific_plan_sha256"]
+        != scientific_plan_sha
+        or authorization["target_generation_authorized"] is qualification_only
+    ):
+        raise ValueError("patch run authorization binding drift")
+    return authorization
+
+
 def _save_private_json(path: Path, payload: dict[str, Any]) -> str:
     encoded = canonical_json_bytes(payload)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -826,6 +869,15 @@ def run_followup_coarse_patch_generation(
     ):
         raise ValueError("patch private plan drift")
     source_commit = _source_commit()
+    validate_patch_run_authorization(
+        plan=plan,
+        patch_private_plan=patch_private,
+        patch_private_plan_sha256=patch_private_sha,
+        source_commit=source_commit,
+        partition=partition,
+        qualification_only=qualification_only,
+        run_id=run_id,
+    )
     expected_revision = plan["artifacts"]["llama31_model"]["revision"]
     if expected_revision not in str(Path(model_path).resolve()):
         raise ValueError("patch model path is not the frozen snapshot")

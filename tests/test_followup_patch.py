@@ -17,6 +17,7 @@ from lexical_prompt_study.followup_patch import (
     magnitude_matched_random_deltas,
     select_cross_behavior_donors,
 )
+from lexical_prompt_study.followup_patch_runner import validate_patch_run_authorization
 
 
 ROOT = Path(__file__).parents[1]
@@ -127,3 +128,63 @@ def test_coarse_patch_analysis_stops_when_no_layer_is_common() -> None:
     )
     assert result["status"] == "stopped_no_eligible_layer"
     assert result["selected_common_layer"] is None
+
+
+def test_patch_qualification_requires_exact_prospective_bindings() -> None:
+    private_sha = "b" * 64
+    scientific_sha = "a" * 64
+    source_commit = "c" * 40
+    plan = {
+        "compute": {
+            "scientific_runs": {
+                "g4_patch_qualification": {
+                    "status": "safe_only_authorized_target_closed",
+                    "runner_source_commit": source_commit,
+                    "partition": "discovery",
+                    "qualification_only": True,
+                    "run_id": "safe-run",
+                    "target_generation_authorized": False,
+                    "input_binding": {
+                        "patch_scientific_plan_sha256": scientific_sha,
+                        "patch_private_plan_sha256": private_sha,
+                        "patch_private_scientific_plan_sha256": scientific_sha,
+                    },
+                }
+            }
+        }
+    }
+    private = {"public_plan_sha256": scientific_sha}
+    authorization = validate_patch_run_authorization(
+        plan=plan,
+        patch_private_plan=private,
+        patch_private_plan_sha256=private_sha,
+        source_commit=source_commit,
+        partition="discovery",
+        qualification_only=True,
+        run_id="safe-run",
+    )
+    assert authorization["target_generation_authorized"] is False
+    private["public_plan_sha256"] = "d" * 64
+    with pytest.raises(ValueError, match="authorization binding drift"):
+        validate_patch_run_authorization(
+            plan=plan,
+            patch_private_plan=private,
+            patch_private_plan_sha256=private_sha,
+            source_commit=source_commit,
+            partition="discovery",
+            qualification_only=True,
+            run_id="safe-run",
+        )
+
+
+def test_patch_target_cannot_use_safe_only_authorization() -> None:
+    with pytest.raises(ValueError, match="g4_patch_discovery is not prospectively"):
+        validate_patch_run_authorization(
+            plan={"compute": {"scientific_runs": {}}},
+            patch_private_plan={"public_plan_sha256": "a" * 64},
+            patch_private_plan_sha256="b" * 64,
+            source_commit="c" * 40,
+            partition="discovery",
+            qualification_only=False,
+            run_id="target-run",
+        )
