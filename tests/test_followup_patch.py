@@ -18,6 +18,8 @@ from lexical_prompt_study.followup_patch import (
     select_cross_behavior_donors,
 )
 from lexical_prompt_study.followup_patch_runner import (
+    InputObservation,
+    ensure_candidate_states,
     load_frozen_safe_positive_control,
     projected_discovery_maximum_tokens,
     validate_patch_run_authorization,
@@ -185,7 +187,7 @@ def test_patch_qualification_requires_exact_prospective_bindings() -> None:
 
 
 def test_patch_target_cannot_use_safe_only_authorization() -> None:
-    with pytest.raises(ValueError, match="g4_patch_discovery is not prospectively"):
+    with pytest.raises(ValueError, match="discovery run is not uniquely"):
         validate_patch_run_authorization(
             plan={"compute": {"scientific_runs": {}}},
             patch_private_plan={"public_plan_sha256": "a" * 64},
@@ -237,6 +239,48 @@ def test_patch_throughput_qualification_resolves_by_exact_run_id() -> None:
     assert authorization["status"] == "throughput_only_authorized_target_closed"
 
 
+def test_patch_discovery_resume_ignores_historical_stopped_authorization() -> None:
+    private_sha = "b" * 64
+    private_input_sha = "a" * 64
+    source_commit = "c" * 40
+    run_id = "resume-run"
+    plan = {
+        "compute": {
+            "scientific_runs": {
+                "g4_patch_discovery": {
+                    "status": "completed_partial_missing_state_stop",
+                    "qualification_only": False,
+                    "run_id": run_id,
+                },
+                "g4_patch_discovery_replacement": {
+                    "status": "authorized_partial_resume_after_missing_state_stop",
+                    "runner_source_commit": source_commit,
+                    "partition": "discovery",
+                    "qualification_only": False,
+                    "run_id": run_id,
+                    "target_generation_authorized": True,
+                    "input_binding": {
+                        "patch_private_plan_sha256": private_sha,
+                        "patch_private_input_plan_sha256": private_input_sha,
+                    },
+                },
+            }
+        }
+    }
+    authorization = validate_patch_run_authorization(
+        plan=plan,
+        patch_private_plan={"public_plan_sha256": private_input_sha},
+        patch_private_plan_sha256=private_sha,
+        source_commit=source_commit,
+        partition="discovery",
+        qualification_only=False,
+        run_id=run_id,
+    )
+    assert authorization["status"] == (
+        "authorized_partial_resume_after_missing_state_stop"
+    )
+
+
 def test_frozen_safe_control_validates_layer_specific_instrument(
     tmp_path: Path,
 ) -> None:
@@ -273,3 +317,86 @@ def test_frozen_safe_control_validates_layer_specific_instrument(
 
 def test_target_projection_uses_only_instrument_passing_layers() -> None:
     assert projected_discovery_maximum_tokens(PLAN) == 1_843_200
+
+
+def test_missing_candidate_state_is_captured_and_resumed(tmp_path: Path) -> None:
+    torch = pytest.importorskip("torch")
+
+    class Layer(torch.nn.Module):
+        def forward(self, hidden):
+            return hidden + 1
+
+    class TinyModel(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.anchor = torch.nn.Parameter(torch.zeros(1))
+            self.model = type("Core", (), {})()
+            self.model.layers = torch.nn.ModuleList([Layer(), Layer()])
+            self.config = type("Config", (), {"hidden_size": 2})()
+
+        def forward(self, *, input_ids, attention_mask, use_cache):
+            del attention_mask, use_cache
+            hidden = torch.stack(
+                (input_ids.float(), input_ids.float() + 1),
+                dim=-1,
+            )
+            for layer in self.model.layers:
+                hidden = layer(hidden)
+            return type("Output", (), {"logits": hidden})()
+
+    class Tokenizer:
+        pad_token_id = 0
+        eos_token_id = 2
+
+    inputs = {placement: {} for placement in PLACEMENTS}
+    for placement in PLACEMENTS:
+        inputs[placement]["b0"] = {}
+        for arm in ("full", "structural_sham"):
+            inputs[placement]["b0"][arm] = InputObservation(
+                behavior_id="b0",
+                category="safe",
+                placement=placement,
+                arm=arm,
+                prompt_token_ids=(1, 2),
+                prompt_token_ids_sha256="a" * 64,
+                receipt_path=tmp_path / "receipt.json",
+                receipt_sha256="b" * 64,
+                state_bundle_path=tmp_path / "state.pt",
+                state_bundle_sha256="c" * 64,
+                states={0: torch.zeros(2)},
+                state_source_sha256={0: "c" * 64},
+            )
+    kwargs = {
+        "inputs": inputs,
+        "required_layers": [1],
+        "output_root": tmp_path / "out",
+        "public_plan_sha256": "d" * 64,
+        "patch_private_plan_sha256": "e" * 64,
+        "source_commit": "f" * 40,
+        "run_id": "resume",
+    }
+    first = ensure_candidate_states(
+        torch,
+        TinyModel(),
+        Tokenizer(),
+        **kwargs,
+    )
+    assert len(first) == 4
+    assert all(
+        1 in observation.states
+        for by_behavior in inputs.values()
+        for arms in by_behavior.values()
+        for observation in arms.values()
+    )
+    for by_behavior in inputs.values():
+        for arms in by_behavior.values():
+            for observation in arms.values():
+                observation.states.pop(1)
+                observation.state_source_sha256.pop(1)
+    second = ensure_candidate_states(
+        torch,
+        TinyModel(),
+        Tokenizer(),
+        **kwargs,
+    )
+    assert [row["sha256"] for row in second] == [row["sha256"] for row in first]

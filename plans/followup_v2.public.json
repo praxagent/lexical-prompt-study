@@ -692,6 +692,53 @@
         "resume_requires_exact_source_plan_input_and_artifact_hashes": true,
         "completed_unit_overwrite_forbidden": true,
         "raw_prompts_generations_and_token_ids_public": false
+      },
+      "partial_resume": {
+        "enabled": true,
+        "amendment": "A044",
+        "partition": "discovery",
+        "run_id": "g4-patch-discovery-a043-20260726",
+        "stop_reason": "retained_g2_state_bundles_contain_layers_0_through_30_but_not_instrument_passing_layer_31",
+        "predecessor_source_commit": "24f01796932151ed634991cd033d61b5fd4d3344",
+        "predecessor_public_plan_sha256": "dcb1e652561004eb8a2801d679eb35aef3d55ae6e8c3affbd9d1b051d45dd313",
+        "predecessor_completed_trial_count": 720,
+        "predecessor_completed_batch_count": 36,
+        "predecessor_receipt_count": 720,
+        "predecessor_restricted_artifact_count": 720,
+        "predecessor_replay_bundle_count": 720,
+        "predecessor_nonlog_file_count": 2163,
+        "predecessor_relative_path_hash_manifest_sha256": "6ba27a2b99347c5f996b91c8542e4c57cd33e6e99faf7fb77b4438b6983e525e",
+        "completed_scope": {
+          "placement": "ep_before_request",
+          "layers": [
+            16,
+            20,
+            24,
+            28
+          ],
+          "all_nine_conditions_each": true
+        },
+        "derived_missing_state_capture": {
+          "layers": [
+            31
+          ],
+          "placements": [
+            "ep_before_request",
+            "ep_after_request"
+          ],
+          "arms": [
+            "full",
+            "structural_sham"
+          ],
+          "observations_per_placement_arm": 20,
+          "position": "single_turn_assistant_boundary_before_first_generated_token",
+          "same_pinned_model_and_prompt_token_ids": true,
+          "one_batched_forward_per_placement_arm": true,
+          "atomic_mode_0600_checkpoint_per_placement_arm_layer": true,
+          "raw_prompt_token_ids_and_tensors_public": false
+        },
+        "completed_receipt_overwrite_forbidden": true,
+        "raw_outcomes_or_scores_inspected": false
       }
     }
   },
@@ -1188,7 +1235,7 @@
         }
       },
       "g4_patch_discovery": {
-        "status": "authorized_after_safe_qualification",
+        "status": "completed_partial_missing_state_stop",
         "amendment": "A043",
         "runner_source_commit": "24f01796932151ed634991cd033d61b5fd4d3344",
         "partition": "discovery",
@@ -1236,6 +1283,21 @@
           "placement_pooling_forbidden": true
         },
         "checkpoint_resume": "verify exact provenance and every completed receipt/artifact/replay triple; resume missing trials only; never overwrite a completed unit"
+        ,
+        "partial_result_binding": {
+          "status": "720_trials_complete_scores_unopened",
+          "amendment": "A044",
+          "completed_trial_count": 720,
+          "completed_batch_count": 36,
+          "receipt_count": 720,
+          "restricted_artifact_count": 720,
+          "replay_bundle_count": 720,
+          "nonlog_file_count": 2163,
+          "relative_path_hash_manifest_sha256": "6ba27a2b99347c5f996b91c8542e4c57cd33e6e99faf7fb77b4438b6983e525e",
+          "failed_before_layer": 31,
+          "raw_outcomes_or_scores_inspected": false,
+          "task_pod_terminated": true
+        }
       }
     },
     "planned_work_units": [

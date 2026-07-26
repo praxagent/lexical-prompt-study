@@ -48,6 +48,7 @@ class InputObservation:
     state_bundle_path: Path
     state_bundle_sha256: str
     states: dict[int, Any]
+    state_source_sha256: dict[int, str]
 
 
 def _source_commit() -> str:
@@ -80,12 +81,25 @@ def validate_patch_run_authorization(
             "throughput_only_authorized_target_closed",
         }
     elif partition == "discovery":
-        binding_name = "g4_patch_discovery"
-        expected_statuses = {"authorized_after_safe_qualification"}
+        expected_statuses = {
+            "authorized_after_safe_qualification",
+            "authorized_partial_resume_after_missing_state_stop",
+        }
+        matches = [
+            (name, row)
+            for name, row in plan["compute"]["scientific_runs"].items()
+            if name.startswith("g4_patch_discovery")
+            and row.get("qualification_only") is False
+            and row.get("run_id") == run_id
+            and row.get("status") in expected_statuses
+        ]
+        if len(matches) != 1:
+            raise ValueError("discovery run is not uniquely prospectively authorized")
+        binding_name, authorization = matches[0]
     else:
         binding_name = "g4_patch_calibration"
         expected_statuses = {"authorized_after_discovery_selection"}
-    if not qualification_only:
+    if not qualification_only and partition != "discovery":
         try:
             authorization = plan["compute"]["scientific_runs"][binding_name]
         except KeyError as exc:
@@ -146,6 +160,16 @@ def _save_replay_bundle(
         },
         temporary,
     )
+    temporary.chmod(0o600)
+    temporary.replace(path)
+    return sha256_file(path)
+
+
+def _save_private_torch(torch, path: Path, payload: dict[str, Any]) -> str:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.chmod(0o700)
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    torch.save(payload, temporary)
     temporary.chmod(0o600)
     temporary.replace(path)
     return sha256_file(path)
@@ -551,15 +575,22 @@ def run_safe_throughput_qualification(
     output_root: Path,
     run_id: str,
     source_commit: str,
+    allowed_provenance: set[tuple[str, str]] | None = None,
 ) -> dict[str, Any]:
     public_path = output_root / "safe-throughput-qualification.public.json"
     if public_path.exists():
         existing = json.loads(public_path.read_text())
+        provenance = (
+            existing.get("public_plan_sha256"),
+            existing.get("source_commit"),
+        )
+        valid_provenance = allowed_provenance or {
+            (public_plan_sha256, source_commit)
+        }
         if (
-            existing.get("public_plan_sha256") != public_plan_sha256
+            provenance not in valid_provenance
             or existing.get("patch_private_plan_sha256")
             != patch_private_plan_sha256
-            or existing.get("source_commit") != source_commit
             or existing.get("run_id") != run_id
         ):
             raise ValueError("safe throughput result provenance drift")
@@ -711,6 +742,9 @@ def _load_partition_inputs(
             state_bundle_path=state_path,
             state_bundle_sha256=receipt.state_bundle_sha256,
             states=states,
+            state_source_sha256={
+                layer: receipt.state_bundle_sha256 for layer in states
+            },
         )
         by_behavior = result[receipt.placement].setdefault(
             receipt.behavior_id, {}
@@ -725,6 +759,112 @@ def _load_partition_inputs(
         ):
             raise ValueError(f"{placement}: incomplete patch input topology")
     return result
+
+
+def ensure_candidate_states(
+    torch,
+    model,
+    tokenizer,
+    *,
+    inputs: dict[str, dict[str, dict[str, InputObservation]]],
+    required_layers: list[int],
+    output_root: Path,
+    public_plan_sha256: str,
+    patch_private_plan_sha256: str,
+    source_commit: str,
+    run_id: str,
+) -> list[dict[str, Any]]:
+    device = next(model.parameters()).device
+    pad_id = tokenizer.pad_token_id or tokenizer.eos_token_id
+    receipts = []
+    for placement in PLACEMENTS:
+        for arm in ("full", "structural_sham"):
+            observations = [
+                inputs[placement][behavior_id][arm]
+                for behavior_id in sorted(inputs[placement])
+            ]
+            for layer in required_layers:
+                missing = [row for row in observations if layer not in row.states]
+                if not missing:
+                    continue
+                if len(missing) != len(observations):
+                    raise ValueError("partial derived-state topology")
+                path = (
+                    output_root
+                    / "derived-states"
+                    / f"{placement}.{arm}.layer-{layer}.pt"
+                )
+                expected = {
+                    "schema_version": "1.0",
+                    "public_plan_sha256": public_plan_sha256,
+                    "patch_private_plan_sha256": patch_private_plan_sha256,
+                    "source_commit": source_commit,
+                    "run_id": run_id,
+                    "placement": placement,
+                    "arm": arm,
+                    "layer": layer,
+                    "behavior_ids": [row.behavior_id for row in observations],
+                    "prompt_token_ids_sha256": [
+                        row.prompt_token_ids_sha256 for row in observations
+                    ],
+                }
+                if path.exists():
+                    payload = torch.load(path, map_location="cpu", weights_only=False)
+                    if payload.get("provenance") != expected:
+                        raise ValueError("derived candidate-state provenance drift")
+                    states = payload["states"].to("cpu", dtype=torch.bfloat16)
+                else:
+                    input_ids, attention_mask = _pad_prompts(
+                        torch,
+                        [row.prompt_token_ids for row in observations],
+                        pad_token_id=pad_id,
+                        device=device,
+                    )
+                    captured: dict[str, Any] = {}
+
+                    def capture(_module, _args, output):
+                        hidden = output[0] if isinstance(output, tuple) else output
+                        captured["states"] = hidden[:, -1, :].detach()
+                        return output
+
+                    handle = model.model.layers[layer].register_forward_hook(capture)
+                    try:
+                        with torch.inference_mode():
+                            model(
+                                input_ids=input_ids,
+                                attention_mask=attention_mask,
+                                use_cache=False,
+                            )
+                    finally:
+                        handle.remove()
+                    if "states" not in captured:
+                        raise ValueError("derived candidate-state capture missing")
+                    states = captured["states"].to("cpu", dtype=torch.bfloat16)
+                    if states.shape != (len(observations), int(model.config.hidden_size)):
+                        raise ValueError("derived candidate-state shape drift")
+                    _save_private_torch(
+                        torch,
+                        path,
+                        {
+                            "provenance": expected,
+                            "states": states,
+                        },
+                    )
+                state_sha = sha256_file(path)
+                for index, observation in enumerate(observations):
+                    observation.states[layer] = states[index]
+                    observation.state_source_sha256[layer] = state_sha
+                receipts.append(
+                    {
+                        "placement": placement,
+                        "arm": arm,
+                        "layer": layer,
+                        "path": str(path),
+                        "sha256": state_sha,
+                        "observation_count": len(observations),
+                    }
+                )
+    return receipts
 
 
 def _condition_batch(
@@ -832,8 +972,9 @@ def _condition_batch(
         hook_kind = "replacement"
     else:
         raise ValueError(f"unknown patch condition: {condition}")
+    state_layer = applied_layer if condition == "irrelevant_layer" else candidate_layer
     donor_state_hashes = (
-        [row.state_bundle_sha256 for row in donors]
+        [row.state_source_sha256[state_layer] for row in donors]
         if donors
         else [None] * len(behavior_ids)
     )
@@ -860,18 +1001,16 @@ def _trim_generated(ids: list[int], eos_ids: set[int]) -> tuple[list[int], bool]
 def _load_completed_patch_receipt(
     path: Path,
     *,
-    public_plan_sha256: str,
     patch_private_plan_sha256: str,
-    source_commit: str,
     run_id: str,
+    allowed_provenance: set[tuple[str, str]],
 ) -> FollowupPatchReceipt | None:
     if not path.exists():
         return None
     receipt = FollowupPatchReceipt.model_validate_json(path.read_text())
     if (
-        receipt.public_plan_sha256 != public_plan_sha256
+        (receipt.public_plan_sha256, receipt.source_commit) not in allowed_provenance
         or receipt.patch_private_plan_sha256 != patch_private_plan_sha256
-        or receipt.source_commit != source_commit
         or receipt.run_id != run_id
     ):
         raise ValueError("completed patch receipt provenance drift")
@@ -971,6 +1110,20 @@ def run_followup_coarse_patch_generation(
 
     output_root.mkdir(parents=True, exist_ok=True)
     output_root.chmod(0o700)
+    resume = plan["causal_localization"]["execution"]["partial_resume"]
+    resume_active = (
+        resume["enabled"]
+        and partition == resume["partition"]
+        and run_id == resume["run_id"]
+    )
+    allowed_provenance = {(public_sha, source_commit)}
+    if resume_active:
+        allowed_provenance.add(
+            (
+                resume["predecessor_public_plan_sha256"],
+                resume["predecessor_source_commit"],
+            )
+        )
     if safe_positive_control_result_path is None:
         raise ValueError("layer-specific protocol requires frozen safe-control result")
     safe = load_frozen_safe_positive_control(
@@ -1000,6 +1153,7 @@ def run_followup_coarse_patch_generation(
         output_root=output_root,
         run_id=run_id,
         source_commit=source_commit,
+        allowed_provenance=allowed_provenance,
     )
     if qualification_only:
         summary = {
@@ -1025,11 +1179,58 @@ def run_followup_coarse_patch_generation(
         partition=partition,
         generation_root=generation_root,
     )
+    derived_state_receipts = ensure_candidate_states(
+        torch,
+        model,
+        tokenizer,
+        inputs=inputs,
+        required_layers=sorted(
+            set(candidate_layers)
+            | {
+                int(
+                    plan["causal_localization"]["execution"]["residual_post_hook"][
+                        "irrelevant_layer"
+                    ]
+                )
+            }
+        ),
+        output_root=output_root,
+        public_plan_sha256=public_sha,
+        patch_private_plan_sha256=patch_private_sha,
+        source_commit=source_commit,
+        run_id=run_id,
+    )
+    write_json_atomic(
+        output_root / "derived-state-index.public.json",
+        {
+            "schema_version": "1.0",
+            "study_id": plan["study_id"],
+            "public_plan_sha256": public_sha,
+            "patch_private_plan_sha256": patch_private_sha,
+            "source_commit": source_commit,
+            "run_id": run_id,
+            "derived_state_receipts": derived_state_receipts,
+            "raw_prompts_token_ids_and_tensors_public": False,
+        },
+    )
     conditions = plan["causal_localization"]["execution"]["condition_kinds"]
     expected_trials = len(PLACEMENTS) * len(candidate_layers) * len(conditions) * 20
     receipt_root = output_root / "receipts" / "trials"
     receipt_root.mkdir(parents=True, exist_ok=True)
     receipt_root.chmod(0o700)
+    existing_paths = sorted(receipt_root.glob("*.json"))
+    expected_existing = (
+        int(resume["predecessor_completed_trial_count"]) if resume_active else 0
+    )
+    if len(existing_paths) != expected_existing:
+        raise ValueError("partial-resume receipt count drift")
+    for existing_path in existing_paths:
+        _load_completed_patch_receipt(
+            existing_path,
+            patch_private_plan_sha256=patch_private_sha,
+            run_id=run_id,
+            allowed_provenance=allowed_provenance,
+        )
     decoding = plan["replication"]["decoding"]
     max_new_tokens = int(decoding["max_new_tokens"])
     pad_id = tokenizer.pad_token_id or tokenizer.eos_token_id
@@ -1088,10 +1289,9 @@ def run_followup_coarse_patch_generation(
                 completed = [
                     _load_completed_patch_receipt(
                         path,
-                        public_plan_sha256=public_sha,
                         patch_private_plan_sha256=patch_private_sha,
-                        source_commit=source_commit,
                         run_id=run_id,
+                        allowed_provenance=allowed_provenance,
                     )
                     for path in paths
                 ]
@@ -1305,7 +1505,10 @@ def run_followup_coarse_patch_generation(
         "condition_count": len(conditions),
         "trials": expected_trials,
         "trials_written_this_call": written,
-        "safe_positive_control_status": safe["status"],
+        "trials_resumed_from_predecessor": expected_existing,
+        "derived_state_checkpoint_count": len(derived_state_receipts),
+        "safe_positive_control_status": "passed_layer_specific_instrument_gate",
+        "safe_positive_control_source_status": safe["status"],
         "safe_throughput_status": qualification["status"],
         "model_loaded_this_call": True,
         "elapsed_seconds": time.monotonic() - started,

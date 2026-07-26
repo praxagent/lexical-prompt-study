@@ -583,6 +583,54 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         and checkpointing["raw_prompts_generations_and_token_ids_public"] is False,
         "patch checkpoint policy drift",
     )
+    partial_resume = execution["partial_resume"]
+    _require(
+        partial_resume["enabled"] is True
+        and partial_resume["amendment"] == "A044"
+        and partial_resume["partition"] == "discovery"
+        and partial_resume["run_id"] == "g4-patch-discovery-a043-20260726"
+        and partial_resume["predecessor_source_commit"]
+        == "24f01796932151ed634991cd033d61b5fd4d3344"
+        and partial_resume["predecessor_public_plan_sha256"]
+        == "dcb1e652561004eb8a2801d679eb35aef3d55ae6e8c3affbd9d1b051d45dd313"
+        and partial_resume["predecessor_completed_trial_count"] == 720
+        and partial_resume["predecessor_completed_batch_count"] == 36
+        and partial_resume["predecessor_receipt_count"] == 720
+        and partial_resume["predecessor_restricted_artifact_count"] == 720
+        and partial_resume["predecessor_replay_bundle_count"] == 720
+        and partial_resume["predecessor_nonlog_file_count"] == 2163
+        and partial_resume["predecessor_relative_path_hash_manifest_sha256"]
+        == "6ba27a2b99347c5f996b91c8542e4c57cd33e6e99faf7fb77b4438b6983e525e"
+        and partial_resume["completed_receipt_overwrite_forbidden"] is True
+        and partial_resume["raw_outcomes_or_scores_inspected"] is False,
+        "G4 partial resume provenance drift",
+    )
+    _require(
+        partial_resume["completed_scope"]
+        == {
+            "placement": "ep_before_request",
+            "layers": [16, 20, 24, 28],
+            "all_nine_conditions_each": True,
+        },
+        "G4 partial completed scope drift",
+    )
+    derived_capture = partial_resume["derived_missing_state_capture"]
+    _require(
+        derived_capture["layers"] == [31]
+        and set(derived_capture["placements"]) == REQUIRED_PLACEMENTS
+        and derived_capture["arms"] == ["full", "structural_sham"]
+        and derived_capture["observations_per_placement_arm"] == 20
+        and derived_capture["position"]
+        == "single_turn_assistant_boundary_before_first_generated_token"
+        and derived_capture["same_pinned_model_and_prompt_token_ids"] is True
+        and derived_capture["one_batched_forward_per_placement_arm"] is True
+        and derived_capture[
+            "atomic_mode_0600_checkpoint_per_placement_arm_layer"
+        ]
+        is True
+        and derived_capture["raw_prompt_token_ids_and_tensors_public"] is False,
+        "G4 derived missing-state capture drift",
+    )
 
     qwen = plan["qwen_pilot"]
     _require(qwen["native_qwen_attack_claim"] is False, "Qwen native-attack overclaim")
@@ -1152,7 +1200,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     )
     patch_discovery = compute["scientific_runs"]["g4_patch_discovery"]
     _require(
-        patch_discovery["status"] == "authorized_after_safe_qualification"
+        patch_discovery["status"] == "completed_partial_missing_state_stop"
         and patch_discovery["amendment"] == "A043"
         and patch_discovery["runner_source_commit"]
         == "24f01796932151ed634991cd033d61b5fd4d3344"
@@ -1233,6 +1281,29 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
             "placement_pooling_forbidden": True,
         },
         "G4 patch discovery output topology drift",
+    )
+    partial_result = patch_discovery["partial_result_binding"]
+    _require(
+        partial_result["status"] == "720_trials_complete_scores_unopened"
+        and partial_result["amendment"] == "A044"
+        and partial_result["completed_trial_count"]
+        == partial_resume["predecessor_completed_trial_count"]
+        and partial_result["completed_batch_count"]
+        == partial_resume["predecessor_completed_batch_count"]
+        and partial_result["receipt_count"]
+        == partial_resume["predecessor_receipt_count"]
+        and partial_result["restricted_artifact_count"]
+        == partial_resume["predecessor_restricted_artifact_count"]
+        and partial_result["replay_bundle_count"]
+        == partial_resume["predecessor_replay_bundle_count"]
+        and partial_result["nonlog_file_count"]
+        == partial_resume["predecessor_nonlog_file_count"]
+        and partial_result["relative_path_hash_manifest_sha256"]
+        == partial_resume["predecessor_relative_path_hash_manifest_sha256"]
+        and partial_result["failed_before_layer"] == 31
+        and partial_result["raw_outcomes_or_scores_inspected"] is False
+        and partial_result["task_pod_terminated"] is True,
+        "G4 partial result binding drift",
     )
     _require(
         abs(
