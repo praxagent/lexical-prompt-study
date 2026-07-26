@@ -163,7 +163,12 @@ class ResidualPostIntervention:
         )
         ratio = realized / pre_norm
         if relative_error > REQUESTED_REALIZED_TOLERANCE:
-            raise ValueError("requested/realized intervention norm mismatch")
+            raise ValueError(
+                "requested/realized intervention norm mismatch: "
+                f"requested={self.alpha:.9g} realized={realized:.9g} "
+                f"relative_error={relative_error:.9g} "
+                f"delta_to_pre_ratio={ratio:.9g}"
+            )
         if ratio > MAXIMUM_DELTA_TO_RESIDUAL_NORM:
             raise ValueError("intervention exceeds residual norm budget")
         post_norm = float(proposed.float().norm().item())
