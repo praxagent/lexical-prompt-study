@@ -17,6 +17,7 @@ from lexical_prompt_study.followup_mechanism_analysis import (
     stable_bootstrap_seed,
     standardized_paired_effect,
     validate_state_payload,
+    verify_local_snapshot_revision,
     verify_source_probe_plan,
 )
 
@@ -230,4 +231,32 @@ def test_source_probe_plan_is_hash_and_row_bound(tmp_path) -> None:
         verify_source_probe_plan(
             source_probe_plan_path=path,
             mechanism_probe=mechanism_probe,
+        )
+
+
+def test_local_snapshot_revision_accepts_missing_object_hash_only_at_exact_path(
+    tmp_path,
+) -> None:
+    expected = "a" * 40
+    snapshot = tmp_path / expected
+    snapshot.mkdir()
+    assert (
+        verify_local_snapshot_revision(
+            model_path=str(snapshot),
+            observed_revision=None,
+            expected_revision=expected,
+        )
+        == expected
+    )
+    with pytest.raises(ValueError, match="path"):
+        verify_local_snapshot_revision(
+            model_path=str(tmp_path),
+            observed_revision=None,
+            expected_revision=expected,
+        )
+    with pytest.raises(ValueError, match="object"):
+        verify_local_snapshot_revision(
+            model_path=str(snapshot),
+            observed_revision="b" * 40,
+            expected_revision=expected,
         )

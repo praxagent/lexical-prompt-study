@@ -76,7 +76,10 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(plan["study_id"] == "lexical-scaffold-followup-v2", "wrong study namespace")
     _require(
         plan["outcome_status"]
-        == "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
+        in {
+            "llama31-g2-discovery-and-calibration-inspected; no-g3-mechanism-or-qwen-outcomes",
+            "llama31-g3-sae-derived-unopened; no-g3-jlens-or-qwen-outcomes",
+        },
         "8B/Qwen plan outcome boundary drift",
     )
     _require(plan["stage_order"] == EXPECTED_STAGES, "stage order drift")

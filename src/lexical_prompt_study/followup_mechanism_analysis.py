@@ -542,8 +542,11 @@ def _load_model_readout(torch, transformers, model_path: str, public_plan: dict[
     ):
         raise ValueError("Llama 3.1 8B topology drift")
     expected_revision = public_plan["artifacts"]["llama31_model"]["revision"]
-    if getattr(model.config, "_commit_hash", None) != expected_revision:
-        raise ValueError("Llama 3.1 8B model revision drift")
+    verify_local_snapshot_revision(
+        model_path=model_path,
+        observed_revision=getattr(model.config, "_commit_hash", None),
+        expected_revision=expected_revision,
+    )
     model = model.to("cuda" if torch.cuda.is_available() else "cpu")
     return model
 
@@ -593,6 +596,20 @@ def _verify_probe_tokens(tokenizer, probe_rows: list[dict[str, Any]]) -> list[in
             raise ValueError(f"probe token semantic hash drift for ID {token_id}")
         ids.append(token_id)
     return ids
+
+
+def verify_local_snapshot_revision(
+    *,
+    model_path: str,
+    observed_revision: str | None,
+    expected_revision: str,
+) -> str:
+    snapshot = Path(model_path)
+    if not snapshot.is_dir() or snapshot.resolve().name != expected_revision:
+        raise ValueError("local model snapshot revision path drift")
+    if observed_revision not in (None, expected_revision):
+        raise ValueError("loaded object revision drift")
+    return expected_revision
 
 
 def verify_source_probe_plan(
@@ -1034,11 +1051,11 @@ def run_followup_mechanism_analysis(
         )
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_path)
-    if (
-        getattr(tokenizer, "_commit_hash", None)
-        != public_plan["artifacts"]["llama31_model"]["revision"]
-    ):
-        raise ValueError("Llama 3.1 8B tokenizer revision drift")
+    verify_local_snapshot_revision(
+        model_path=model_path,
+        observed_revision=getattr(tokenizer, "_commit_hash", None),
+        expected_revision=public_plan["artifacts"]["llama31_model"]["revision"],
+    )
     mechanism_plan = public_plan["mechanism_analysis"]
     refusal_ids = _verify_probe_tokens(
         tokenizer,
