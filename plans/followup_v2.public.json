@@ -611,16 +611,16 @@
     "persistent_volume_region": "US-CA-2",
     "volume_estimated_daily_usd": 1.17,
     "qualification": {
-      "gpu": "NVIDIA RTX A6000",
+      "gpu": "NVIDIA B200",
       "count": 1,
       "secure_cloud": true,
-      "live_rate_usd_per_hour": 0.53,
-      "wall_limit_minutes": 90,
-      "max_compute_usd": 0.795,
-      "no_progress_timeout_minutes": 20,
+      "live_rate_usd_per_hour": 5.89,
+      "wall_limit_minutes": 30,
+      "max_compute_usd": 2.945,
+      "no_progress_timeout_minutes": 10,
       "target_outcomes_inspected": false,
       "automatic_fallback": false,
-      "infrastructure_amendment": "A018"
+      "infrastructure_amendment": "A019"
     },
     "scientific_run_requires_measured_throughput": true,
     "scientific_run_requires_separate_exact_cost_statement": true,

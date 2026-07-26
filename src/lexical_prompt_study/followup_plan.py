@@ -403,8 +403,8 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     qualification = compute["qualification"]
     _require(compute["persistent_volume_id"] == "u85xfo0aue", "wrong task volume")
     _require(
-        qualification["gpu"] == "NVIDIA RTX A6000"
-        and qualification["infrastructure_amendment"] == "A018",
+        qualification["gpu"] == "NVIDIA B200"
+        and qualification["infrastructure_amendment"] == "A019",
         "qualification infrastructure amendment drift",
     )
     _require(qualification["count"] == 1, "qualification must use exactly one GPU")

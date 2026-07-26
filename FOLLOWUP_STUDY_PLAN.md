@@ -466,7 +466,7 @@ production-readiness claim.
    tests, tensor replay, forced-kill resume, and independent review pass.
 2. **G0b — 70B four-arm SAE replay:** apply the frozen candidate gate. A fail
    retires feature 10146 from detector, shadow, and defense claims.
-3. **G1 — one-unit qualification:** exactly one RTX A6000 pod, one synthetic-safe
+3. **G1 — one-unit qualification:** exactly one B200 pod, one synthetic-safe
    behavior per required pipeline, no target outcome inspection, exact
    throughput and memory receipt. Failure tears down the pod.
 4. **G2 — 8B behavioral viability:** full versus sham must have the frozen
@@ -516,12 +516,14 @@ deterministic byte-verification status.
 
 The original secure-cloud A40 allocation failed before creating a pod despite
 the availability query reporting high stock. Prospective infrastructure-only
-amendment A018 therefore substitutes exactly one RTX A6000 48 GB at the
-2026-07-26 live secure-cloud rate of `$0.53/hour`. G1 has a 90-minute wall
-limit (`$0.795` compute maximum) and a 20-minute no-progress timeout. This is
-an explicit qualification-device substitution, not an automatic fallback; an
-A6000 allocation failure creates no pod and stops pending another prospective
-cost statement.
+amendment A018 then specified one RTX A6000 48 GB at `$0.53/hour`, but that
+allocation also failed before pod creation. Because this exact retained volume
+previously admitted a secure B200, amendment A019 substitutes exactly one B200
+at the 2026-07-26 live secure-cloud rate of `$5.89/hour`, shortens G1 to a
+30-minute wall limit (`$2.945` compute maximum), and shortens the no-progress
+timeout to 10 minutes. This is an explicit qualification-device substitution,
+not an automatic fallback; a B200 allocation failure creates no pod and stops
+pending another prospective cost statement.
 
 Scientific-run costs remain estimates until G1 measures unit throughput:
 

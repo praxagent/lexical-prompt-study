@@ -164,7 +164,7 @@ def test_followup_plan_rejects_unpriced_gpu_fallback() -> None:
 
 def test_followup_plan_binds_g1_infrastructure_amendment() -> None:
     plan = load_followup_plan(PLAN_PATH)
-    plan["compute"]["qualification"]["gpu"] = "NVIDIA A40"
+    plan["compute"]["qualification"]["gpu"] = "NVIDIA RTX A6000"
     with pytest.raises(ValueError, match="infrastructure amendment"):
         validate_followup_plan(plan)
 
