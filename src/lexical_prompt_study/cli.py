@@ -9,7 +9,13 @@ from .analyze import analyze_behavior_gate
 from .behavior import run_behavior
 from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
-from .models import InterventionReceipt, MechanismReceipt, StudyPlan, TrialReceipt
+from .models import (
+    FollowupQualificationReceipt,
+    InterventionReceipt,
+    MechanismReceipt,
+    StudyPlan,
+    TrialReceipt,
+)
 from .plans import build_plan, validate_plan
 from .hashing import write_json_atomic
 from .synthetic import build_engineering_fixture, run_synthetic
@@ -150,6 +156,15 @@ def main() -> None:
     verify_intervention_figures.add_argument("--analysis", type=Path, required=True)
     verify_intervention_figures.add_argument("--plan", type=Path, required=True)
     verify_intervention_figures.add_argument("--out", type=Path, required=True)
+    followup_qualification = sub.add_parser("run-followup-qualification")
+    followup_qualification.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_qualification.add_argument("--model-path", required=True)
+    followup_qualification.add_argument("--lens-path", type=Path, required=True)
+    followup_qualification.add_argument("--sae-path", type=Path, required=True)
+    followup_qualification.add_argument("--out", type=Path, required=True)
+    followup_qualification.add_argument("--run-id", required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -169,6 +184,7 @@ def main() -> None:
             ("trial-receipt", TrialReceipt),
             ("mechanism-receipt", MechanismReceipt),
             ("intervention-receipt", InterventionReceipt),
+            ("followup-qualification-receipt", FollowupQualificationReceipt),
         ):
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())
@@ -386,6 +402,22 @@ def main() -> None:
                     args.analysis,
                     args.plan,
                     args.out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-followup-qualification":
+        from .followup_runner import run_followup_qualification
+
+        print(
+            json.dumps(
+                run_followup_qualification(
+                    public_plan_path=args.public_plan,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    run_id=args.run_id,
                 ),
                 sort_keys=True,
             )

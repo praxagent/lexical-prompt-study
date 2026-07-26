@@ -197,3 +197,26 @@ class InterventionReceipt(StrictModel):
     software: dict
     runtime: dict
     error: str | None = None
+
+
+class FollowupQualificationReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-followup-v2"]
+    plan_sha256: str
+    run_id: str
+    source_commit: str
+    qualification_kind: Literal["synthetic_safe"]
+    status: Literal["complete"]
+    model_revision: str
+    tokenizer_revision: str
+    lens_sha256: str
+    sae_sha256: str
+    render_validation: dict
+    placements: list[dict]
+    pipeline_checks: dict
+    model_topology: dict
+    elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    private_bundle_path: str
+    private_bundle_sha256: str
+    software: dict
