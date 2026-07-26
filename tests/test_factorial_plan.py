@@ -90,21 +90,21 @@ def test_factorial_plan_rejects_operational_zero_threshold() -> None:
         validate_factorial_plan(plan)
 
 
-def test_factorial_plan_rejects_prior_calibration_reuse() -> None:
+def test_factorial_plan_rejects_factorial_threshold_reuse() -> None:
     plan = _plan()
-    plan["threshold_program"][
-        "reuse_of_feature_selection_or_prior_candidate_calibration_as_threshold_training"
-    ] = True
+    plan["threshold_program"]["current_factorial_or_legacy_panels_may_train_threshold"] = (
+        True
+    )
     with pytest.raises(ValueError, match="threshold"):
         validate_factorial_plan(plan)
 
 
 def test_factorial_plan_rejects_confirmation_reopening() -> None:
     plan = _plan()
-    plan["threshold_program"]["confirmation"][
-        "existing_harmful_panel_remains_unopened_until_threshold_freeze"
-    ] = False
-    with pytest.raises(ValueError, match="confirmation"):
+    plan["threshold_program"]["existing_harmful_confirmation_panel_remains_unopened"] = (
+        False
+    )
+    with pytest.raises(ValueError, match="threshold"):
         validate_factorial_plan(plan)
 
 
@@ -117,7 +117,7 @@ def test_factorial_plan_requires_reconstruction_error_preservation() -> None:
 
 def test_factorial_plan_rejects_qwen_sae_claim() -> None:
     plan = _plan()
-    plan["qwen_transfer"]["sae_claim"] = True
+    plan["qwen_joint_shift_replication"]["sae_claim"] = True
     with pytest.raises(ValueError, match="Qwen"):
         validate_factorial_plan(plan)
 
@@ -126,6 +126,64 @@ def test_factorial_plan_rejects_automatic_breaker() -> None:
     plan = _plan()
     plan["deployment"]["automatic_termination_not_authorized"] = False
     with pytest.raises(ValueError, match="deployment"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_rejects_generic_length_claim() -> None:
+    plan = _plan()
+    components = plan["primary_estimands"][
+        "paired_components_per_request_placement_and_size"
+    ]
+    components["length_effect"] = components.pop("inert_injection_increment")
+    with pytest.raises(ValueError, match="nested contrast"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_requires_duplicate_dose_merge() -> None:
+    plan = _plan()
+    plan["size_factor"]["duplicate_realized_prefix_rule"] = (
+        "count each nominal fraction independently"
+    )
+    with pytest.raises(ValueError, match="block-boundary"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_requires_prompt_family_independence() -> None:
+    plan = _plan()
+    plan["request_factor"]["one_request_per_prompt_family_within_each_request_level"] = (
+        False
+    )
+    with pytest.raises(ValueError, match="request unit"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_requires_assay_gate() -> None:
+    plan = _plan()
+    plan["assay_validity_gate"]["must_pass_before_canonical_target_generation"] = False
+    with pytest.raises(ValueError, match="assay validity"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_rejects_enforcing_shadow_mode() -> None:
+    plan = _plan()
+    plan["deployment"]["shadow_records_decision_without_cancelling_request"] = False
+    with pytest.raises(ValueError, match="deployment"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_binds_adversarial_review() -> None:
+    plan = _plan()
+    plan["review_provenance"]["review_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="review binding"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_freezes_staged_condition_counts() -> None:
+    plan = _plan()
+    plan["staged_bill_of_materials"]["stage_D_secondary_dose"][
+        "additional_unique_conditions"
+    ] = 541
+    with pytest.raises(ValueError, match="bill of materials"):
         validate_factorial_plan(plan)
 
 

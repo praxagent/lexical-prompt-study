@@ -6,16 +6,17 @@ from typing import Any
 
 
 EXPECTED_STAGES = [
-    "F0_private_input_and_tokenization_freeze",
-    "F1_synthetic_topology_and_receipt_qualification",
-    "F2_canonical_factorial_and_size_dose_generation",
-    "F3_behavioral_and_internal_readout_analysis",
-    "F4_feature_interpretation",
-    "F5_new_threshold_calibration",
-    "F6_unopened_confirmation",
-    "F7_fine_causal_localization",
-    "F8_small_qwen_transfer",
-    "F9_shadow_mode_only",
+    "F0_private_material_family_and_tokenization_freeze",
+    "F1_local_assay_serialization_and_receipt_qualification",
+    "F2_noninferential_legacy_canary",
+    "F3_canonical_factorial_generation",
+    "F4_canonical_analysis_and_report",
+    "F5_secondary_size_dose_after_gate",
+    "F6_exploratory_feature_interpretation",
+    "F7_separate_detector_protocol",
+    "F8_separate_fine_causal_protocol",
+    "F9_joint_shift_small_qwen_replication",
+    "F10_non_enforcing_shadow_only_after_separate_approval",
 ]
 REQUEST_LEVELS = {
     "minimal_neutral_carrier",
@@ -46,14 +47,15 @@ def _require(condition: bool, message: str) -> None:
 
 
 def validate_factorial_plan(plan: dict[str, Any]) -> None:
-    _require(plan["schema_version"] == "1.0", "factorial schema drift")
+    _require(plan["schema_version"] == "1.1", "factorial schema drift")
     _require(
         plan["study_id"] == "lexical-scaffold-8b-factorial-v1",
         "factorial study namespace drift",
     )
-    _require(plan["amendment"] == "A051", "factorial amendment drift")
+    _require(plan["amendment"] == "A052", "factorial amendment drift")
     _require(
-        plan["status"] == "prospectively_frozen_public_design_no_new_target_outcomes",
+        plan["status"]
+        == "prospectively_revised_after_adversarial_review_no_new_target_outcomes",
         "factorial outcome boundary drift",
     )
     _require(plan["stage_order"] == EXPECTED_STAGES, "factorial stage order drift")
@@ -74,6 +76,17 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         and authorization["single_task_owned_pod_maximum"] == 1
         and authorization["persistent_volume_id"] == "u85xfo0aue",
         "factorial resource gate drift",
+    )
+    review = plan["review_provenance"]
+    _require(
+        review["reviewed_predecessor_commit"]
+        == "94607c68e6410d9daa118e7318195c152ff6394b"
+        and review["review_input_sha256"]
+        == "c27efd2464f5a7e199ff1f2c0a4cb6e9642b4eb311e5ff66a3339e273bb1daac"
+        and review["review_sha256"]
+        == "f341710b34c7ce332c7069aa62bd2a99953bfb6f01863216b6036a9a7d979d7b"
+        and review["verdict"] == "NOT_READY_TO_FREEZE",
+        "adversarial review binding drift",
     )
 
     artifacts = plan["pinned_artifacts"]
@@ -102,7 +115,10 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
     _require(set(request["levels"]) == REQUEST_LEVELS, "request factor drift")
     _require(
         request["canonical_matrix_items_per_level"] == 20
-        and request["independent_unit"] == "request_id",
+        and request["independent_unit"] == "prompt_family_id"
+        and request["one_request_per_prompt_family_within_each_request_level"] is True
+        and request["template_or_source_hash_unique_within_each_request_level"] is True
+        and request["request_class_panels_are_independent"] is True,
         "request unit/count drift",
     )
     _require(
@@ -129,6 +145,11 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         and scaffold["shared_reference_not_duplicated_or_double_counted"] is True,
         "partially crossed topology drift",
     )
+    _require(
+        "exact frozen materials" in scaffold["construct_boundary"]
+        and scaffold["multiple_components_may_contribute_simultaneously"] is True,
+        "scaffold construct boundary drift",
+    )
 
     size = plan["size_factor"]
     _require(size["dose_fractions"] == DOSE_FRACTIONS, "size levels drift")
@@ -139,7 +160,11 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
     )
     _require(
         "complete restricted scaffold blocks" in size["block_rule"]
-        and size["minimum_nonzero_block_count"] == 1,
+        and size["minimum_nonzero_block_count"] == 1
+        and size["prefix_manifest_frozen_before_target_outcomes"] is True
+        and "merged into one observation" in size["duplicate_realized_prefix_rule"]
+        and size["report_nominal_and_realized_token_fraction"] is True
+        and size["partial_sham_must_preserve_complete_block_alignment"] is True,
         "size block-boundary rule drift",
     )
     matching = size["matching"]
@@ -171,6 +196,13 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
 
     estimands = plan["primary_estimands"]
     _require(
+        estimands["generic_length_structure_or_request_independence_claim_forbidden"]
+        is True
+        and estimands["practical_margin_feature_units"] == 0.05
+        and "exact inert material" in estimands["claim_boundary"],
+        "factorial claim boundary drift",
+    )
+    _require(
         estimands["strict_positive_prevalence_role"]
         == "descriptive_only_not_an_operational_threshold",
         "positive prevalence overread",
@@ -178,8 +210,8 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
     _require(
         estimands["paired_components_per_request_placement_and_size"]
         == {
-            "length_effect": "inert_length - no_scaffold",
-            "structural_effect": "structural_sham - inert_length",
+            "inert_injection_increment": "inert_length - no_scaffold",
+            "sham_over_inert_increment": "structural_sham - inert_length",
             "full_content_increment": "full_scaffold - structural_sham",
         },
         "nested contrast drift",
@@ -193,15 +225,38 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         "factorial pooling drift",
     )
     _require(
-        estimands["uncertainty"]["resampling_unit"] == "request_id",
+        estimands["uncertainty"]["resampling_unit"] == "prompt_family_id"
+        and estimands["uncertainty"]["bootstrap_replicates"] == 100000
+        and estimands["uncertainty"]["optional_stopping"] is False
+        and "simultaneous" in estimands["uncertainty"]["method"],
         "wrong independent unit",
+    )
+    _require(
+        "failure to show an interaction"
+        in estimands["decision_table"]["forbidden_interpretation"]
+        and "multiple material-specific increments"
+        in estimands["decision_table"]["mixed_or_inconclusive"],
+        "factorial decision table drift",
+    )
+
+    missingness = plan["execution_and_missingness"]
+    _require(
+        missingness["judge_blinding"]
+        == "condition labels and internal readouts withheld from behavioral and utility judges"
+        and missingness["dose_subset_hash_required_before_outcomes"] is True
+        and "second failure marks the unit missing" in missingness["runtime_failure"]
+        and "primary analysis stops invalid" in missingness["minimum_completeness"],
+        "execution or missingness governance drift",
     )
 
     readouts = plan["readouts"]
     _require(
-        "identity_transport_comparator" in readouts["every_canonical_cell"]
-        and "frobenius_matched_seeded_random_transport_comparator"
+        "assistant_boundary_sae_normalized_reconstruction_error"
         in readouts["every_canonical_cell"]
+        and "all_31_source_layer_jacobian_lens_refusal_minus_compliance_trajectory"
+        in readouts["exploratory_deferred_until_canonical_gate"]
+        and "identity_transport_comparator"
+        in readouts["exploratory_deferred_until_canonical_gate"]
         and readouts["harmbench_on_benign_or_neutral"] is False,
         "readout/control drift",
     )
@@ -209,6 +264,18 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         readouts["selected_feature_position_maps"]["generated_token_indices"]
         == [0, 1, 2, 4, 8, 16],
         "generated position drift",
+    )
+
+    assay = plan["assay_validity_gate"]
+    _require(
+        assay["must_pass_before_canonical_target_generation"] is True
+        and assay["legacy_canary_conditions"] == 8
+        and assay["deterministic_rerun_required"] is True
+        and assay["failure_disposition"]
+        == "stop_invalid_before_canonical_target_generation"
+        and "no new factorial outcome may exist"
+        in assay["reconstruction_tolerance_rule"],
+        "assay validity gate drift",
     )
 
     interpretation = plan["feature_interpretation"]
@@ -221,24 +288,18 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
 
     threshold = plan["threshold_program"]
     _require(
-        threshold["candidate"] == "single_feature_6779"
+        threshold["status"] == "separate_future_powered_protocol_not_authorized_by_A052"
+        and threshold["candidate"] == "single_feature_6779"
         and threshold["candidate_reselection_forbidden"] is True
-        and threshold["new_calibration_required"] is True
-        and threshold[
-            "reuse_of_feature_selection_or_prior_candidate_calibration_as_threshold_training"
-        ]
-        is False
-        and threshold["common_threshold_across_placements"] is True,
+        and threshold["current_factorial_or_legacy_panels_may_train_threshold"] is False
+        and threshold["existing_harmful_confirmation_panel_remains_unopened"] is True,
         "threshold freeze drift",
     )
     _require(
-        threshold["confirmation"][
-            "existing_harmful_panel_remains_unopened_until_threshold_freeze"
-        ]
-        is True
-        and threshold["confirmation"]["one_evaluation_only"] is True
-        and threshold["confirmation"]["placements_reported_separately"] is True,
-        "confirmation leakage",
+        "exact_hash_fuzzy_lexical_and_structural_parser_baselines_on_the_same_sealed_panels"
+        in threshold["required_before_future_authorization"]
+        and "299 independent negatives" in threshold["minimum_zero_error_reference"],
+        "future detector gate drift",
     )
 
     causal = plan["fine_causal_program"]
@@ -254,19 +315,25 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         "SAE reconstruction control missing",
     )
 
-    qwen = plan["qwen_transfer"]
+    qwen = plan["qwen_joint_shift_replication"]
     _require(
         qwen["small_checkpoint_only"] is True
         and qwen["sae_claim"] is False
         and qwen["qwen_397b_deferred"] is True,
         "Qwen scope drift",
     )
+    _require(
+        qwen["model_transfer_claim"] is False
+        and qwen["label"].startswith("joint-shift external replication"),
+        "Qwen transfer overclaim",
+    )
 
     deployment = plan["deployment"]
     _require(
         deployment["automatic_termination_not_authorized"] is True
-        and deployment["first_mode"] == "shadow"
-        and deployment["request_cancel_not_server_termination"] is True
+        and deployment["first_mode"] == "non_enforcing_shadow"
+        and deployment["shadow_records_decision_without_cancelling_request"] is True
+        and deployment["future_active_canary_requires_separate_approval"] is True
         and deployment["large_disjoint_benign_shadow_panel_required"] is True,
         "deployment gate drift",
     )
@@ -274,6 +341,18 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         set(deployment["cheap_input_baselines_required"])
         == {"exact_hash", "n_gram_or_fuzzy_lexical", "structural_parser"},
         "cheap detector baseline drift",
+    )
+
+    bom = plan["staged_bill_of_materials"]
+    _require(
+        bom["stage_C_canonical_factorial"]["unique_conditions_total"] == 422
+        and bom["stage_D_secondary_dose"]["additional_unique_conditions"] == 540
+        and bom["combined_factorial_and_dose"]["unique_target_conditions"] == 962
+        and bom["combined_factorial_and_dose"]["hard_ceiling_usd"] == 200
+        and "renewed explicit human authorization"
+        in bom["combined_factorial_and_dose"]["soft_gate_disposition"]
+        and bom["detector_causal_qwen_and_deployment_costs_included"] is False,
+        "staged bill of materials drift",
     )
 
     raw = plan["raw_data_policy"]
