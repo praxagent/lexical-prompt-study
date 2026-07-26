@@ -544,6 +544,11 @@ observations, at most 1,024 generated tokens each, a 150-minute wall limit,
 generation-only upper estimate is 6,695.9 seconds (`$10.96`), leaving about 30
 minutes for source/artifact verification, model load, assistant-boundary state
 capture, receipt validation, and teardown. No fallback GPU is authorized.
+Immediately before launch, the live secure B200 rate had moved to
+`$5.98/hour`. Prospective amendment A025 retains the same device, topology,
+150-minute wall limit, no-progress stop, and scientific protocol while
+updating the exact maximum to `$14.95`. No target outcome existed when this
+rate-only amendment was frozen.
 
 Those estimates include both scaffold orderings. The bounded work-unit ledger
 before qualification is:

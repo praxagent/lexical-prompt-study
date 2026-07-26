@@ -456,7 +456,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     discovery_run = compute["scientific_runs"]["g2_discovery"]
     _require(
         discovery_run["status"] == "authorized_after_local_preflight"
-        and discovery_run["amendment"] == "A024"
+        and discovery_run["amendment"] == "A025"
         and discovery_run["gpu"] == "NVIDIA B200"
         and discovery_run["count"] == 1
         and discovery_run["secure_cloud"] is True

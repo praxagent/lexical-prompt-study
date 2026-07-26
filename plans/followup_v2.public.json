@@ -644,11 +644,11 @@
     "scientific_runs": {
       "g2_discovery": {
         "status": "authorized_after_local_preflight",
-        "amendment": "A024",
+        "amendment": "A025",
         "gpu": "NVIDIA B200",
         "count": 1,
         "secure_cloud": true,
-        "live_rate_usd_per_hour": 5.89,
+        "live_rate_usd_per_hour": 5.98,
         "trial_count": 140,
         "maximum_generated_tokens_per_trial": 1024,
         "qualification_receipt_sha256": "7c097f12ffa1c0f59ce769c96e3b87d2a254ddde3a6a9b97116f53e5de46fe7b",
@@ -656,7 +656,7 @@
         "estimated_max_generation_seconds": 6695.883318185806,
         "setup_and_verification_margin_minutes": 30,
         "wall_limit_minutes": 150,
-        "maximum_compute_usd": 14.725,
+        "maximum_compute_usd": 14.95,
         "no_progress_timeout_minutes": 15,
         "automatic_fallback": false,
         "target_outcomes_inspected": false
