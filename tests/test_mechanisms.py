@@ -85,6 +85,14 @@ def test_sae_selection_is_discovery_paired_and_deterministic() -> None:
     assert [item.feature_id for item in selected] == [0, 1]
 
 
+def test_zero_decoder_norm_feature_is_retained_but_not_selectable() -> None:
+    full = np.array([[2.0, 2.0], [3.0, 3.0]])
+    sham = np.array([[0.0, 0.0], [1.0, 1.0]])
+    diagnostics = sae_feature_diagnostics(full, sham, [0.0, 1.0])
+    assert diagnostics[0].decoder_norm == 0.0
+    assert [item.feature_id for item in select_sae_candidates(diagnostics)] == [1]
+
+
 def test_mechanism_receipt_fails_closed() -> None:
     receipt = {
         "schema_version": "1.0",

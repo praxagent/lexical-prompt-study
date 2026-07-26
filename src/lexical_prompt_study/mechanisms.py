@@ -167,8 +167,8 @@ def sae_feature_diagnostics(
         and np.isfinite(norms).all()
     ):
         raise ValueError("SAE diagnostics contain non-finite values")
-    if (full_values < 0).any() or (sham_values < 0).any() or (norms <= 0).any():
-        raise ValueError("SAE activations must be non-negative and decoder norms positive")
+    if (full_values < 0).any() or (sham_values < 0).any() or (norms < 0).any():
+        raise ValueError("SAE activations and decoder norms must be non-negative")
     delta = full_values - sham_values
     mean_delta = delta.mean(axis=0)
     # RMS standardization is finite for perfectly consistent non-zero paired
@@ -212,6 +212,7 @@ def select_sae_candidates(
         if item.full_prevalence >= minimum_full_prevalence
         and item.paired_mean_delta > 0
         and item.paired_standardized_delta > 0
+        and item.decoder_norm > 0
     ]
     return sorted(
         eligible,
