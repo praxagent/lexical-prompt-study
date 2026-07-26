@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from lexical_prompt_study.factorial_block_review import (
+    BOUNDARY_MARKER,
+    MATERIAL_FILES,
+    compile_factorial_block_review,
+)
+from lexical_prompt_study.hashing import sha256_text
+
+
+class SafeTokenizer:
+    def encode(self, text, *, add_special_tokens):
+        assert not add_special_tokens
+        return [ord(character) for character in text]
+
+
+def _manifest(tmp_path: Path, *, mismatched: bool = False) -> Path:
+    rows = {}
+    for material, filename in MATERIAL_FILES.items():
+        original = "AAAABBBBCCCC"
+        marked = f"AAAA{BOUNDARY_MARKER}BBBB{BOUNDARY_MARKER}CCCC"
+        if mismatched and material == "structural_sham":
+            original = "AAAAZZBBBCCCC"
+            marked = f"AAAA{BOUNDARY_MARKER}ZZBBB{BOUNDARY_MARKER}CCCC"
+        path = tmp_path / filename
+        path.write_text(marked)
+        rows[material] = {
+            "path": str(path),
+            "original_text_sha256": sha256_text(original),
+            "canonical_token_count": len(original),
+            "review_status": "insert_boundaries_then_compile",
+        }
+    manifest = {
+        "schema_version": "1.0",
+        "status": "human_semantic_block_review_required",
+        "tokenizer_revision": "safe",
+        "tokenizer_chat_template_sha256": "1" * 64,
+        "boundary_marker": BOUNDARY_MARKER,
+        "instructions": "safe",
+        "agent_plaintext_inspection_forbidden": True,
+        "materials": rows,
+    }
+    path = tmp_path / "manifest.private.json"
+    path.write_text(json.dumps(manifest))
+    return path
+
+
+def test_human_block_compiler_preserves_text_and_exact_prefix_counts(
+    tmp_path: Path,
+) -> None:
+    result = compile_factorial_block_review(
+        manifest_path=_manifest(tmp_path),
+        tokenizer=SafeTokenizer(),
+        output_path=tmp_path / "blocks.private.json",
+    )
+    assert result["block_count"] == 3
+    assert result["cumulative_token_counts"] == [4, 8, 12]
+    assert result["raw_text_returned"] is False
+
+
+def test_human_block_compiler_rejects_cumulative_token_mismatch(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="cumulative-token mismatch"):
+        compile_factorial_block_review(
+            manifest_path=_manifest(tmp_path, mismatched=True),
+            tokenizer=SafeTokenizer(),
+            output_path=tmp_path / "blocks.private.json",
+        )
+
+
+def test_human_block_compiler_rejects_non_boundary_edits(tmp_path: Path) -> None:
+    manifest_path = _manifest(tmp_path)
+    manifest = json.loads(manifest_path.read_text())
+    path = Path(manifest["materials"]["full_scaffold"]["path"])
+    path.write_text(path.read_text().replace("AAAA", "AAAX", 1))
+    with pytest.raises(ValueError, match="non-boundary bytes changed"):
+        compile_factorial_block_review(
+            manifest_path=manifest_path,
+            tokenizer=SafeTokenizer(),
+            output_path=tmp_path / "blocks.private.json",
+        )
