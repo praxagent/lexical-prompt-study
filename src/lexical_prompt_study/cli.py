@@ -95,6 +95,7 @@ def main() -> None:
     mechanism.add_argument("--sae-path", type=Path, required=True)
     mechanism.add_argument("--out", type=Path, required=True)
     mechanism.add_argument("--run-id", required=True)
+    mechanism.add_argument("--max-behaviors", type=int)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -196,6 +197,7 @@ def main() -> None:
                     sae_path=args.sae_path,
                     output_root=args.out,
                     run_id=args.run_id,
+                    max_behaviors=args.max_behaviors,
                 ),
                 sort_keys=True,
             )

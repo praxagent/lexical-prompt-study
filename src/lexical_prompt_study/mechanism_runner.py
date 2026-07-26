@@ -102,6 +102,7 @@ def build_observations(
     public_plan_path: Path,
     generation_root: Path,
     split: str,
+    max_behaviors: int | None = None,
 ) -> list[Observation]:
     private_plan = json.loads(private_plan_path.read_text())
     public_plan = json.loads(public_plan_path.read_text())
@@ -111,6 +112,10 @@ def build_observations(
     behaviors = [
         behavior for behavior in private_plan["harmful_behaviors"] if behavior["split"] == split
     ]
+    if max_behaviors is not None:
+        if max_behaviors < 1:
+            raise ValueError("max_behaviors must be positive")
+        behaviors = behaviors[:max_behaviors]
     if not behaviors:
         raise ValueError(f"no harmful behaviors for split={split}")
     observations: list[Observation] = []
@@ -632,6 +637,7 @@ def run_mechanism_discovery(
     sae_path: Path,
     output_root: Path,
     run_id: str,
+    max_behaviors: int | None = None,
 ) -> dict[str, Any]:
     started = time.monotonic()
     import torch
@@ -664,6 +670,7 @@ def run_mechanism_discovery(
         public_plan_path=public_plan_path,
         generation_root=generation_root,
         split="discovery",
+        max_behaviors=max_behaviors,
     )
     load_kwargs: dict[str, Any] = {
         "dtype": torch.bfloat16,
@@ -741,6 +748,7 @@ def run_mechanism_discovery(
         "status": "complete",
         "source_layers": source_layers,
         "observations": len(observations),
+        "max_behaviors": max_behaviors,
         "available_observations": sum(item.position_available for item in observations),
         "layer_receipts": len(source_layers),
         "elapsed_seconds": time.monotonic() - started,
