@@ -11,6 +11,7 @@ from .evaluate import score_behavior_receipts
 from .evaluator_validation import validate_published_judges
 from .models import (
     FollowupQualificationReceipt,
+    FollowupTrialReceipt,
     InterventionReceipt,
     MechanismReceipt,
     StudyPlan,
@@ -165,6 +166,50 @@ def main() -> None:
     followup_qualification.add_argument("--sae-path", type=Path, required=True)
     followup_qualification.add_argument("--out", type=Path, required=True)
     followup_qualification.add_argument("--run-id", required=True)
+    followup_private = sub.add_parser("build-followup-private-plan")
+    followup_private.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_private.add_argument(
+        "--source-private",
+        type=Path,
+        default=Path("private/plans/study_v1.private.json"),
+    )
+    followup_private.add_argument(
+        "--source-public",
+        type=Path,
+        default=Path("plans/study_v1.public.json"),
+    )
+    followup_private.add_argument(
+        "--benign-csv",
+        type=Path,
+        default=Path("private/source/JBB-Behaviors/data/benign-behaviors.csv"),
+    )
+    followup_private.add_argument(
+        "--out", type=Path, default=Path("private/plans/followup_v2.private.json")
+    )
+    followup_generation = sub.add_parser("run-followup-generation")
+    followup_generation.add_argument("--private-plan", type=Path, required=True)
+    followup_generation.add_argument(
+        "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
+    )
+    followup_generation.add_argument("--model-path", required=True)
+    followup_generation.add_argument("--lens-path", type=Path, required=True)
+    followup_generation.add_argument("--sae-path", type=Path, required=True)
+    followup_generation.add_argument("--out", type=Path, required=True)
+    followup_generation.add_argument(
+        "--partition",
+        choices=[
+            "discovery",
+            "calibration",
+            "confirmatory",
+            "adaptive_stress",
+            "utility_calibration",
+            "utility_confirmatory",
+        ],
+        required=True,
+    )
+    followup_generation.add_argument("--run-id", required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -185,6 +230,7 @@ def main() -> None:
             ("mechanism-receipt", MechanismReceipt),
             ("intervention-receipt", InterventionReceipt),
             ("followup-qualification-receipt", FollowupQualificationReceipt),
+            ("followup-trial-receipt", FollowupTrialReceipt),
         ):
             path = args.out / f"{name}.schema.json"
             outputs[name] = write_json_atomic(path, model.model_json_schema())
@@ -417,6 +463,39 @@ def main() -> None:
                     lens_path=args.lens_path,
                     sae_path=args.sae_path,
                     output_root=args.out,
+                    run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-followup-private-plan":
+        from .followup_private import build_followup_private_plan
+
+        print(
+            json.dumps(
+                build_followup_private_plan(
+                    public_plan_path=args.public_plan,
+                    source_private_path=args.source_private,
+                    source_public_path=args.source_public,
+                    benign_csv_path=args.benign_csv,
+                    output_path=args.out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-followup-generation":
+        from .followup_generation import run_followup_generation
+
+        print(
+            json.dumps(
+                run_followup_generation(
+                    private_plan_path=args.private_plan,
+                    public_plan_path=args.public_plan,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    partition=args.partition,
                     run_id=args.run_id,
                 ),
                 sort_keys=True,

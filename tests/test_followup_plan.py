@@ -74,6 +74,13 @@ def test_followup_plan_rejects_pooled_sae_readout() -> None:
         validate_followup_plan(plan)
 
 
+def test_followup_plan_binds_single_turn_decoding() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["replication"]["decoding"]["max_new_tokens"] = 512
+    with pytest.raises(ValueError, match="decoding freeze"):
+        validate_followup_plan(plan)
+
+
 def test_followup_plan_rejects_unequal_order_token_budgets() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["placement_factor"]["within_arm_matching"]["require_equal_prompt_token_count"] = False
@@ -166,6 +173,15 @@ def test_followup_plan_rejects_unpriced_gpu_fallback() -> None:
     plan = load_followup_plan(PLAN_PATH)
     plan["compute"]["qualification"]["automatic_fallback"] = True
     with pytest.raises(ValueError, match="fallback"):
+        validate_followup_plan(plan)
+
+
+def test_followup_plan_binds_g2_discovery_cost_statement() -> None:
+    plan = load_followup_plan(PLAN_PATH)
+    plan["compute"]["scientific_runs"]["g2_discovery"][
+        "maximum_compute_usd"
+    ] = 20
+    with pytest.raises(ValueError, match="maximum cost arithmetic"):
         validate_followup_plan(plan)
 
 

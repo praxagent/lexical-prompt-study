@@ -220,3 +220,61 @@ class FollowupQualificationReceipt(StrictModel):
     private_bundle_path: str
     private_bundle_sha256: str
     software: dict
+
+
+class FollowupTrialReceipt(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    study_id: Literal["lexical-scaffold-followup-v2"]
+    plan_sha256: str
+    private_plan_sha256: str
+    source_commit: str
+    run_id: str
+    trial_id: str
+    partition: Literal[
+        "discovery",
+        "calibration",
+        "confirmatory",
+        "adaptive_stress",
+        "utility_calibration",
+        "utility_confirmatory",
+    ]
+    behavior_id: str
+    category: str
+    arm: Literal[
+        "base",
+        "inert_length",
+        "structural_sham",
+        "full",
+        "ordinary_benign",
+        "structured_benign",
+    ]
+    placement: Literal["ep_before_request", "ep_after_request"] | None
+    stratum: str
+    shared_reference: bool
+    request_sha256: str
+    prompt_sha256: str
+    prompt_token_ids_sha256: str
+    render_validation_sha256: str | None
+    generated_text_sha256: str
+    generated_token_ids_sha256: str
+    generated_token_count: int = Field(ge=0)
+    finish_reason: Literal["eos", "length"]
+    truncated: bool
+    refusal_detected: bool
+    divider_detected: bool
+    post_divider_present: bool
+    restricted_artifact_path: str
+    restricted_artifact_sha256: str
+    state_bundle_path: str
+    state_bundle_sha256: str
+    capture_layers: list[int]
+    state_shape: list[int]
+    state_dtype: Literal["torch.bfloat16"]
+    generation_elapsed_seconds: float = Field(ge=0)
+    capture_elapsed_seconds: float = Field(ge=0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    model_revision: str
+    tokenizer_revision: str
+    lens_sha256: str
+    sae_sha256: str
+    software: dict

@@ -135,7 +135,10 @@ def build_placement_render_pair(
         delimiter_ids = [
             token for index, token in enumerate(prompt_ids) if index not in occupied
         ]
-        suffix_length = min(8, len(prompt_ids))
+        suffix_start = max(end for _start, end in offsets.values())
+        assistant_boundary_suffix = prompt_ids[suffix_start:]
+        if not assistant_boundary_suffix:
+            raise ValueError("assistant-boundary suffix is empty")
         receipt = {
             "placement": placement,
             "template_sha256": template_sha,
@@ -148,7 +151,7 @@ def build_placement_render_pair(
                 canonical_json_bytes(delimiter_ids)
             ),
             "assistant_boundary_suffix_sha256": sha256_bytes(
-                canonical_json_bytes(prompt_ids[-suffix_length:])
+                canonical_json_bytes(assistant_boundary_suffix)
             ),
             "component_offsets": offsets,
             "offset_map_sha256": sha256_bytes(canonical_json_bytes(offsets)),

@@ -536,6 +536,15 @@ Scientific-run costs remain estimates until G1 measures unit throughput:
 | Review, setup margin, and five more volume-days | $8 | $9 |
 | **Incremental total** | **$39** | **$67** |
 
+G1 subsequently measured a conservative 21.410 generated tokens/second from
+the slower of the two synthetic placement runs on the region-compatible B200.
+Prospective amendment A024 therefore authorizes only G2 discovery: 140 frozen
+observations, at most 1,024 generated tokens each, a 150-minute wall limit,
+15-minute no-progress timeout, and `$14.725` maximum at `$5.89/hour`. The
+generation-only upper estimate is 6,695.9 seconds (`$10.96`), leaving about 30
+minutes for source/artifact verification, model load, assistant-boundary state
+capture, receipt validation, and teardown. No fallback GPU is authorized.
+
 Those estimates include both scaffold orderings. The bounded work-unit ledger
 before qualification is:
 

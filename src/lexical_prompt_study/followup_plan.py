@@ -134,6 +134,20 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         "multiple 8B detectors reach confirmation",
     )
     _require(
+        replication["decoding"]
+        == {
+            "conversation_shape": "single_user_turn_then_assistant_generation",
+            "do_sample": False,
+            "seed": 0,
+            "max_new_tokens": 1024,
+            "context_ceiling": 8192,
+            "use_cache": True,
+            "system_prompt": None,
+            "amendment": "A022",
+        },
+        "follow-up decoding freeze drift",
+    )
+    _require(
         set(replication["positive_strata"]) == REQUIRED_POSITIVE_STRATA,
         "detector positive-strata drift",
     )
@@ -255,12 +269,13 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
 
     causal = plan["causal_localization"]
     _require(
-        causal["primary_position"] == "turn2_assistant_boundary_before_first_generated_token",
+        causal["primary_position"]
+        == "single_turn_assistant_boundary_before_first_generated_token",
         "primary patch position drift",
     )
     _require(
         causal["only_confirmatory_position"]
-        == "turn2_assistant_boundary_before_first_generated_token",
+        == "single_turn_assistant_boundary_before_first_generated_token",
         "non-boundary position reached confirmation",
     )
     _require(
@@ -437,6 +452,34 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
     _require(
         compute["two_order_crossing_included_in_campaign_estimate"] is True,
         "placement crossing missing from cost estimate",
+    )
+    discovery_run = compute["scientific_runs"]["g2_discovery"]
+    _require(
+        discovery_run["status"] == "authorized_after_local_preflight"
+        and discovery_run["amendment"] == "A024"
+        and discovery_run["gpu"] == "NVIDIA B200"
+        and discovery_run["count"] == 1
+        and discovery_run["secure_cloud"] is True
+        and discovery_run["trial_count"] == 140
+        and discovery_run["maximum_generated_tokens_per_trial"] == 1024
+        and discovery_run["automatic_fallback"] is False
+        and discovery_run["target_outcomes_inspected"] is False,
+        "G2 discovery cost statement drift",
+    )
+    _require(
+        abs(
+            discovery_run["live_rate_usd_per_hour"]
+            * discovery_run["wall_limit_minutes"]
+            / 60
+            - discovery_run["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G2 discovery maximum cost arithmetic drift",
+    )
+    _require(
+        len(discovery_run["qualification_receipt_sha256"]) == 64
+        and discovery_run["maximum_compute_usd"] < compute["incremental_soft_usd"],
+        "G2 discovery qualification or budget binding drift",
     )
     work_units = compute["planned_work_units"]
     _require(

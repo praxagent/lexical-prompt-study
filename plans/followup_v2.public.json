@@ -166,6 +166,16 @@
   },
   "replication": {
     "model_family": "llama",
+    "decoding": {
+      "conversation_shape": "single_user_turn_then_assistant_generation",
+      "do_sample": false,
+      "seed": 0,
+      "max_new_tokens": 1024,
+      "context_ceiling": 8192,
+      "use_cache": true,
+      "system_prompt": null,
+      "amendment": "A022"
+    },
     "arms": [
       "base",
       "inert_length",
@@ -305,8 +315,8 @@
   },
   "causal_localization": {
     "model": "llama31_model",
-    "primary_position": "turn2_assistant_boundary_before_first_generated_token",
-    "only_confirmatory_position": "turn2_assistant_boundary_before_first_generated_token",
+    "primary_position": "single_turn_assistant_boundary_before_first_generated_token",
+    "only_confirmatory_position": "single_turn_assistant_boundary_before_first_generated_token",
     "secondary_positions": {
       "scaffold_fractions": [
         0.25,
@@ -631,6 +641,27 @@
     "scientific_run_requires_measured_throughput": true,
     "scientific_run_requires_separate_exact_cost_statement": true,
     "two_order_crossing_included_in_campaign_estimate": true,
+    "scientific_runs": {
+      "g2_discovery": {
+        "status": "authorized_after_local_preflight",
+        "amendment": "A024",
+        "gpu": "NVIDIA B200",
+        "count": 1,
+        "secure_cloud": true,
+        "live_rate_usd_per_hour": 5.89,
+        "trial_count": 140,
+        "maximum_generated_tokens_per_trial": 1024,
+        "qualification_receipt_sha256": "7c097f12ffa1c0f59ce769c96e3b87d2a254ddde3a6a9b97116f53e5de46fe7b",
+        "conservative_tokens_per_second": 21.41016997871495,
+        "estimated_max_generation_seconds": 6695.883318185806,
+        "setup_and_verification_margin_minutes": 30,
+        "wall_limit_minutes": 150,
+        "maximum_compute_usd": 14.725,
+        "no_progress_timeout_minutes": 15,
+        "automatic_fallback": false,
+        "target_outcomes_inspected": false
+      }
+    },
     "planned_work_units": [
       {
         "stage": "llama31_behavioral_generation_and_capture",
