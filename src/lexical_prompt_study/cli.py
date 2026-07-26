@@ -131,7 +131,6 @@ def main() -> None:
                 run_behavior(
                     private_plan_path=args.private_plan,
                     public_plan_path=args.public_plan,
-                    artifacts_manifest_path=args.artifacts,
                     model_path=args.model_path,
                     output_root=args.out,
                     split=args.split,
@@ -191,6 +190,7 @@ def main() -> None:
                 run_mechanism_discovery(
                     private_plan_path=args.private_plan,
                     public_plan_path=args.public_plan,
+                    artifacts_manifest_path=args.artifacts,
                     generation_root=args.generation_root,
                     model_path=args.model_path,
                     lens_path=args.lens_path,
