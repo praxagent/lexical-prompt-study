@@ -1018,6 +1018,77 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         },
         "G4 patch qualification output topology drift",
     )
+    patch_throughput = compute["scientific_runs"][
+        "g4_patch_throughput_qualification"
+    ]
+    _require(
+        patch_throughput["status"] == "throughput_only_authorized_target_closed"
+        and patch_throughput["amendment"] == "A040"
+        and patch_throughput["runner_source_commit"]
+        == "9496d4f3e434273146f74d69c43a7ccf2951bd8f"
+        and patch_throughput["partition"] == "discovery"
+        and patch_throughput["qualification_only"] is True
+        and patch_throughput["run_id"]
+        == "g4-patch-throughput-a040-20260726"
+        and patch_throughput["gpu"] == "NVIDIA B200"
+        and patch_throughput["count"] == 1
+        and patch_throughput["secure_cloud"] is True
+        and patch_throughput["wall_limit_minutes"] == 20
+        and patch_throughput["no_progress_timeout_minutes"] == 10
+        and patch_throughput["automatic_fallback"] is False
+        and patch_throughput["target_generation_authorized"] is False
+        and patch_throughput["safe_positive_control_rerun_authorized"] is False
+        and patch_throughput[
+            "raw_safe_prompts_generations_and_token_ids_public"
+        ]
+        is False,
+        "G4 patch throughput authorization drift",
+    )
+    _require(
+        abs(
+            patch_throughput["maximum_live_rate_usd_per_hour"]
+            * patch_throughput["wall_limit_minutes"]
+            / 60
+            - patch_throughput["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G4 patch throughput maximum cost arithmetic drift",
+    )
+    throughput_binding = patch_throughput["input_binding"]
+    _require(
+        throughput_binding["patch_scientific_plan_sha256"]
+        == "0fcd0181560106aad43cc67ae8e504bd237089e7cee83b9ddb7b2dd3dce67152"
+        and throughput_binding["patch_private_plan_sha256"]
+        == patch_binding["patch_private_plan_sha256"]
+        and throughput_binding["patch_private_input_plan_sha256"]
+        == patch_binding["patch_scientific_plan_sha256"]
+        and throughput_binding["safe_positive_control_result_sha256"]
+        == instrument["source_result_sha256"]
+        and throughput_binding["model_revision"]
+        == plan["artifacts"]["llama31_model"]["revision"]
+        and throughput_binding["persistent_volume_id"]
+        == compute["persistent_volume_id"],
+        "G4 patch throughput input binding drift",
+    )
+    _require(
+        patch_throughput["safe_scope"]
+        == {
+            "throughput_prompt_count": 20,
+            "throughput_batch_size": 20,
+            "maximum_generated_tokens_per_prompt": 1024,
+            "hook": "no_op_residual_post_at_layer_0",
+            "target_patch_trial_count": 0,
+        }
+        and patch_throughput["expected_outputs"]
+        == {
+            "copied_safe_positive_control_public_result_count": 1,
+            "throughput_public_result_count": 1,
+            "summary_count": 1,
+            "target_patch_receipt_count": 0,
+            "private_file_mode": "0600",
+        },
+        "G4 patch throughput scope or topology drift",
+    )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,
