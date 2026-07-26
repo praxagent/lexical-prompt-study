@@ -1125,7 +1125,7 @@
       "g4_patch_throughput_qualification": {
         "status": "throughput_only_authorized_target_closed",
         "amendment": "A040",
-        "runner_source_commit": "9496d4f3e434273146f74d69c43a7ccf2951bd8f",
+        "runner_source_commit": "9496d4fdeb1c77963702979751aae97d6979ff63",
         "partition": "discovery",
         "qualification_only": true,
         "run_id": "g4-patch-throughput-a040-20260726",

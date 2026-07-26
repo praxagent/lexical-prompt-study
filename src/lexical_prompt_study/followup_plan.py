@@ -1025,7 +1025,7 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         patch_throughput["status"] == "throughput_only_authorized_target_closed"
         and patch_throughput["amendment"] == "A040"
         and patch_throughput["runner_source_commit"]
-        == "9496d4f3e434273146f74d69c43a7ccf2951bd8f"
+        == "9496d4fdeb1c77963702979751aae97d6979ff63"
         and patch_throughput["partition"] == "discovery"
         and patch_throughput["qualification_only"] is True
         and patch_throughput["run_id"]
