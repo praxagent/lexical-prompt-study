@@ -910,6 +910,73 @@ def validate_followup_plan(plan: dict[str, Any]) -> None:
         and replacement_run["expected_outputs"] == mechanism_outputs,
         "G3 replacement input/output binding drift",
     )
+    patch_qualification = compute["scientific_runs"]["g4_patch_qualification"]
+    _require(
+        patch_qualification["status"] == "safe_only_authorized_target_closed"
+        and patch_qualification["amendment"] == "A037"
+        and patch_qualification["runner_source_commit"]
+        == "3ae84aec497feb07f2bb139f29f63f3623852749"
+        and patch_qualification["partition"] == "discovery"
+        and patch_qualification["qualification_only"] is True
+        and patch_qualification["run_id"]
+        == "g4-patch-qualification-a037-20260726"
+        and patch_qualification["gpu"] == "NVIDIA B200"
+        and patch_qualification["count"] == 1
+        and patch_qualification["secure_cloud"] is True
+        and patch_qualification["wall_limit_minutes"] == 20
+        and patch_qualification["no_progress_timeout_minutes"] == 10
+        and patch_qualification["automatic_fallback"] is False
+        and patch_qualification["target_generation_authorized"] is False
+        and patch_qualification[
+            "raw_safe_prompts_generations_and_token_ids_public"
+        ]
+        is False,
+        "G4 patch qualification authorization drift",
+    )
+    _require(
+        abs(
+            patch_qualification["maximum_live_rate_usd_per_hour"]
+            * patch_qualification["wall_limit_minutes"]
+            / 60
+            - patch_qualification["maximum_compute_usd"]
+        )
+        < 1e-9,
+        "G4 patch qualification maximum cost arithmetic drift",
+    )
+    patch_binding = patch_qualification["input_binding"]
+    _require(
+        patch_binding["patch_scientific_plan_sha256"]
+        == "5817d5eeaa892a4469072a1384946c17c19cb052e96e049da5575e94f920d44a"
+        and patch_binding["patch_private_plan_sha256"]
+        == "e8d690bc17b286b4b7229da99eaeb0781dabd8d154673e92ac2b8dbbaaa7567c"
+        and patch_binding["patch_private_scientific_plan_sha256"]
+        == patch_binding["patch_scientific_plan_sha256"]
+        and patch_binding["model_revision"]
+        == plan["artifacts"]["llama31_model"]["revision"]
+        and patch_binding["persistent_volume_id"] == compute["persistent_volume_id"],
+        "G4 patch qualification input binding drift",
+    )
+    patch_safe_scope = patch_qualification["safe_scope"]
+    _require(
+        patch_safe_scope["positive_control_pair_count"] == 20
+        and patch_safe_scope["throughput_prompt_count"] == 20
+        and patch_safe_scope["throughput_batch_size"] == 20
+        and patch_safe_scope["maximum_generated_tokens_per_prompt"] == 1024
+        and patch_safe_scope["candidate_layers"]
+        == plan["causal_localization"]["coarse_residual_post_layers"],
+        "G4 patch qualification safe scope drift",
+    )
+    _require(
+        patch_qualification["expected_outputs"]
+        == {
+            "positive_control_public_result_count": 1,
+            "throughput_public_result_count": 1,
+            "summary_count": 1,
+            "target_patch_receipt_count": 0,
+            "private_file_mode": "0600",
+        },
+        "G4 patch qualification output topology drift",
+    )
     _require(
         compute["current_cumulative_soft_gate_usd"] == 100
         and compute["existing_cumulative_hard_ceiling_usd"] == 200,
