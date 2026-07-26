@@ -96,6 +96,9 @@ def main() -> None:
     mechanism.add_argument("--out", type=Path, required=True)
     mechanism.add_argument("--run-id", required=True)
     mechanism.add_argument("--max-behaviors", type=int)
+    analyze_mechanism = sub.add_parser("analyze-mechanisms")
+    analyze_mechanism.add_argument("--input", type=Path, required=True)
+    analyze_mechanism.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "write-artifacts":
         digest = write_artifact_manifest(args.out)
@@ -199,6 +202,20 @@ def main() -> None:
                     run_id=args.run_id,
                     max_behaviors=args.max_behaviors,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-mechanisms":
+        from .analyze_mechanisms import analyze_mechanisms
+
+        result = analyze_mechanisms(args.input, args.out)
+        print(
+            json.dumps(
+                {
+                    "status": result["status"],
+                    "gate3_artifact_sha256": result["gate3_artifact_sha256"],
+                    "output": str(args.out),
+                },
                 sort_keys=True,
             )
         )
