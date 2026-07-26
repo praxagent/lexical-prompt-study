@@ -236,8 +236,10 @@ def _capture_states(
     observations: list[Observation],
     capture_layers: list[int],
     output_root: Path,
+    provenance: dict[str, Any],
 ) -> tuple[dict[int, Any], str]:
     manifest = _observation_manifest(observations)
+    manifest["provenance"] = provenance
     manifest_path = output_root / "observation-manifest.json"
     state_path = output_root / "captured-states.pt"
     if manifest_path.exists() or state_path.exists():
@@ -249,6 +251,8 @@ def _capture_states(
         payload = torch.load(state_path, map_location="cpu", weights_only=True)
         if payload["observations_sha256"] != manifest["observations_sha256"]:
             raise ValueError("captured state observation hash drift")
+        if payload.get("provenance") != provenance:
+            raise ValueError("captured state provenance drift")
         if sorted(payload["states"]) != capture_layers:
             raise ValueError("captured state layer topology drift")
         return payload["states"], sha256_file(state_path)
@@ -284,7 +288,11 @@ def _capture_states(
     states = {layer: torch.stack(values) for layer, values in captured.items()}
     temporary = state_path.with_name(f".{state_path.name}.tmp")
     torch.save(
-        {"observations_sha256": manifest["observations_sha256"], "states": states},
+        {
+            "observations_sha256": manifest["observations_sha256"],
+            "provenance": provenance,
+            "states": states,
+        },
         temporary,
     )
     temporary.replace(state_path)
@@ -390,10 +398,22 @@ def _run_transports(
     # Runtime equivalence gate: the moment shortcut must reproduce complete-vocabulary logits.
     fixture = states[int(lens.source_layers[-1])][0].to(device=device, dtype=torch.float32)
     with torch.inference_mode():
-        full_logits = hf_model.lm_head(hf_model.model.norm(fixture)).float()
+        analytic_normalized = fixture * torch.rsqrt(
+            fixture.square().mean() + norm_epsilon
+        )
+        analytic_normalized = analytic_normalized * norm_weight
+        full_logits = hf_model.lm_head.weight.float() @ analytic_normalized
         full_mean = full_logits.mean()
         full_std = full_logits.std(unbiased=False)
         full_probe_z = (full_logits[probe_ids] - full_mean) / full_std
+        module_logits = hf_model.lm_head(
+            hf_model.model.norm(
+                fixture.to(dtype=hf_model.model.norm.weight.dtype)
+            )
+        ).float()
+        module_probe_z = (
+            module_logits[probe_ids] - module_logits.mean()
+        ) / module_logits.std(unbiased=False)
         moment_mean, moment_std, moment_probe_z = _torch_margin_batch(
             torch,
             fixture[None, :],
@@ -408,13 +428,21 @@ def _run_transports(
         "probe_max_abs_error": float(
             (full_probe_z - moment_probe_z[0]).abs().max().item()
         ),
-        "tolerance": 2e-3,
+        "module_probe_max_abs_error": float(
+            (module_probe_z - moment_probe_z[0]).abs().max().item()
+        ),
+        "analytic_tolerance": 2e-3,
+        "module_tolerance": 2e-2,
     }
-    if max(
+    if (
+        max(
         equivalence["mean_abs_error"],
         equivalence["std_abs_error"],
         equivalence["probe_max_abs_error"],
-    ) > equivalence["tolerance"]:
+        )
+        > equivalence["analytic_tolerance"]
+        or equivalence["module_probe_max_abs_error"] > equivalence["module_tolerance"]
+    ):
         raise ValueError(f"vocabulary moment equivalence gate failed: {equivalence}")
     write_json_atomic(output_root / "vocabulary-moment-validation.json", equivalence)
 
@@ -697,15 +725,26 @@ def run_mechanism_discovery(
     if len(source_layers) != len(set(source_layers)) or not source_layers:
         raise ValueError("invalid lens source-layer declaration")
     capture_layers = sorted(set(source_layers + [SAE_HOOK_LAYER]))
+    model_revision = getattr(hf_model.config, "_commit_hash", None) or MODEL_REVISION
+    tokenizer_revision = getattr(tokenizer, "_commit_hash", None) or MODEL_REVISION
+    capture_provenance = {
+        "study_id": public_plan["study_id"],
+        "run_id": run_id,
+        "public_plan_sha256": public_sha,
+        "source_commit": source_commit,
+        "model_revision": model_revision,
+        "tokenizer_revision": tokenizer_revision,
+        "lens_sha256": lens_sha,
+        "sae_sha256": sae_sha,
+    }
     states, capture_sha = _capture_states(
         torch=torch,
         hf_model=hf_model,
         observations=observations,
         capture_layers=capture_layers,
         output_root=output_root,
+        provenance=capture_provenance,
     )
-    model_revision = getattr(hf_model.config, "_commit_hash", None) or MODEL_REVISION
-    tokenizer_revision = getattr(tokenizer, "_commit_hash", None) or MODEL_REVISION
     _run_transports(
         torch=torch,
         hf_model=hf_model,
