@@ -1301,7 +1301,7 @@
       },
       "g4_patch_discovery_replacement": {
         "status": "authorized_partial_resume_after_missing_state_stop",
-        "amendment": "A045",
+        "amendment": "A046",
         "runner_source_commit": "270b2818a371aeba90aa91b2892689973fba44b1",
         "partition": "discovery",
         "qualification_only": false,
@@ -1310,9 +1310,9 @@
         "gpu": "NVIDIA B200",
         "count": 1,
         "secure_cloud": true,
-        "maximum_live_rate_usd_per_hour": 5.89,
+        "maximum_live_rate_usd_per_hour": 5.98,
         "wall_limit_minutes": 45,
-        "maximum_compute_usd": 4.4175,
+        "maximum_compute_usd": 4.485,
         "no_progress_timeout_minutes": 10,
         "automatic_fallback": false,
         "target_generation_authorized": true,
@@ -1346,9 +1346,9 @@
           "placement_pooling_forbidden": true
         },
         "conservative_prelaunch_compute_usd": 93.30790482903985,
-        "conservative_postrun_cap_compute_usd": 97.72540482903985,
-        "reserved_scoring_compute_usd": 1.9633333333333334,
-        "conservative_postrun_and_scoring_cap_compute_usd": 99.68873816237318
+        "conservative_postrun_cap_compute_usd": 97.79290482903985,
+        "reserved_scoring_compute_usd": 1.9933333333333334,
+        "conservative_postrun_and_scoring_cap_compute_usd": 99.78623816237318
       }
     },
     "planned_work_units": [
