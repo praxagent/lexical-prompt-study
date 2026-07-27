@@ -52,10 +52,10 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         plan["study_id"] == "lexical-scaffold-8b-factorial-v1",
         "factorial study namespace drift",
     )
-    _require(plan["amendment"] == "A052", "factorial amendment drift")
+    _require(plan["amendment"] == "A053", "factorial amendment drift")
     _require(
         plan["status"]
-        == "prospectively_revised_after_adversarial_review_no_new_target_outcomes",
+        == "prospectively_revised_after_boundary_feasibility_check_no_new_target_outcomes",
         "factorial outcome boundary drift",
     )
     _require(plan["stage_order"] == EXPECTED_STAGES, "factorial stage order drift")
@@ -159,13 +159,26 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         "size panel drift",
     )
     _require(
-        "complete restricted scaffold blocks" in size["block_rule"]
+        "shared whitespace-or-stronger boundary" in size["block_rule"]
         and size["minimum_nonzero_block_count"] == 1
         and size["prefix_manifest_frozen_before_target_outcomes"] is True
         and "merged into one observation" in size["duplicate_realized_prefix_rule"]
         and size["report_nominal_and_realized_token_fraction"] is True
-        and size["partial_sham_must_preserve_complete_block_alignment"] is True,
+        and size["partial_materials_use_shared_cumulative_token_boundaries"] is True,
         "size block-boundary rule drift",
+    )
+    boundary = size["boundary_feasibility"]
+    _require(
+        boundary["human_semantic_review_attempted"] is True
+        and boundary["three_shared_complete_semantic_boundaries_available"] is False
+        and boundary["agent_plaintext_inspection"] is False
+        and boundary["canonical_injected_token_count"] == 252
+        and boundary["selected_cumulative_token_counts"] == [64, 128, 188, 252]
+        and len(boundary["compiled_private_blocks_sha256"]) == 64
+        and boundary["semantic_component_ablation_claim_forbidden"] is True
+        and "not semantic-component ablations"
+        in boundary["partial_dose_interpretation"],
+        "size boundary-feasibility drift",
     )
     matching = size["matching"]
     for field in (
@@ -288,7 +301,7 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
 
     threshold = plan["threshold_program"]
     _require(
-        threshold["status"] == "separate_future_powered_protocol_not_authorized_by_A052"
+        threshold["status"] == "separate_future_powered_protocol_not_authorized_by_A053"
         and threshold["candidate"] == "single_feature_6779"
         and threshold["candidate_reselection_forbidden"] is True
         and threshold["current_factorial_or_legacy_panels_may_train_threshold"] is False

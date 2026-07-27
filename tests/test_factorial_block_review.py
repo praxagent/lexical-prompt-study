@@ -8,6 +8,7 @@ import pytest
 from lexical_prompt_study.factorial_block_review import (
     BOUNDARY_MARKER,
     MATERIAL_FILES,
+    auto_align_factorial_block_review,
     compile_factorial_block_review,
     write_factorial_block_review_aid,
 )
@@ -40,6 +41,33 @@ def _manifest(tmp_path: Path, *, mismatched: bool = False) -> Path:
             marked = f"AAAA{BOUNDARY_MARKER}ZZBBB{BOUNDARY_MARKER}CCCC"
         path = tmp_path / filename
         path.write_text(marked)
+        rows[material] = {
+            "path": str(path),
+            "original_text_sha256": sha256_text(original),
+            "canonical_token_count": len(original),
+            "review_status": "insert_boundaries_then_compile",
+        }
+    manifest = {
+        "schema_version": "1.0",
+        "status": "human_semantic_block_review_required",
+        "tokenizer_revision": "safe",
+        "tokenizer_chat_template_sha256": "1" * 64,
+        "boundary_marker": BOUNDARY_MARKER,
+        "instructions": "safe",
+        "agent_plaintext_inspection_forbidden": True,
+        "materials": rows,
+    }
+    path = tmp_path / "manifest.private.json"
+    path.write_text(json.dumps(manifest))
+    return path
+
+
+def _whitespace_manifest(tmp_path: Path) -> Path:
+    rows = {}
+    original = "aa bb cc dd ee ff gg hh"
+    for material, filename in MATERIAL_FILES.items():
+        path = tmp_path / filename
+        path.write_text(f"aa bb{BOUNDARY_MARKER} cc dd ee ff gg hh")
         rows[material] = {
             "path": str(path),
             "original_text_sha256": sha256_text(original),
@@ -118,3 +146,34 @@ def test_human_block_review_aid_is_private_and_returns_only_metadata(
     rendered = output.read_text()
     assert "CURRENT B1" in rendered
     assert "T012" in rendered
+
+
+def test_auto_align_uses_shared_whitespace_boundaries_and_private_backups(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "blocks.private.json"
+    result = auto_align_factorial_block_review(
+        manifest_path=_whitespace_manifest(tmp_path),
+        tokenizer=SafeTokenizer(),
+        output_path=output,
+    )
+    assert result["status"] == (
+        "machine_whitespace_blocks_compiled_exact_token_match"
+    )
+    assert result["raw_text_returned"] is False
+    assert result["block_count"] == 4
+    assert result["cumulative_token_counts"][-1] == len(
+        "aa bb cc dd ee ff gg hh"
+    )
+    assert result["cumulative_token_counts"] == sorted(
+        set(result["cumulative_token_counts"])
+    )
+    assert output.stat().st_mode & 0o777 == 0o600
+    for material, filename in MATERIAL_FILES.items():
+        marked = (tmp_path / filename).read_text()
+        assert marked.count(BOUNDARY_MARKER) == 3
+        assert marked.replace(BOUNDARY_MARKER, "") == (
+            "aa bb cc dd ee ff gg hh"
+        )
+        backup = Path(result["backup_receipts"][material]["backup_path"])
+        assert backup.stat().st_mode & 0o777 == 0o600

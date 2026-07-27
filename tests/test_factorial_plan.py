@@ -76,6 +76,24 @@ def test_factorial_plan_rejects_midblock_truncation() -> None:
         validate_factorial_plan(plan)
 
 
+def test_factorial_plan_rejects_boundary_count_drift() -> None:
+    plan = _plan()
+    plan["size_factor"]["boundary_feasibility"][
+        "selected_cumulative_token_counts"
+    ][0] = 63
+    with pytest.raises(ValueError, match="boundary-feasibility"):
+        validate_factorial_plan(plan)
+
+
+def test_factorial_plan_forbids_semantic_component_claim() -> None:
+    plan = _plan()
+    plan["size_factor"]["boundary_feasibility"][
+        "semantic_component_ablation_claim_forbidden"
+    ] = False
+    with pytest.raises(ValueError, match="boundary-feasibility"):
+        validate_factorial_plan(plan)
+
+
 def test_factorial_plan_rejects_size_pooling() -> None:
     plan = _plan()
     plan["size_factor"]["analysis"]["size_pooling_forbidden"] = False

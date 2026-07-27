@@ -1,8 +1,8 @@
 {
   "schema_version": "1.1",
   "study_id": "lexical-scaffold-8b-factorial-v1",
-  "amendment": "A052",
-  "status": "prospectively_revised_after_adversarial_review_no_new_target_outcomes",
+  "amendment": "A053",
+  "status": "prospectively_revised_after_boundary_feasibility_check_no_new_target_outcomes",
   "created_at": "2026-07-26",
   "predecessor": {
     "source_commit": "7ec0fc8fd5997e0b8a7cd84f629dfb41b22655b8",
@@ -125,13 +125,28 @@
     "dose_panel_items_per_request_level": 10,
     "dose_panel_selection": "lowest ten request SHA-256 values within each request level before outcomes",
     "partial_condition_name": "partial_scaffold_dose",
-    "block_rule": "fractions resolve to prefixes of prospectively enumerated semantically complete restricted scaffold blocks; never truncate inside a token or block",
-    "fraction_resolution": "choose the complete-block prefix whose cumulative pinned-token count is nearest the target fraction of canonical injected tokens; ties choose the smaller prefix",
+    "block_rule": "fractions resolve to prospectively enumerated whole-token prefixes ending at a shared whitespace-or-stronger boundary across full, structural-sham, and inert materials; never split a token or word",
+    "fraction_resolution": "among cumulative token indices that are whitespace-or-stronger boundaries in all three restricted materials, choose the index nearest round(nominal_fraction * 252); ties maximize summed structural-boundary quality and then choose the smaller index",
+    "boundary_feasibility": {
+      "human_semantic_review_attempted": true,
+      "three_shared_complete_semantic_boundaries_available": false,
+      "agent_plaintext_inspection": false,
+      "canonical_injected_token_count": 252,
+      "selected_cumulative_token_counts": [
+        64,
+        128,
+        188,
+        252
+      ],
+      "compiled_private_blocks_sha256": "981e577b292c9b34ea0ddcd3eeafb57655692fbec846dbdd0abd7fd8458c0bba",
+      "partial_dose_interpretation": "whitespace-aligned lexical prefixes, not semantic-component ablations",
+      "semantic_component_ablation_claim_forbidden": true
+    },
     "minimum_nonzero_block_count": 1,
     "prefix_manifest_frozen_before_target_outcomes": true,
-    "duplicate_realized_prefix_rule": "nominal fractions resolving to the same realized complete-block prefix are merged into one observation and never counted as replication",
+    "duplicate_realized_prefix_rule": "nominal fractions resolving to the same realized whole-token prefix are merged into one observation and never counted as replication",
     "report_nominal_and_realized_token_fraction": true,
-    "partial_sham_must_preserve_complete_block_alignment": true,
+    "partial_materials_use_shared_cumulative_token_boundaries": true,
     "matching": {
       "exact_realized_injected_token_count_across_full_sham_and_inert": true,
       "same_request_bytes": true,
@@ -276,7 +291,7 @@
     "may_change_feature_id_or_threshold_rule": false
   },
   "threshold_program": {
-    "status": "separate_future_powered_protocol_not_authorized_by_A052",
+    "status": "separate_future_powered_protocol_not_authorized_by_A053",
     "candidate": "single_feature_6779",
     "secondary_comparator": "frozen_eight_feature_subspace",
     "candidate_reselection_forbidden": true,
@@ -292,7 +307,7 @@
       "condition_token_judge_storage_wall_time_and_cost_bill_of_materials"
     ],
     "minimum_zero_error_reference": "a one-sided 95 percent upper false-positive bound below 1 percent requires at least 299 independent negatives in that stratum; final sizes require a separate prospective power calculation",
-    "development_stop": "no detector advancement under A052; a future protocol stops if no common threshold or cheap-baseline comparison passes its frozen gates"
+    "development_stop": "no detector advancement under A053; a future protocol stops if no common threshold or cheap-baseline comparison passes its frozen gates"
   },
   "hard_benign_negative_families": [
     "long_roleplay_or_fiction",

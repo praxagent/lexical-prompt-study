@@ -118,8 +118,6 @@ def _validate_material_blocks(
     if set(materials) != set(MATERIALS):
         raise ValueError("factorial scaffold-material topology drift")
     joiner = str(source["material_block_joiner"])
-    if not joiner:
-        raise ValueError("material block joiner cannot be empty")
     if sha256_text(joiner) != _validate_sha256(
         source["material_block_joiner_sha256"], "material block joiner"
     ):

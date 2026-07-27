@@ -123,6 +123,20 @@ def test_factorial_private_builder_realizes_exact_full_matrix(tmp_path: Path) ->
     assert "prompt_token_ids" not in public_path.read_text()
 
 
+def test_factorial_private_builder_accepts_contiguous_blocks(tmp_path: Path) -> None:
+    source = _source()
+    source["material_block_joiner"] = ""
+    source["material_block_joiner_sha256"] = sha256_text("")
+    result = _build(tmp_path, source)
+    private = json.loads(Path(result["private_plan_path"]).read_text())
+    assert [dose["injected_token_count"] for dose in private["doses"]] == [
+        4,
+        8,
+        12,
+        16,
+    ]
+
+
 def test_factorial_private_builder_rejects_token_size_mismatch(
     tmp_path: Path,
 ) -> None:

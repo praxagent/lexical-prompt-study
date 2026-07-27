@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+from datetime import UTC, datetime
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -325,5 +327,233 @@ Do not edit any other byte.
         "output_path": str(output_path),
         "output_sha256": output_sha256,
         "materials": summary,
+        "raw_text_returned": False,
+    }
+
+
+def _structural_boundary_quality(text: str, position: int) -> tuple[int, str]:
+    left = text[:position]
+    right = text[position:]
+    previous_line = left.rstrip("\n").split("\n")[-1].strip()
+    if previous_line and re.fullmatch(r"[-_=*#~:|/\\]{3,}", previous_line):
+        return 8, "divider_line"
+    if left.endswith("\n\n") or right.startswith("\n\n"):
+        return 7, "paragraph_break"
+    if left.endswith("\n") or right.startswith("\n"):
+        return 6, "line_break"
+    stripped = left.rstrip()
+    if stripped and stripped[-1] in ".!?":
+        return 5, "sentence_end"
+    if stripped and stripped[-1] in ";:":
+        return 4, "clause_end"
+    if text[position - 1].isspace() or text[position].isspace():
+        return 2, "whitespace"
+    return 0, "inside_token_or_word"
+
+
+def _token_boundary_candidates(
+    text: str,
+    tokenizer: Any,
+) -> tuple[int, dict[int, tuple[int, str, int]]]:
+    encoded = tokenizer(
+        text,
+        add_special_tokens=False,
+        return_offsets_mapping=True,
+    )
+    offsets = [tuple(pair) for pair in encoded["offset_mapping"]]
+    token_ids = _as_token_ids(encoded["input_ids"])
+    if len(offsets) != len(token_ids):
+        raise ValueError("tokenizer offset count mismatch")
+    possible_positions: set[int] = set()
+    for start, end in offsets:
+        if 0 < start < len(text):
+            possible_positions.add(start)
+        if 0 < end < len(text):
+            possible_positions.add(end)
+    candidates: dict[int, tuple[int, str, int]] = {}
+    for position in possible_positions:
+        token_count = len(
+            _as_token_ids(
+                tokenizer.encode(
+                    text[:position],
+                    add_special_tokens=False,
+                )
+            )
+        )
+        if not 0 < token_count < len(token_ids):
+            continue
+        quality, label = _structural_boundary_quality(text, position)
+        candidate = (quality, label, position)
+        current = candidates.get(token_count)
+        if current is None or candidate[:2] > current[:2]:
+            candidates[token_count] = candidate
+    return len(token_ids), candidates
+
+
+def auto_align_factorial_block_review(
+    *,
+    manifest_path: Path,
+    tokenizer: Any,
+    output_path: Path,
+) -> dict[str, Any]:
+    manifest = json.loads(manifest_path.read_text())
+    if (
+        manifest["schema_version"] != "1.0"
+        or manifest["status"] != "human_semantic_block_review_required"
+        or manifest["boundary_marker"] != BOUNDARY_MARKER
+        or manifest["agent_plaintext_inspection_forbidden"] is not True
+    ):
+        raise ValueError("factorial block-review manifest drift")
+
+    originals: dict[str, str] = {}
+    candidates: dict[str, dict[int, tuple[int, str, int]]] = {}
+    canonical_counts: set[int] = set()
+    for material in MATERIAL_FILES:
+        row = manifest["materials"][material]
+        marked = Path(row["path"]).read_text()
+        original = marked.replace(BOUNDARY_MARKER, "")
+        if sha256_text(original) != row["original_text_sha256"]:
+            raise ValueError(f"{material}: non-boundary bytes changed during review")
+        canonical_count, material_candidates = _token_boundary_candidates(
+            original,
+            tokenizer,
+        )
+        originals[material] = original
+        candidates[material] = material_candidates
+        canonical_counts.add(canonical_count)
+    if len(canonical_counts) != 1:
+        raise ValueError("factorial canonical token-count mismatch")
+    canonical_count = next(iter(canonical_counts))
+
+    common_counts = set.intersection(
+        *(set(material_candidates) for material_candidates in candidates.values())
+    )
+    selected_counts: list[int] = []
+    selected_quality: dict[str, dict[str, Any]] = {}
+    for fraction in (0.25, 0.5, 0.75):
+        target = round(canonical_count * fraction)
+        eligible = [
+            count
+            for count in common_counts
+            if all(candidates[material][count][0] >= 2 for material in MATERIAL_FILES)
+        ]
+        if not eligible:
+            raise ValueError("no shared whitespace-aligned token boundary")
+        selected = min(
+            eligible,
+            key=lambda count: (
+                abs(count - target),
+                -sum(
+                    candidates[material][count][0] for material in MATERIAL_FILES
+                ),
+                count,
+            ),
+        )
+        if selected in selected_counts:
+            raise ValueError("dose fractions collapsed to duplicate boundary")
+        selected_counts.append(selected)
+        selected_quality[str(selected)] = {
+            material: {
+                "quality": candidates[material][selected][0],
+                "label": candidates[material][selected][1],
+            }
+            for material in MATERIAL_FILES
+        }
+    if selected_counts != sorted(selected_counts):
+        raise ValueError("selected token boundaries are not increasing")
+
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    compiled: dict[str, list[dict[str, Any]]] = {}
+    backup_receipts: dict[str, dict[str, Any]] = {}
+    for material, filename in MATERIAL_FILES.items():
+        path = Path(manifest["materials"][material]["path"])
+        prior_bytes = path.read_bytes()
+        backup_path = path.with_name(
+            f"{filename}.pre-auto-align-backup-{timestamp}"
+        )
+        backup_sha256 = _private_bytes(backup_path, prior_bytes)
+
+        original = originals[material]
+        positions = [
+            candidates[material][count][2] for count in selected_counts
+        ]
+        blocks: list[str] = []
+        start = 0
+        marked_parts: list[str] = []
+        for position in positions:
+            blocks.append(original[start:position])
+            marked_parts.append(original[start:position])
+            marked_parts.append(BOUNDARY_MARKER)
+            start = position
+        blocks.append(original[start:])
+        marked_parts.append(original[start:])
+        if any(not block for block in blocks):
+            raise ValueError(f"{material}: empty auto-aligned block")
+        marked_sha256 = _private_bytes(
+            path,
+            "".join(marked_parts).encode("utf-8"),
+        )
+        compiled[material] = [
+            {
+                "block_id": f"block-{index:03d}",
+                "text": block,
+                "text_sha256": sha256_text(block),
+            }
+            for index, block in enumerate(blocks, start=1)
+        ]
+        realized_counts = [
+            len(
+                _as_token_ids(
+                    tokenizer.encode(
+                        "".join(blocks[:index]),
+                        add_special_tokens=False,
+                    )
+                )
+            )
+            for index in range(1, len(blocks) + 1)
+        ]
+        expected_counts = [*selected_counts, canonical_count]
+        if realized_counts != expected_counts:
+            raise ValueError(f"{material}: auto-aligned token-count drift")
+        backup_receipts[material] = {
+            "backup_path": str(backup_path),
+            "backup_sha256": backup_sha256,
+            "marked_sha256": marked_sha256,
+        }
+
+    payload = {
+        "schema_version": "1.0",
+        "status": "machine_whitespace_blocks_compiled_exact_token_match",
+        "source_manifest_sha256": sha256_file(manifest_path),
+        "tokenizer_revision": manifest["tokenizer_revision"],
+        "boundary_selection": {
+            "method": "nearest shared whole-token whitespace-or-stronger boundary",
+            "nominal_fractions": [0.25, 0.5, 0.75, 1.0],
+            "cumulative_token_counts": [
+                *selected_counts,
+                canonical_count,
+            ],
+            "quality_by_boundary": selected_quality,
+            "semantic_limitation": (
+                "No three shared complete-semantic boundaries existed under "
+                "exact token matching. Partial doses are whitespace-aligned "
+                "lexical prefixes, not semantic-component ablations."
+            ),
+        },
+        "block_count": 4,
+        "cumulative_token_counts": [*selected_counts, canonical_count],
+        "scaffold_materials": {
+            material: {"blocks": blocks} for material, blocks in compiled.items()
+        },
+    }
+    output_sha256 = _private_json(output_path, payload)
+    return {
+        "status": payload["status"],
+        "output_path": str(output_path),
+        "output_sha256": output_sha256,
+        "block_count": payload["block_count"],
+        "cumulative_token_counts": payload["cumulative_token_counts"],
+        "quality_by_boundary": selected_quality,
+        "backup_receipts": backup_receipts,
         "raw_text_returned": False,
     }
