@@ -49,6 +49,34 @@ def main() -> None:
         type=Path,
         default=Path("plans/factorial_8b_v1.public.json"),
     )
+    factorial_materials = sub.add_parser("assemble-factorial-materials")
+    factorial_materials.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_materials.add_argument(
+        "--followup-private",
+        type=Path,
+        default=Path("private/plans/followup_v2.discovery-a025.private.json"),
+    )
+    factorial_materials.add_argument(
+        "--compiled-blocks",
+        type=Path,
+        default=Path(
+            "private/reviews/factorial-block-boundaries-v1/blocks.private.json"
+        ),
+    )
+    factorial_materials.add_argument(
+        "--private-out",
+        type=Path,
+        default=Path("private/factorial-materials.private.json"),
+    )
+    factorial_materials.add_argument(
+        "--public-receipt",
+        type=Path,
+        default=Path("validation/factorial_8b_v1.material-source-receipt.json"),
+    )
     factorial_private = sub.add_parser("build-factorial-private-plan")
     factorial_private.add_argument(
         "--public-plan",
@@ -348,6 +376,21 @@ def main() -> None:
                     "status": "factorial_plan_valid",
                     "study_id": plan["study_id"],
                 },
+                sort_keys=True,
+            )
+        )
+    elif args.command == "assemble-factorial-materials":
+        from .factorial_materials import assemble_factorial_material_source
+
+        print(
+            json.dumps(
+                assemble_factorial_material_source(
+                    public_plan_path=args.public_plan,
+                    followup_private_path=args.followup_private,
+                    compiled_blocks_path=args.compiled_blocks,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.public_receipt,
+                ),
                 sort_keys=True,
             )
         )
