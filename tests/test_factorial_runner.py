@@ -10,7 +10,13 @@ from lexical_prompt_study.factorial_authorization import (
     validate_factorial_execution_authorization,
 )
 from lexical_prompt_study.factorial_runner import run_factorial_canonical
-from lexical_prompt_study.hashing import sha256_file, write_json_atomic
+from lexical_prompt_study.hashing import (
+    canonical_json_bytes,
+    sha256_bytes,
+    sha256_file,
+    sha256_text,
+    write_json_atomic,
+)
 from lexical_prompt_study.models import FactorialAssayReceipt
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -194,8 +200,11 @@ def _authorization(
         "provider": {
             "maximum_task_owned_pods": 1,
             "gpu_count": 1,
+            "gpu_type": "NVIDIA B200",
+            "datacenter_id": "US-CA-2",
             "secure_cloud": True,
             "persistent_volume_id": "u85xfo0aue",
+            "persistent_volume_mount": "/workspace",
             "fallback_allowed": False,
         },
         "cost": {
@@ -249,12 +258,24 @@ def test_factorial_runner_writes_atomic_receipts_and_resumes(
         restricted.parent.mkdir(exist_ok=True)
         restricted_sha256 = write_json_atomic(
             restricted,
-            {"generated_text": "safe", "generated_token_ids": [1]},
+            {
+                "trial_id": observation["trial_id"],
+                "attempt": attempt,
+                "request_class": observation["request_class"],
+                "request_id": observation["request_id"],
+                "prompt_sha256": observation["prompt_sha256"],
+                "prompt_token_ids_sha256": observation[
+                    "prompt_token_ids_sha256"
+                ],
+                "generated_text": "safe",
+                "generated_token_ids": [1],
+            },
         )
-        benign = observation["request_class"] == "ordinary_benign_request"
         return {
-            "generated_text_sha256": "4" * 64,
-            "generated_token_ids_sha256": "5" * 64,
+            "generated_text_sha256": sha256_text("safe"),
+            "generated_token_ids_sha256": sha256_bytes(
+                canonical_json_bytes([1])
+            ),
             "generated_token_count": 1,
             "finish_reason": "eos",
             "truncated": False,
@@ -264,8 +285,8 @@ def test_factorial_runner_writes_atomic_receipts_and_resumes(
             "sae_reconstruction_relative_error": 0.1,
             "assistant_boundary_jlens_margin": -0.1,
             "refusal_detected": False,
-            "task_completion": True if benign else None,
-            "utility_score": 1.0 if benign else None,
+            "task_completion": None,
+            "utility_score": None,
             "phase_parser_result": {"status": "safe"},
             "restricted_artifact_path": str(restricted),
             "restricted_artifact_sha256": restricted_sha256,
@@ -302,6 +323,44 @@ def test_factorial_runner_writes_atomic_receipts_and_resumes(
     assert second["preexisting_receipts"] == 422
     assert second["receipts_written_this_call"] == 0
     assert calls == 422
+
+
+def test_factorial_runner_records_two_attempt_failure_and_never_retries_third(
+    tmp_path: Path,
+) -> None:
+    private_path = _private_plan(tmp_path)
+    assay_path = _assay_receipt(tmp_path, private_path)
+    authorization_path, _ = _authorization(tmp_path, private_path, assay_path)
+    calls = 0
+
+    def execute(_observation, _attempt):
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("safe synthetic failure")
+
+    first = run_factorial_canonical(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        authorization_path=authorization_path,
+        output_root=tmp_path / "run",
+        run_id="canonical-safe",
+        execute_observation=execute,
+    )
+    assert first["status"] == "incomplete"
+    assert first["missing_after_two_attempts"] == 422
+    assert calls == 844
+    second = run_factorial_canonical(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        authorization_path=authorization_path,
+        output_root=tmp_path / "run",
+        run_id="canonical-safe",
+        execute_observation=execute,
+    )
+    assert second["missing_after_two_attempts"] == 422
+    assert calls == 844
 
 
 def test_factorial_runner_rejects_executor_provenance_override(

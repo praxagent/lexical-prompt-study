@@ -76,8 +76,11 @@ def validate_factorial_execution_authorization(
     _require(
         provider["maximum_task_owned_pods"] == 1
         and provider["gpu_count"] == 1
+        and provider["gpu_type"] == "NVIDIA B200"
+        and provider["datacenter_id"] == "US-CA-2"
         and provider["secure_cloud"] is True
         and provider["persistent_volume_id"] == "u85xfo0aue"
+        and provider["persistent_volume_mount"] == "/workspace"
         and provider["fallback_allowed"] is False,
         "factorial authorization provider drift",
     )

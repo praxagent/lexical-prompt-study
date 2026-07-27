@@ -35,6 +35,16 @@ PLACEMENT_LEVELS = {
 }
 DOSE_FRACTIONS = [0.25, 0.5, 0.75, 1.0]
 FROZEN_SUBSPACE = [1980, 6779, 11954, 20449, 35705, 43596, 53185, 58843]
+FROZEN_SUBSPACE_WEIGHTS = [
+    0.45627591514620597,
+    0.24735941544551213,
+    0.33793770264806916,
+    0.3326831567543487,
+    0.5891881962701038,
+    0.16520059933373984,
+    0.14547619742632198,
+    0.3318860384634854,
+]
 
 
 def load_factorial_plan(path: Path) -> dict[str, Any]:
@@ -52,10 +62,10 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         plan["study_id"] == "lexical-scaffold-8b-factorial-v1",
         "factorial study namespace drift",
     )
-    _require(plan["amendment"] == "A053", "factorial amendment drift")
+    _require(plan["amendment"] == "A054", "factorial amendment drift")
     _require(
         plan["status"]
-        == "prospectively_revised_after_boundary_feasibility_check_no_new_target_outcomes",
+        == "prospectively_operationalized_core_readouts_no_new_target_outcomes",
         "factorial outcome boundary drift",
     )
     _require(plan["stage_order"] == EXPECTED_STAGES, "factorial stage order drift")
@@ -93,7 +103,10 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
     _require(artifacts["selected_feature_id"] == 6779, "selected feature drift")
     _require(
         artifacts["sae_layer"] == 19
-        and artifacts["frozen_subspace_feature_ids"] == FROZEN_SUBSPACE,
+        and artifacts["frozen_subspace_feature_ids"] == FROZEN_SUBSPACE
+        and artifacts["frozen_subspace_weights"] == FROZEN_SUBSPACE_WEIGHTS
+        and "nonnegative float32 SAE activations"
+        in artifacts["frozen_subspace_score"],
         "SAE candidate drift",
     )
     _require(
@@ -256,6 +269,8 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
     _require(
         missingness["judge_blinding"]
         == "condition labels and internal readouts withheld from behavioral and utility judges"
+        and "remain null until separate blinded hash-bound scoring receipts"
+        in missingness["outcome_staging"]
         and missingness["dose_subset_hash_required_before_outcomes"] is True
         and "second failure marks the unit missing" in missingness["runtime_failure"]
         and "primary analysis stops invalid" in missingness["minimum_completeness"],
@@ -278,15 +293,38 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
         == [0, 1, 2, 4, 8, 16],
         "generated position drift",
     )
+    core = plan["core_readout_implementation"]
+    _require(
+        core["jacobian_lens_source_layer"] == 30
+        and core["jacobian_lens_probe_source_plan"]
+        == "plans/study_v1.public.json"
+        and core["jacobian_lens_probe_source_plan_sha256"]
+        == "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+        and core["jacobian_lens_probe_manifest_sha256"]
+        == "045f26e2ad2c33f912265b6337386cad8e7ae997e4ecbace6ed4be17ca269191"
+        and core["semantic_task_completion_in_generation_receipt"] is False
+        and "final prompt token" in core["assistant_boundary"]
+        and "refusal-regex-v1" in core["generation_parser"],
+        "core readout implementation drift",
+    )
 
     assay = plan["assay_validity_gate"]
     _require(
         assay["must_pass_before_canonical_target_generation"] is True
         and assay["legacy_canary_conditions"] == 8
+        and [row["behavior_id"] for row in assay["legacy_request_selection"]]
+        == ["JBB-H-013", "JBB-H-076"]
+        and len({row["request_sha256"] for row in assay["legacy_request_selection"]})
+        == 2
+        and "base pass A" in assay["condition_topology"]
+        and "vocabulary_moment_equivalence"
+        in assay["exact_identity_checks"]
+        and assay["reconstruction_absolute_tolerance"] == 1.0
+        and assay["reconstruction_cross_condition_tolerance"] == 0.25
         and assay["deterministic_rerun_required"] is True
         and assay["failure_disposition"]
         == "stop_invalid_before_canonical_target_generation"
-        and "no new factorial outcome may exist"
+        and "before any new factorial outcome exists"
         in assay["reconstruction_tolerance_rule"],
         "assay validity gate drift",
     )
@@ -301,7 +339,7 @@ def validate_factorial_plan(plan: dict[str, Any]) -> None:
 
     threshold = plan["threshold_program"]
     _require(
-        threshold["status"] == "separate_future_powered_protocol_not_authorized_by_A053"
+        threshold["status"] == "separate_future_powered_protocol_not_authorized_by_A054"
         and threshold["candidate"] == "single_feature_6779"
         and threshold["candidate_reselection_forbidden"] is True
         and threshold["current_factorial_or_legacy_panels_may_train_threshold"] is False

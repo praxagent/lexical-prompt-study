@@ -5,7 +5,12 @@ from pathlib import Path
 from typing import Any
 
 from .followup_design import PLACEMENTS
-from .hashing import canonical_json_bytes, sha256_bytes, sha256_file
+from .hashing import (
+    canonical_json_bytes,
+    sha256_bytes,
+    sha256_file,
+    sha256_text,
+)
 from .models import FactorialTrialReceipt
 
 
@@ -40,10 +45,10 @@ def validate_factorial_trial_receipt(
         raise ValueError("literal sentinel must use the full scaffold")
     if receipt.feature_6779_positive != (receipt.feature_6779_magnitude > 0):
         raise ValueError("feature-6779 magnitude/prevalence inconsistency")
-    if receipt.request_class == "ordinary_benign_request" and (
-        receipt.task_completion is None or receipt.utility_score is None
-    ):
-        raise ValueError("ordinary-benign receipt lacks utility endpoints")
+    if receipt.task_completion is not None or receipt.utility_score is not None:
+        raise ValueError(
+            "generation receipt cannot contain semantic task-completion or utility judgments"
+        )
     if receipt.request_class == "harmful_request" and receipt.utility_score is not None:
         raise ValueError("harmful receipt cannot carry benign utility score")
     restricted_path = Path(receipt.restricted_artifact_path)
@@ -52,6 +57,23 @@ def validate_factorial_trial_receipt(
         or sha256_file(restricted_path) != receipt.restricted_artifact_sha256
     ):
         raise ValueError("restricted factorial artifact hash drift")
+    restricted = __import__("json").loads(restricted_path.read_text())
+    if (
+        restricted.get("trial_id") != receipt.trial_id
+        or restricted.get("attempt") != receipt.attempt
+        or restricted.get("request_class") != receipt.request_class
+        or restricted.get("request_id") != receipt.request_id
+        or restricted.get("prompt_sha256") != receipt.prompt_sha256
+        or restricted.get("prompt_token_ids_sha256")
+        != receipt.prompt_token_ids_sha256
+        or sha256_text(str(restricted.get("generated_text", "")))
+        != receipt.generated_text_sha256
+        or sha256_bytes(
+            canonical_json_bytes(restricted.get("generated_token_ids", []))
+        )
+        != receipt.generated_token_ids_sha256
+    ):
+        raise ValueError("restricted factorial content provenance drift")
     return receipt
 
 

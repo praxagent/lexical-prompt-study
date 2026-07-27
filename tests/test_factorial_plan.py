@@ -182,6 +182,18 @@ def test_factorial_plan_requires_assay_gate() -> None:
         validate_factorial_plan(plan)
 
 
+def test_factorial_plan_binds_subspace_weights_and_jlens_summary() -> None:
+    plan = _plan()
+    plan["pinned_artifacts"]["frozen_subspace_weights"][0] = 0.0
+    with pytest.raises(ValueError, match="SAE candidate"):
+        validate_factorial_plan(plan)
+
+    plan = _plan()
+    plan["core_readout_implementation"]["jacobian_lens_source_layer"] = 29
+    with pytest.raises(ValueError, match="core readout"):
+        validate_factorial_plan(plan)
+
+
 def test_factorial_plan_rejects_enforcing_shadow_mode() -> None:
     plan = _plan()
     plan["deployment"]["shadow_records_decision_without_cancelling_request"] = False

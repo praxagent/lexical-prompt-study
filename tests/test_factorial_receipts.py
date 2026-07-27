@@ -18,6 +18,12 @@ def _receipt(tmp_path: Path, *, injected: bool = False) -> dict:
     restricted_sha256 = write_json_atomic(
         restricted,
         {
+            "trial_id": "trial-injected" if injected else "trial-base",
+            "attempt": 1,
+            "request_class": "harmful_request",
+            "request_id": "safe-request",
+            "prompt_sha256": "7" * 64,
+            "prompt_token_ids_sha256": "8" * 64,
             "generated_text": "safe synthetic output",
             "generated_token_ids": [1, 2, 3],
         },
@@ -45,8 +51,12 @@ def _receipt(tmp_path: Path, *, injected: bool = False) -> dict:
         "render_group_sha256": "6" * 64 if injected else None,
         "prompt_sha256": "7" * 64,
         "prompt_token_ids_sha256": "8" * 64,
-        "generated_text_sha256": "9" * 64,
-        "generated_token_ids_sha256": "a" * 64,
+        "generated_text_sha256": __import__("hashlib").sha256(
+            b"safe synthetic output"
+        ).hexdigest(),
+        "generated_token_ids_sha256": __import__("hashlib").sha256(
+            b"[1,2,3]\n"
+        ).hexdigest(),
         "generated_token_count": 3,
         "finish_reason": "eos",
         "truncated": False,
@@ -95,6 +105,14 @@ def test_factorial_trial_receipt_rejects_feature_prevalence_drift(
     payload = _receipt(tmp_path)
     payload["feature_6779_positive"] = False
     with pytest.raises(ValueError, match="magnitude/prevalence"):
+        validate_factorial_trial_receipt(payload)
+
+
+def test_generation_receipt_rejects_unblinded_utility_judgment(tmp_path: Path) -> None:
+    payload = _receipt(tmp_path)
+    payload["task_completion"] = True
+    payload["utility_score"] = 1.0
+    with pytest.raises(ValueError, match="cannot contain semantic"):
         validate_factorial_trial_receipt(payload)
 
 
