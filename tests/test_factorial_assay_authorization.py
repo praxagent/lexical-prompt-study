@@ -30,6 +30,9 @@ DOSE_AUTHORIZATION = (
 H200_DOSE_AUTHORIZATION = (
     ROOT / "plans" / "factorial_secondary_dose_a061.authorization.json"
 )
+H100_DOSE_AUTHORIZATION = (
+    ROOT / "plans" / "factorial_secondary_dose_a062.authorization.json"
+)
 
 
 def test_a055_factorial_assay_authorization_is_exact_and_valid() -> None:
@@ -164,6 +167,29 @@ def test_a061_exact_h200_secondary_dose_authorization_is_valid() -> None:
     assert payload["provider"]["fallback_allowed"] is False
     assert payload["cost"]["conservative_post_run_ceiling_usd"] < (
         json.loads(DOSE_AUTHORIZATION.read_text())["cost"][
+            "conservative_post_run_ceiling_usd"
+        ]
+    )
+
+
+def test_a062_exact_h100_secondary_dose_authorization_is_valid() -> None:
+    payload = json.loads(H100_DOSE_AUTHORIZATION.read_text())
+    validate_factorial_execution_authorization(
+        payload,
+        expected_public_plan_sha256=(
+            "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375"
+        ),
+        expected_private_plan_sha256=(
+            "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c"
+        ),
+        expected_source_commit="296fdde7a9b3422b09095f0c6d8bd55d0df969ef",
+        expected_stage="secondary_dose",
+    )
+    assert payload["provider"]["gpu_type"] == "NVIDIA H100 80GB HBM3"
+    assert payload["provider"]["minimum_gpu_memory_gib"] == 80
+    assert payload["provider"]["fallback_allowed"] is False
+    assert payload["cost"]["conservative_post_run_ceiling_usd"] < (
+        json.loads(H200_DOSE_AUTHORIZATION.read_text())["cost"][
             "conservative_post_run_ceiling_usd"
         ]
     )
