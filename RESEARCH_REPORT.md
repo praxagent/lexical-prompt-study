@@ -378,6 +378,69 @@ Accordingly, this is a stable descriptive readout under the pinned protocol,
 not proof that the fitted lens localized a causal circuit or that the two
 placements are mechanistically equivalent.
 
+### The complete request-by-scaffold factorial changes the detector interpretation
+
+The canonical follow-up crossed three request classes (minimal neutral
+carrier, ordinary benign request, and harmful request) with no scaffold,
+inert length, structural sham, and the full scaffold. Scaffold-before-request
+and scaffold-after-request remained separate. The canonical matrix contains
+420 receipts, plus one descriptive literal sentinel per placement.
+
+![Feature 6779 prevalence across the complete factorial matrix](figures/factorial-8b/E13-factorial-feature-6779-prevalence.png)
+
+*Figure E13. Strict-positive feature-6779 prevalence for every canonical
+request-class, material, and placement cell. Shared no-scaffold references are
+repeated only for visual alignment. Source:
+[canonical factorial result](results/factorial-8b-canonical.public.json).
+Receipt:
+[E13 receipt](figures/factorial-8b/E13-factorial-feature-6779-prevalence.receipt.json).*
+
+The qualitative matrix is unambiguous. Feature `6779` was silent in all
+no-scaffold and inert-length cells (`0/20` in every request class and
+placement). It was positive in every full-scaffold cell (`20/20`). Structural
+sham also activated it: `16/20`, `20/20`, and `20/20` for neutral, benign,
+and harmful requests when the scaffold preceded the request; `20/20`,
+`12/20`, and `10/20` when it followed the request. Strict positivity is
+therefore neither a full-scaffold indicator nor a harmful-request detector.
+
+![Frozen feature-6779 full-content effects and interactions](figures/factorial-8b/E14-factorial-feature-6779-primary-contrasts.png)
+
+*Figure E14. Full-minus-structural-sham effects for all three request classes
+and the two prospectively frozen harmful-minus-comparator interactions.
+Intervals use the single 100,000-replicate familywise simultaneous critical
+value across the complete 22-contrast vector. Source:
+[canonical factorial result](results/factorial-8b-canonical.public.json).
+Receipt:
+[E14 receipt](figures/factorial-8b/E14-factorial-feature-6779-primary-contrasts.receipt.json).*
+
+Full-minus-sham magnitude nevertheless exceeded the `0.05` practical margin
+with simultaneous lower bound above that margin for every request class and
+placement. Before the request, estimates were `0.3865` neutral, `0.2124`
+benign, and `0.1902` harmful. After the request, they were `0.2238`, `0.3508`,
+and `0.3841`. That is evidence for a full-scaffold lexical/content increment
+on every fixed panel.
+
+It is not evidence for a harmful-specific interaction. The frozen rule
+required both harmful-minus-benign and harmful-minus-neutral lower bounds to
+exceed `0.05` within a placement. Neither placement passed. Both
+prospective decisions were `mixed_or_inconclusive`, and failure to show the
+interaction is not evidence of request-class independence.
+
+![Secondary frozen-subspace and Jacobian-lens readouts](figures/factorial-8b/E15-factorial-secondary-readouts.png)
+
+*Figure E15. Descriptive full-minus-sham contrasts for the frozen eight-feature
+subspace and assistant-boundary Jacobian-lens margin, separately by request
+class and placement. Vertical lines are observed prompt-family ranges, not
+confidence intervals. Source:
+[canonical factorial result](results/factorial-8b-canonical.public.json).
+Receipt:
+[E15 receipt](figures/factorial-8b/E15-factorial-secondary-readouts.receipt.json).*
+
+The frozen subspace retained positive full-over-sham means in every cell. The
+assistant-boundary Jacobian-lens contrast was negative when the scaffold came
+before the request and positive when it followed. These secondary readouts
+were not reused to rescue or redefine the primary decision.
+
 ### Coarse causal localization stops before calibration
 
 ![Frozen bidirectional patch effects and eligibility gates](figures/followup-g4/E12-followup-causal-localization-stop.png)
@@ -471,12 +534,14 @@ utility and avoiding overrefusal.
 The most defensible near-term defense work is therefore diagnostic rather than
 deployment-ready. The four-arm replay retires feature `10146` itself as the
 planned detector because inert length activated it in `14/20` discovery cases.
-The 8B follow-up has now independently selected and calibration-checked feature
-`6779`, carried the four harmful arms through both placements, and retained
-dense, identity, random-transport, and lexical comparators. The next detector
-gate is not deployment: it is the missing ordinary-benign and
-structured-benign utility-calibration matrix, followed by a frozen common
-threshold. The coarse causal arm has separately stopped; any finer
+The complete 8B factorial now shows something more specific: base and inert
+length never activated feature `6779`, but the full scaffold activated it
+for neutral, benign, and harmful requests, while structural sham activated it
+often. The coordinate is a strong scaffold-content/structure readout on this
+fixed setup, not a harmful-request detector. The next detector gate is not
+deployment: it is a disjoint, powered threshold-calibration protocol with
+hard structured-benign negatives, followed by one sealed confirmation.
+The coarse causal arm has separately stopped; any finer
 component/token/subspace localization must begin under a new prospective
 protocol rather than reuse the failed layer selector. A detector alone would
 still not explain or repair the vulnerability.
@@ -509,6 +574,10 @@ still not explain or repair the vulnerability.
 | Follow-up G4 coarse-patch result | [results/g4.followup-patch-discovery.public.json](results/g4.followup-patch-discovery.public.json) | `3134f5a53f07f79b3f823cf51d2a24de79afa6111d6ddf5596b80f16dd20b07b` |
 | Follow-up G4 analysis source | result artifact fields | `636b105d963747bb7fa0a03d68341a11082449cc`; implementation `054efbef412715096755ab618c69203ea92df9f4791d69bc612ae8415d5a89b1` |
 | Follow-up G4 figure | [figures/followup-g4/provenance.followup-patch.json](figures/followup-g4/provenance.followup-patch.json) | Per-output hashes and source pointers inside |
+| Canonical 8B factorial result | [results/factorial-8b-canonical.public.json](results/factorial-8b-canonical.public.json) | `cdcfbf80d294bd6e416092a2b8fb5eae35608fcda6e37f1cc00e73987b43ebd9` |
+| Canonical 8B factorial input binding | [validation/factorial_8b_v1.execution-receipt.json](validation/factorial_8b_v1.execution-receipt.json) | Complete 420+2 receipt topology bound before analysis |
+| Canonical 8B factorial analysis freeze | [plans/factorial_8b_v1.analysis.json](plans/factorial_8b_v1.analysis.json) | 100,000-replicate complete-vector simultaneous bootstrap, placements separate |
+| Canonical 8B factorial figures | [figures/factorial-8b/provenance.factorial.json](figures/factorial-8b/provenance.factorial.json) | Three figures, nine byte-identical SVG/PNG/PDF verification checks |
 | Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 | Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `8bbfcd5b644ef0353bed310558f9e6b29699865501b30729a8ca7bdd3de5b650` |
 
@@ -523,7 +592,7 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
 - Follow-up G3: SHA-256
   `2f79a9417bbf470e2da5fd97ae154fb49ce614a157d632a691186df68fcc2ea8`
 
-All twelve empirical figures ship as SVG, PNG, and PDF with individual receipt
+All fifteen empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
@@ -561,6 +630,7 @@ hashes, and volume scope are recorded in
 | Figure receipts and provenance | Exact inputs, output hashes, and plot bindings | Verify every plotted mark |
 | Llama 3.1 8B follow-up result | Separate placement, SAE, dense, and J-lens summaries | Audit replication without opening raw prompts or generations |
 | Llama 3.1 8B coarse-patch result | Separate restoring, reciprocal, and control estimates for both placements | Audit the no-eligible-layer causal stop |
+| Llama 3.1 8B complete factorial result | Request class × scaffold material × placement readouts with one frozen simultaneous analysis | Distinguish harmful-content, inert-length, structural-sham, and full-scaffold explanations |
 | Schemas and analysis code | Machine-checkable receipt contracts and deterministic analysis | Re-run local validation |
 
 Restricted prompt and generation text is intentionally excluded from the
