@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-program-through-secondary-dose",
+  "queried_at_utc": "2026-07-28T04:58:48Z",
+  "provider": "RunPod",
+  "billing_query": {
+    "endpoint": "GET https://rest.runpod.io/v1/billing/pods",
+    "start_time": "2026-07-25T00:00:00Z",
+    "end_time": "2026-07-28T04:58:48Z",
+    "bucket_size": "day",
+    "grouping": "podId"
+  },
+  "source_receipts": {
+    "pod_inventory_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "network_volume_inventory_sha256": "a68c588a137210070421ece64f7fd3714f1111f96a63c464d18c3a4047372721",
+    "pod_billing_sha256": "2b00fd8a8488984a5d707dc47b5e028b9cc4fda67153a805ce5b047d0339cfa1",
+    "scope": "Private full-account provider responses; only task-owned pod IDs are summarized publicly."
+  },
+  "task_owned_ingested_rows": [
+    {
+      "pod_id": "1sgufchujg1sjf",
+      "amount_usd": 19.552727350150235,
+      "time_billed_ms": 8006813,
+      "source_bucket_count": 2
+    },
+    {
+      "pod_id": "308h78v9f5ep3c",
+      "amount_usd": 0.6488468371098861,
+      "time_billed_ms": 396225,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "3o2tuohbycfwo0",
+      "amount_usd": 0.8422762542031705,
+      "time_billed_ms": 513389,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "5pi0e2lf7qo0q9",
+      "amount_usd": 0.7621295176213607,
+      "time_billed_ms": 465464,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "5z1z67i7tlzj47",
+      "amount_usd": 5.734753257245757,
+      "time_billed_ms": 6888694,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "6v98j916n4jx5m",
+      "amount_usd": 35.20073598995805,
+      "time_billed_ms": 14423992,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "9ba2gqflf4kexd",
+      "amount_usd": 1.9328933174256235,
+      "time_billed_ms": 1180546,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "dxbw98m5wi6ifn",
+      "amount_usd": 0.014268114231526852,
+      "time_billed_ms": 17179,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "g0shaklamkn312",
+      "amount_usd": 1.1879008506657556,
+      "time_billed_ms": 725627,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "i06b217rbx3t09",
+      "amount_usd": 1.5171627915697172,
+      "time_billed_ms": 926237,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "js87bsj0oj8nsg",
+      "amount_usd": 3.0835970325861126,
+      "time_billed_ms": 1882589,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "n1kctgaqqodhp9",
+      "amount_usd": 0.407864511013031,
+      "time_billed_ms": 249289,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "q9nqmpij7w1r82",
+      "amount_usd": 0.8204498577397317,
+      "time_billed_ms": 500756,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "re46p34wkp5dps",
+      "amount_usd": 0.6365429082652554,
+      "time_billed_ms": 388917,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "rhjah0zjfhtscg",
+      "amount_usd": 0.9394262477289885,
+      "time_billed_ms": 573475,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "sei06ai39r1jkt",
+      "amount_usd": 0.589734124368988,
+      "time_billed_ms": 360095,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "svtxk3t55jj65k",
+      "amount_usd": 14.780668921070173,
+      "time_billed_ms": 9023414,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "tj4ht0fo885jze",
+      "amount_usd": 1.6685827258042991,
+      "time_billed_ms": 1018432,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "uipnj7oc6s4686",
+      "amount_usd": 0.5190218228381127,
+      "time_billed_ms": 316946,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "uzrzcbh5bhdl68",
+      "amount_usd": 5.507163040572777,
+      "time_billed_ms": 3357519,
+      "source_bucket_count": 2
+    },
+    {
+      "pod_id": "xl6hcwdbyss77h",
+      "amount_usd": 1.259451214922592,
+      "time_billed_ms": 769076,
+      "source_bucket_count": 1
+    },
+    {
+      "pod_id": "zdklkml56n39bg",
+      "amount_usd": 1.9110379999037832,
+      "time_billed_ms": 1166622,
+      "source_bucket_count": 1
+    }
+  ],
+  "ingested_total": {
+    "task_owned_pod_count": 22,
+    "amount_usd": 99.51723468699493,
+    "time_billed_ms": 53151296
+  },
+  "conservative_pending_ingestion_adjustment": {
+    "pod_id": "5z1z67i7tlzj47",
+    "provider_ingested_amount_usd": 5.734753257245757,
+    "creation_to_confirmed_teardown_upper_bound_usd": 6.691786111,
+    "additional_reserved_amount_usd": 0.9570328537542429,
+    "reason": "The provider row may not yet include the complete final billing interval, so the public ceiling substitutes the creation-to-confirmed-teardown upper bound."
+  },
+  "conservative_gpu_compute_ceiling_usd": 100.47426754074917,
+  "active_pod_inventory": [],
+  "retained_network_volume": {
+    "id": "u85xfo0aue",
+    "size_gb": 500,
+    "data_center_id": "US-CA-2",
+    "listed_monthly_rate_usd": 35,
+    "created_at_utc": "2026-07-25T17:09:00Z",
+    "hours_through_query": 59.83,
+    "estimated_accrual_through_query_usd": 2.908402777777778,
+    "billing_scope_note": "The provider network-volume billing endpoint is account-wide and does not identify a volume, so this rate-derived estimate is not an exact attributed charge."
+  },
+  "conservative_estimated_task_infrastructure_ceiling_usd": 103.38267031852695,
+  "budget": {
+    "soft_gate_usd": 100,
+    "hard_ceiling_usd": 200,
+    "soft_gate_crossed_under_conservative_estimate": true,
+    "hard_ceiling_respected": true
+  },
+  "scope": [
+    "Only task-owned pod IDs were selected from the provider response.",
+    "Unrelated pod and volume rows were excluded.",
+    "The completed secondary-dose pod is charged at its full creation-to-confirmed-teardown upper bound until provider billing ingestion is known complete.",
+    "No task-owned GPU pod is active; the retained task volume remains intentionally preserved."
+  ]
+}

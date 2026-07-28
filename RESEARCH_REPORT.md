@@ -722,6 +722,7 @@ still not explain or repair the vulnerability.
 | Secondary scaffold-dose figures | [figures/factorial-dose/provenance.factorial-dose.json](figures/factorial-dose/provenance.factorial-dose.json) | Five figures, fifteen byte-identical SVG/PNG/PDF verification checks |
 | Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 | Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `8bbfcd5b644ef0353bed310558f9e6b29699865501b30729a8ca7bdd3de5b650` |
+| Final compute reconciliation through the dose stage | [results/compute-reconciliation.final.json](results/compute-reconciliation.final.json) | `a312368a0b867f1c117b95acbe6d8c2ad656ff8fe3e1e509c142a675779a76f3` |
 
 Private, non-raw checkpoint bundles are retained locally for receipt audit:
 
@@ -742,25 +743,29 @@ require byte-identical outputs.
 
 ## Compute and storage
 
-A final RunPod billing query grouped by pod ID attributes
-`$84.9763308382` to 16 ingested task-owned pods over `40,883,449` billed
-milliseconds. The recently terminated follow-up scorer had not yet reached the
-billing endpoint. Charging it at its complete creation-to-confirmed-teardown
-upper bound yields a conservative GPU-compute ceiling of `$85.8356728382`.
-No task-owned GPU pod remains active, so GPU billing is `$0/hour`.
+A RunPod billing query after the secondary scaffold-dose stage attributes
+`$99.5172346870` to 22 ingested task-owned pods over `53,151,296` billed
+milliseconds. The final dose-pod row may not yet contain its complete last
+billing interval. Replacing that row with the larger
+creation-to-confirmed-teardown upper bound yields a conservative GPU-compute
+ceiling of `$100.4742675407`. No task-owned GPU pod remains active, so GPU
+billing is `$0/hour`.
 
 The persistent 500 GB RunPod network volume remains provisioned at
 `$35/month`, or about `$1.17/day`, to preserve the pinned model and resumable
 artifacts during the short reporting window. RunPod's network-volume billing
 endpoint returns account-wide buckets without volume IDs, so it cannot yet
 support an exact task-volume charge. The rate-derived accrual through the final
-query is approximately `$1.09`. Combining that estimate with the conservative
-GPU ceiling gives an estimated infrastructure ceiling of `$86.9256728382`,
-below the `$100` soft gate and `$200` hard ceiling. The original and follow-up
-reconciliation methods, task-owned rows, pending-ingestion cap, source-receipt
-hashes, and volume scope are recorded in
+query is approximately `$2.9084027778`. Combining that estimate with the
+conservative GPU ceiling gives an estimated infrastructure ceiling of
+`$103.3826703185`. This crosses the user-approved `$100` soft gate and remains
+well below the `$200` hard ceiling. The original, follow-up, and final
+reconciliation methods, task-owned rows, pending-ingestion adjustment,
+source-receipt hashes, and volume scope are recorded in
 [results/compute-reconciliation.json](results/compute-reconciliation.json) and
-[results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json).
+[results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json),
+with the current ledger in
+[results/compute-reconciliation.final.json](results/compute-reconciliation.final.json).
 
 ## Appendix: release inventory
 
