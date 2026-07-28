@@ -9,7 +9,8 @@
     "canonical_result_sha256": "cdcfbf80d294bd6e416092a2b8fb5eae35608fcda6e37f1cc00e73987b43ebd9",
     "canonical_execution_receipt_sha256": "d9a0e0e2ac3dadb9cd2a943d7d072f1f806045198f95769e9f2ee91736ce620b",
     "canonical_matrix_receipt_manifest_sha256": "edf564767a91238fe96a8fcd36989b175ad0cb2405acd2755a336bc1934c39b7",
-    "dose_authorization_sha256": "a3399f72ebdb163eba4995554abf6f93ac1855e09e2af166a7601a52b7ea5005",
+    "dose_authorization_sha256": "d631c1ffa5aede4a3d4f3f757bb534d6aaaeaab9bc0440cd324b513e349f0099",
+    "superseded_unexecuted_dose_authorization_sha256": "a3399f72ebdb163eba4995554abf6f93ac1855e09e2af166a7601a52b7ea5005",
     "dose_observation_manifest_sha256": "bf846f9cd7810416ba2405709a54e2d2564798c7399dfc1826e98bdbb881717f",
     "dose_execution_receipt_sha256": null
   },

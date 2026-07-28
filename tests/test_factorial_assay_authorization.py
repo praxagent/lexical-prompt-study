@@ -27,6 +27,9 @@ SENTINEL_RETRY_AUTHORIZATION = (
 DOSE_AUTHORIZATION = (
     ROOT / "plans" / "factorial_secondary_dose_a060.authorization.json"
 )
+H200_DOSE_AUTHORIZATION = (
+    ROOT / "plans" / "factorial_secondary_dose_a061.authorization.json"
+)
 
 
 def test_a055_factorial_assay_authorization_is_exact_and_valid() -> None:
@@ -141,3 +144,26 @@ def test_secondary_dose_authorization_rejects_unapproved_hardware() -> None:
             expected_source_commit="4b5bda248e99b34d4394365b19cc0cf666c295da",
             expected_stage="secondary_dose",
         )
+
+
+def test_a061_exact_h200_secondary_dose_authorization_is_valid() -> None:
+    payload = json.loads(H200_DOSE_AUTHORIZATION.read_text())
+    validate_factorial_execution_authorization(
+        payload,
+        expected_public_plan_sha256=(
+            "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375"
+        ),
+        expected_private_plan_sha256=(
+            "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c"
+        ),
+        expected_source_commit="1e458fcf9ded89e68aee3e4949f2815848ff9cb7",
+        expected_stage="secondary_dose",
+    )
+    assert payload["provider"]["gpu_type"] == "NVIDIA H200"
+    assert payload["provider"]["minimum_gpu_memory_gib"] == 141
+    assert payload["provider"]["fallback_allowed"] is False
+    assert payload["cost"]["conservative_post_run_ceiling_usd"] < (
+        json.loads(DOSE_AUTHORIZATION.read_text())["cost"][
+            "conservative_post_run_ceiling_usd"
+        ]
+    )
