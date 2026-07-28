@@ -108,10 +108,16 @@ def validate_factorial_execution_authorization(
         "factorial authorization scientific scope drift",
     )
     provider = plan["provider"]
+    expected_gpu_type = provider["gpu_type"]
+    permitted_gpu = expected_gpu_type == "NVIDIA B200" or (
+        expected_stage == "secondary_dose"
+        and expected_gpu_type == "NVIDIA H200"
+        and provider["minimum_gpu_memory_gib"] == 141
+    )
     _require(
         provider["maximum_task_owned_pods"] == 1
         and provider["gpu_count"] == 1
-        and provider["gpu_type"] == "NVIDIA B200"
+        and permitted_gpu
         and provider["datacenter_id"] == "US-CA-2"
         and provider["secure_cloud"] is True
         and provider["persistent_volume_id"] == "u85xfo0aue"

@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from lexical_prompt_study.factorial_authorization import (
     validate_factorial_execution_authorization,
 )
@@ -122,3 +124,20 @@ def test_a060_secondary_dose_authorization_is_exact_and_valid() -> None:
     )
     assert payload["cost"]["conservative_post_run_ceiling_usd"] > 100
     assert payload["cost"]["renewed_human_soft_gate_approval"] is True
+
+
+def test_secondary_dose_authorization_rejects_unapproved_hardware() -> None:
+    payload = json.loads(DOSE_AUTHORIZATION.read_text())
+    payload["provider"]["gpu_type"] = "NVIDIA H100 80GB HBM3"
+    with pytest.raises(ValueError, match="provider"):
+        validate_factorial_execution_authorization(
+            payload,
+            expected_public_plan_sha256=(
+                "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375"
+            ),
+            expected_private_plan_sha256=(
+                "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c"
+            ),
+            expected_source_commit="4b5bda248e99b34d4394365b19cc0cf666c295da",
+            expected_stage="secondary_dose",
+        )
