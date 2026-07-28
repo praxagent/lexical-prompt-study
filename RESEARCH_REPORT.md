@@ -2,10 +2,10 @@
 
 **Status:** Complete through the frozen Gate 4 discovery calibration and the
 post-study four-arm SAE replay on Llama 3.3 70B, plus ordering-controlled
-behavioral, internal, and coarse causal-patching stages on Llama 3.1 8B. The
-70B held-out intervention outcomes were not opened. The 8B detector threshold,
-benign utility calibration, causal-patch calibration and confirmation, and
-Qwen transfer remain unrun.
+behavioral, internal, scaffold-dose, and coarse causal-patching stages on
+Llama 3.1 8B. The 70B held-out intervention outcomes were not opened. The 8B
+detector threshold, benign utility calibration, causal-patch calibration and
+confirmation, and Qwen transfer remain unrun.
 
 > **Draft and AI-use status.** Generative-AI tools helped implement, audit,
 > execute, interpret, visualize, and draft this study. The author selected the
@@ -71,6 +71,19 @@ single-site residual-post replacement as a sufficiently strong bidirectional
 handle under this protocol; it does not rule out finer tokenwise, component,
 feature, or subspace circuits.
 
+We also varied the matched injected material over four realized sizes: `64`,
+`128`, `188`, and `252` tokens. This secondary descriptive arm used 540 new
+receipts and reused 180 prospectively selected canonical receipts. Inert
+length was feature-positive in only one of 240 observations. Structural sham
+and full-scaffold activation generally became
+larger and more prevalent as more lexical material was present, but the curves
+were not uniformly monotone. At `252` tokens, full-minus-sham feature
+magnitude was positive with a pointwise 95% interval above zero in every
+request-class and placement cell. At shorter sizes, the same contrast was
+small, uncertain, or negative in several cells. This identifies a strong
+size-by-material-by-placement dependence. It does not identify a semantic
+attack component, a harmful-request detector, or a causal mechanism.
+
 ## Result in one picture
 
 | Claim rung | Outcome | Evidence level |
@@ -82,6 +95,7 @@ feature, or subspace circuits.
 | The direction supports a held-out defense | Not tested | Confirmatory outcomes unopened |
 | The behavioral effect replicates on Llama 3.1 8B in both scaffold orderings | Passed discovery and calibration screens | Ordering-specific, receipt-backed |
 | A discovery-frozen 8B SAE candidate replicates on calibration | Feature 6779 selected | Complete four-arm readout, threshold intentionally unfitted |
+| Feature 6779 is invariant to scaffold size | Not supported | Four-size curves vary strongly by material, placement, and request class |
 | The 8B J-lens trajectory is placement-invariant or causal | Not established | Orderings differ; descriptive controls only |
 | One of five coarse 8B residual-post sites bidirectionally transfers the behavior in both orderings | No layer passed | 1,800 discovery patches and scores; calibration closed |
 
@@ -441,6 +455,112 @@ assistant-boundary Jacobian-lens contrast was negative when the scaffold came
 before the request and positive when it followed. These secondary readouts
 were not reused to rescue or redefine the primary decision.
 
+### Scaffold size reveals a dose-like signature, not a detector
+
+The canonical matrix fixed the injected material near 252 tokens. A
+prospectively frozen secondary arm added `64`, `128`, and `188` token prefixes
+for inert length, structural sham, and the full scaffold. It reused the ten
+prospectively selected canonical prompt families per request class at `252`
+tokens. This produced 720 analyzed observations: 540 new partial-size receipts
+and 180 hash-verified canonical receipts. Placements and sizes remained
+separate, and no monotonicity test, threshold fit, or held-out opening was
+permitted.
+
+![Feature 6779 magnitude across four injected sizes](figures/factorial-dose/E16-dose-feature-6779-magnitude.png)
+
+*Figure E16. Exact ten-family mean feature-6779 magnitude for inert length,
+structural sham, and full scaffold at each realized size. Connected lines show
+the ordered observations; they are not a linear-dose or monotonicity fit.
+Source: [secondary-dose result](results/factorial-8b-secondary-dose.public.json).
+Receipt:
+[E16 receipt](figures/factorial-dose/E16-dose-feature-6779-magnitude.receipt.json).*
+
+The strongest simple control result is the inert-length trace. It was strictly
+zero in 239 of 240 observations; the sole positive occurred in the
+neutral-carrier, scaffold-before-request, 128-token cell. Thus size alone
+rarely activated feature `6779` under this particular inert material.
+
+The sham and full curves show a different shape. Their mean magnitudes were
+usually small at `64` and `128` tokens, then larger at `188` and `252` tokens.
+The pattern was not uniformly monotone, and placement mattered. For example,
+the 188-token full-minus-sham contrast was negative for benign and harmful
+requests when the scaffold came before the request, but strongly positive for
+the same request classes when it came after.
+
+![Feature 6779 positive prevalence across four injected sizes](figures/factorial-dose/E17-dose-feature-6779-prevalence.png)
+
+*Figure E17. Exact strict-positive counts divided by ten prompt families in
+every size, material, request-class, and placement cell. Strict positivity is
+descriptive; it is not a fitted detector threshold. Source:
+[secondary-dose result](results/factorial-8b-secondary-dose.public.json).
+Receipt:
+[E17 receipt](figures/factorial-dose/E17-dose-feature-6779-prevalence.receipt.json).*
+
+Prevalence makes the same limitation visible without relying on magnitude.
+Full-scaffold positivity reached `10/10` in every `252`-token cell and in many
+shorter cells. Structural sham also reached `10/10` in multiple benign and
+harmful cells, while neutral and benign requests could activate the feature
+without harmful content. A circuit breaker based only on strict positivity
+would therefore confuse many matched structural controls with the focal
+scaffold.
+
+![Paired feature 6779 material contrasts across size](figures/factorial-dose/E18-dose-feature-6779-contrasts.png)
+
+*Figure E18. Paired full-minus-sham and sham-minus-inert mean contrasts with
+the frozen 10,000-replicate pointwise percentile bootstrap intervals.
+Intervals are descriptive rather than simultaneous, and no cross-size
+pass/fail decision was defined. Source:
+[secondary-dose result](results/factorial-8b-secondary-dose.public.json).
+Receipt:
+[E18 receipt](figures/factorial-dose/E18-dose-feature-6779-contrasts.receipt.json).*
+
+At `252` tokens, full-minus-sham feature magnitude was positive with its
+pointwise 95% interval above zero in all six request-class by placement cells.
+The estimates were `0.3904`, `0.2253`, and `0.1957` for neutral, benign, and
+harmful requests before the request, and `0.2170`, `0.3068`, and `0.4010`
+after it. This is the cleanest evidence that the full lexical content adds a
+readout beyond matched structure at the canonical size.
+
+It is not a stable harmful-specific interaction. The harmful-minus-benign
+full-content intervals crossed zero at the larger sizes in both placements.
+Harmful-minus-neutral changed direction with placement: it was negative at
+`188` and `252` tokens before the request and positive after it. Those
+secondary, pointwise comparisons argue against treating feature `6779` as a
+placement-independent harmful-request sensor.
+
+![Secondary internal readouts across scaffold size](figures/factorial-dose/E19-dose-secondary-readouts.png)
+
+*Figure E19. Full-minus-sham contrasts for the frozen eight-feature subspace
+and assistant-boundary Jacobian-lens margin. Request classes, sizes, and
+placements remain separate. Source:
+[secondary-dose result](results/factorial-8b-secondary-dose.public.json).
+Receipt:
+[E19 receipt](figures/factorial-dose/E19-dose-secondary-readouts.receipt.json).*
+
+The secondary instruments did not collapse onto the feature-`6779` curve. The
+eight-feature subspace generally developed a positive full-over-sham
+separation at larger sizes. The assistant-boundary Jacobian-lens contrast
+changed sign across adjacent sizes in both placements. That oscillation is a
+useful warning: a strong SAE coordinate, a broader SAE subspace, and a
+first-order lens can all respond to the same prompt intervention without
+reporting one interchangeable mechanism score.
+
+![Parser-detected refusal prevalence across scaffold size](figures/factorial-dose/E20-dose-refusal-prevalence.png)
+
+*Figure E20. Exact generation-phase parser refusal counts divided by ten
+prompt families per cell. This is a structural parser readout; HarmBench,
+semantic task completion, and benign utility were not scored in this
+secondary arm. Source:
+[secondary-dose result](results/factorial-8b-secondary-dose.public.json).
+Receipt:
+[E20 receipt](figures/factorial-dose/E20-dose-refusal-prevalence.receipt.json).*
+
+Refusal trajectories also varied sharply with ordering, request class,
+material, and size. They do not support one universal mapping from feature
+magnitude to behavior. Because this arm did not run the pinned HarmBench judge
+or a semantic utility judge, it cannot establish whether a feature threshold
+would stop harmful compliance without unacceptable benign overrefusal.
+
 ### Coarse causal localization stops before calibration
 
 ![Frozen bidirectional patch effects and eligibility gates](figures/followup-g4/E12-followup-causal-localization-stop.png)
@@ -493,6 +613,14 @@ the full scaffold activates it much more strongly. We do not have evidence that
 the primary feature direction is a practically useful causal handle or a
 specific detector.
 
+The 8B size arm sharpens that interpretation. Feature `6779` is almost
+insensitive to the matched inert-length material, but responds increasingly
+often and strongly to structural sham and full-scaffold material at larger
+sizes. The full lexical content contributes beyond sham most consistently at
+the canonical `252`-token size. Request class and placement still change the
+contrast. This is evidence for a structured lexical-context readout with a
+size-dependent operating regime, not for harmful-content recognition.
+
 The stops are informative. They prevent vivid discovery correlations from
 being promoted into mechanism claims merely because a feature separates
 conditions. The protocol did what it was designed to do twice: it let the 70B
@@ -534,13 +662,23 @@ utility and avoiding overrefusal.
 The most defensible near-term defense work is therefore diagnostic rather than
 deployment-ready. The four-arm replay retires feature `10146` itself as the
 planned detector because inert length activated it in `14/20` discovery cases.
-The complete 8B factorial now shows something more specific: base and inert
-length never activated feature `6779`, but the full scaffold activated it
-for neutral, benign, and harmful requests, while structural sham activated it
-often. The coordinate is a strong scaffold-content/structure readout on this
-fixed setup, not a harmful-request detector. The next detector gate is not
-deployment: it is a disjoint, powered threshold-calibration protocol with
-hard structured-benign negatives, followed by one sealed confirmation.
+The complete 8B factorial showed something more specific at the canonical
+size: base and inert length never activated feature `6779`, but the full
+scaffold activated it for neutral, benign, and harmful requests, while
+structural sham activated it often. Across the later size arm, inert length
+remained silent in 239 of 240 observations. The coordinate is a strong
+scaffold-content/structure readout on this fixed setup, not a harmful-request
+detector. The size arm adds a likely
+engineering constraint: any future detector evaluation must cross scaffold
+size with placement rather than calibrate only on the canonical long form.
+The observed curves are compatible with a threshold-like accumulation
+hypothesis, but the protocol did not test monotonicity and several contrasts
+reverse at intermediate sizes. A future test would need to freeze a denser
+size grid and new lexical materials before using that hypothesis.
+
+The next detector gate is not deployment. It is a disjoint, powered
+threshold-calibration protocol with hard structured-benign negatives, multiple
+sizes, and both placements, followed by one sealed confirmation.
 The coarse causal arm has separately stopped; any finer
 component/token/subspace localization must begin under a new prospective
 protocol rather than reuse the failed layer selector. A detector alone would
@@ -578,6 +716,10 @@ still not explain or repair the vulnerability.
 | Canonical 8B factorial input binding | [validation/factorial_8b_v1.execution-receipt.json](validation/factorial_8b_v1.execution-receipt.json) | Complete 420+2 receipt topology bound before analysis |
 | Canonical 8B factorial analysis freeze | [plans/factorial_8b_v1.analysis.json](plans/factorial_8b_v1.analysis.json) | 100,000-replicate complete-vector simultaneous bootstrap, placements separate |
 | Canonical 8B factorial figures | [figures/factorial-8b/provenance.factorial.json](figures/factorial-8b/provenance.factorial.json) | Three figures, nine byte-identical SVG/PNG/PDF verification checks |
+| Secondary 8B scaffold-dose result | [results/factorial-8b-secondary-dose.public.json](results/factorial-8b-secondary-dose.public.json) | `26ba8c86a59d27b3348e30fedeee41b7420b97237ed93c009661e1282ee1849d` |
+| Secondary scaffold-dose outcome binding | [validation/factorial_secondary_dose_a065.execution-receipt.json](validation/factorial_secondary_dose_a065.execution-receipt.json) | 540 new receipt/restricted pairs bound before outcome analysis |
+| Secondary scaffold-dose analysis freeze | [plans/factorial_8b_v1.dose-analysis.json](plans/factorial_8b_v1.dose-analysis.json) | Four sizes, placements separate, 10,000-replicate pointwise bootstrap |
+| Secondary scaffold-dose figures | [figures/factorial-dose/provenance.factorial-dose.json](figures/factorial-dose/provenance.factorial-dose.json) | Five figures, fifteen byte-identical SVG/PNG/PDF verification checks |
 | Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 | Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `8bbfcd5b644ef0353bed310558f9e6b29699865501b30729a8ca7bdd3de5b650` |
 
@@ -591,8 +733,10 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
   `d5075a3653e0169293228fbbe6b62c92b4eeae07ac8c212e0cc2ae8c9511a5b5`
 - Follow-up G3: SHA-256
   `2f79a9417bbf470e2da5fd97ae154fb49ce614a157d632a691186df68fcc2ea8`
+- Secondary scaffold dose: SHA-256
+  `5bcce2c29dbd77a15b4527fc9c0dc70beb4f3716fe23e792155d4b3bf828188a`
 
-All fifteen empirical figures ship as SVG, PNG, and PDF with individual receipt
+All twenty empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
@@ -631,6 +775,7 @@ hashes, and volume scope are recorded in
 | Llama 3.1 8B follow-up result | Separate placement, SAE, dense, and J-lens summaries | Audit replication without opening raw prompts or generations |
 | Llama 3.1 8B coarse-patch result | Separate restoring, reciprocal, and control estimates for both placements | Audit the no-eligible-layer causal stop |
 | Llama 3.1 8B complete factorial result | Request class × scaffold material × placement readouts with one frozen simultaneous analysis | Distinguish harmful-content, inert-length, structural-sham, and full-scaffold explanations |
+| Llama 3.1 8B secondary scaffold-dose result | Four token sizes × three materials × three request classes × two placements | Audit the size-dependent readout without pooling or fitting a detector |
 | Schemas and analysis code | Machine-checkable receipt contracts and deterministic analysis | Re-run local validation |
 
 Restricted prompt and generation text is intentionally excluded from the

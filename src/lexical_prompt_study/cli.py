@@ -212,6 +212,18 @@ def main() -> None:
         default=Path("validation/factorial_8b_v1.execution-receipt.json"),
     )
     factorial_dose_analysis.add_argument("--out", type=Path, required=True)
+    factorial_dose_figures = sub.add_parser("figures-factorial-dose")
+    factorial_dose_figures.add_argument("--result", type=Path, required=True)
+    factorial_dose_figures.add_argument("--out", type=Path, required=True)
+    verify_factorial_dose_figures_parser = sub.add_parser(
+        "verify-factorial-dose-figures"
+    )
+    verify_factorial_dose_figures_parser.add_argument(
+        "--result", type=Path, required=True
+    )
+    verify_factorial_dose_figures_parser.add_argument(
+        "--out", type=Path, required=True
+    )
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -646,6 +658,24 @@ def main() -> None:
                     ),
                     output_path=args.out,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-factorial-dose":
+        from .factorial_dose_figures import generate_factorial_dose_figures
+
+        print(
+            json.dumps(
+                generate_factorial_dose_figures(args.result, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-factorial-dose-figures":
+        from .factorial_dose_figures import verify_factorial_dose_figures
+
+        print(
+            json.dumps(
+                verify_factorial_dose_figures(args.result, args.out),
                 sort_keys=True,
             )
         )
