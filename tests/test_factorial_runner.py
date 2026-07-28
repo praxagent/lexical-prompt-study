@@ -9,7 +9,11 @@ import pytest
 from lexical_prompt_study.factorial_authorization import (
     validate_factorial_execution_authorization,
 )
-from lexical_prompt_study.factorial_runner import run_factorial_canonical
+from lexical_prompt_study.factorial_runner import (
+    run_factorial_canonical,
+    run_factorial_sentinel_repair,
+    validate_factorial_matrix_checkpoint,
+)
 from lexical_prompt_study.hashing import (
     canonical_json_bytes,
     sha256_bytes,
@@ -94,7 +98,7 @@ def _private_plan(tmp_path: Path) -> Path:
                 "size_id": "blocks-004",
                 "injected_token_count": 19,
                 "shared_reference": False,
-                "render_group_sha256": "1" * 64,
+                "render_group_sha256": None,
                 "prompt_sha256": "2" * 64,
                 "prompt_token_ids_sha256": "3" * 64,
             }
@@ -383,3 +387,161 @@ def test_factorial_runner_rejects_executor_provenance_override(
             run_id="canonical-safe",
             execute_observation=execute,
         )
+
+
+def test_sentinel_repair_uses_separate_source_lane_and_locked_matrix(
+    tmp_path: Path,
+) -> None:
+    private_path = _private_plan(tmp_path)
+    private_plan = json.loads(private_path.read_text())
+    assay_path = _assay_receipt(tmp_path, private_path)
+    canonical_authorization, _ = _authorization(
+        tmp_path,
+        private_path,
+        assay_path,
+    )
+
+    def execute(observation, attempt):
+        restricted = (
+            tmp_path
+            / "restricted"
+            / f"{observation['trial_id']}-{attempt}.json"
+        )
+        restricted.parent.mkdir(exist_ok=True)
+        restricted_sha256 = write_json_atomic(
+            restricted,
+            {
+                "trial_id": observation["trial_id"],
+                "attempt": attempt,
+                "request_class": observation["request_class"],
+                "request_id": observation["request_id"],
+                "prompt_sha256": observation["prompt_sha256"],
+                "prompt_token_ids_sha256": observation[
+                    "prompt_token_ids_sha256"
+                ],
+                "generated_text": "safe",
+                "generated_token_ids": [1],
+            },
+        )
+        return {
+            "generated_text_sha256": sha256_text("safe"),
+            "generated_token_ids_sha256": sha256_bytes(
+                canonical_json_bytes([1])
+            ),
+            "generated_token_count": 1,
+            "finish_reason": "eos",
+            "truncated": False,
+            "feature_6779_magnitude": 0.1,
+            "feature_6779_positive": True,
+            "frozen_subspace_score": 0.2,
+            "sae_reconstruction_relative_error": 0.1,
+            "assistant_boundary_jlens_margin": -0.1,
+            "refusal_detected": False,
+            "task_completion": None,
+            "utility_score": None,
+            "phase_parser_result": {"status": "safe"},
+            "restricted_artifact_path": str(restricted),
+            "restricted_artifact_sha256": restricted_sha256,
+            "generation_elapsed_seconds": 0.01,
+            "readout_elapsed_seconds": 0.01,
+            "peak_memory_bytes": 1,
+            "model_revision": "6" * 40,
+            "tokenizer_revision": "6" * 40,
+            "lens_sha256": "7" * 64,
+            "sae_sha256": "8" * 64,
+            "software": {"python": "test"},
+        }
+
+    matrix_run = tmp_path / "matrix"
+    run_factorial_canonical(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        authorization_path=canonical_authorization,
+        output_root=matrix_run,
+        run_id="canonical-safe",
+        execute_observation=execute,
+    )
+    sentinel_ids = {
+        row["trial_id"]
+        for row in private_plan["observations"]
+        if row["request_class"] == "literal_sentinel"
+    }
+    for trial_id in sentinel_ids:
+        (matrix_run / "receipts" / "trials" / f"{trial_id}.json").unlink()
+    matrix_ids = {
+        row["trial_id"]
+        for row in private_plan["observations"]
+        if row["request_class"] != "literal_sentinel"
+    }
+    matrix_manifest = validate_factorial_matrix_checkpoint(
+        matrix_run / "receipts" / "trials",
+        expected_trial_ids=matrix_ids,
+        expected_public_plan_sha256=sha256_file(PUBLIC_PLAN),
+        expected_private_plan_sha256=sha256_file(private_path),
+        expected_assay_receipt_sha256=sha256_file(assay_path),
+        expected_source_commit=_source_commit(),
+        expected_run_id="canonical-safe",
+    )
+    sentinel_authorization = {
+        "schema_version": "1.0",
+        "study_id": "lexical-scaffold-8b-factorial-v1",
+        "status": "prospective_factorial_sentinel_repair_authorization",
+        "stage": "descriptive_sentinel_repair",
+        "run_id": "sentinel-safe",
+        "bindings": {
+            "public_plan_sha256": sha256_file(PUBLIC_PLAN),
+            "private_plan_sha256": sha256_file(private_path),
+            "assay_receipt_sha256": sha256_file(assay_path),
+            "canonical_result_sha256": None,
+            "source_commit": _source_commit(),
+            "matrix_receipt_count": 420,
+            "matrix_receipt_manifest_sha256": matrix_manifest,
+            "matrix_source_commit": _source_commit(),
+            "matrix_run_id": "canonical-safe",
+        },
+        "scope": {
+            "target_factorial_outcomes_authorized": False,
+            "descriptive_sentinel_outcomes_authorized": True,
+            "planned_conditions": 2,
+            "placement_pooling": False,
+            "size_pooling": False,
+            "detector_threshold_fitting": False,
+            "completed_receipt_overwrite": False,
+        },
+        "provider": {
+            "maximum_task_owned_pods": 1,
+            "gpu_count": 1,
+            "gpu_type": "NVIDIA B200",
+            "datacenter_id": "US-CA-2",
+            "secure_cloud": True,
+            "persistent_volume_id": "u85xfo0aue",
+            "persistent_volume_mount": "/workspace",
+            "fallback_allowed": False,
+        },
+        "cost": {
+            "maximum_live_rate_usd_per_hour": 5.98,
+            "wall_time_minutes": 15,
+            "maximum_compute_usd": 1.495,
+            "conservative_pre_run_ceiling_usd": 94.899,
+            "conservative_post_run_ceiling_usd": 96.394,
+            "renewed_human_soft_gate_approval": False,
+            "no_progress_stop_minutes": 5,
+        },
+    }
+    sentinel_authorization_path = tmp_path / "sentinel-authorization.json"
+    sentinel_authorization_path.write_text(json.dumps(sentinel_authorization))
+    summary = run_factorial_sentinel_repair(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        matrix_receipt_root=matrix_run / "receipts" / "trials",
+        authorization_path=sentinel_authorization_path,
+        output_root=tmp_path / "sentinel-run",
+        run_id="sentinel-safe",
+        execute_observation=execute,
+    )
+    assert summary["status"] == "complete"
+    assert summary["final_receipt_count"] == 2
+    assert summary["matrix_receipt_count"] == 420
+    assert summary["descriptive_only"] is True

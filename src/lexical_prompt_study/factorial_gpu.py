@@ -13,7 +13,10 @@ from typing import Any
 from .behavior import REFUSAL_PATTERN, _as_token_ids, _peak_memory
 from .factorial_authorization import validate_factorial_execution_authorization
 from .factorial_plan import validate_factorial_plan
-from .factorial_runner import run_factorial_canonical
+from .factorial_runner import (
+    run_factorial_canonical,
+    run_factorial_sentinel_repair,
+)
 from .followup_runner import build_placement_render_pair
 from .hashing import canonical_json_bytes, sha256_bytes, sha256_file, sha256_text
 from .models import FactorialAssayReceipt
@@ -789,6 +792,55 @@ def run_factorial_canonical_gpu(
         public_plan_path=public_plan_path,
         private_plan_path=private_plan_path,
         assay_receipt_path=assay_receipt_path,
+        authorization_path=authorization_path,
+        output_root=output_root,
+        run_id=run_id,
+        execute_observation=execute,
+    )
+    summary["model_loaded_this_call"] = runtime is not None
+    _atomic_json(output_root / "summary.json", summary, mode=0o600)
+    return summary
+
+
+def run_factorial_sentinel_repair_gpu(
+    *,
+    public_plan_path: Path,
+    private_plan_path: Path,
+    assay_receipt_path: Path,
+    matrix_receipt_root: Path,
+    authorization_path: Path,
+    probe_plan_path: Path,
+    model_path: str,
+    lens_path: Path,
+    sae_path: Path,
+    output_root: Path,
+    run_id: str,
+) -> dict[str, Any]:
+    public_plan = json.loads(public_plan_path.read_text())
+    validate_factorial_plan(public_plan)
+    runtime: FactorialCoreRuntime | None = None
+
+    def execute(observation: dict[str, Any], attempt: int) -> dict[str, Any]:
+        nonlocal runtime
+        if runtime is None:
+            runtime = FactorialCoreRuntime(
+                public_plan=public_plan,
+                probe_plan_path=probe_plan_path,
+                model_path=model_path,
+                lens_path=lens_path,
+                sae_path=sae_path,
+            )
+        return runtime.execute_observation(
+            observation,
+            attempt,
+            output_root=output_root,
+        )
+
+    summary = run_factorial_sentinel_repair(
+        public_plan_path=public_plan_path,
+        private_plan_path=private_plan_path,
+        assay_receipt_path=assay_receipt_path,
+        matrix_receipt_root=matrix_receipt_root,
         authorization_path=authorization_path,
         output_root=output_root,
         run_id=run_id,

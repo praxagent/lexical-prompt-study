@@ -9,9 +9,12 @@ from typing import Any
 
 from .factorial_authorization import validate_factorial_execution_authorization
 from .factorial_plan import validate_factorial_plan
-from .factorial_receipts import FactorialReceiptStore
-from .hashing import canonical_json_bytes, sha256_file, sha256_text
-from .models import FactorialAssayReceipt
+from .factorial_receipts import (
+    FactorialReceiptStore,
+    validate_factorial_trial_receipt,
+)
+from .hashing import canonical_json_bytes, sha256_bytes, sha256_file, sha256_text
+from .models import FactorialAssayReceipt, FactorialTrialReceipt
 
 ObservationExecutor = Callable[[dict[str, Any], int], dict[str, Any]]
 
@@ -33,6 +36,47 @@ def _canonical_observations(private_plan: dict[str, Any]) -> list[dict[str, Any]
     if len(rows) != 422:
         raise ValueError("canonical factorial observation topology drift")
     return rows
+
+
+def factorial_receipt_manifest_sha256(receipt_root: Path) -> str:
+    paths = sorted(receipt_root.glob("*.json"))
+    manifest = [
+        {
+            "trial_id": path.stem,
+            "receipt_sha256": sha256_file(path),
+        }
+        for path in paths
+    ]
+    return sha256_bytes(canonical_json_bytes(manifest))
+
+
+def validate_factorial_matrix_checkpoint(
+    receipt_root: Path,
+    *,
+    expected_trial_ids: set[str],
+    expected_public_plan_sha256: str,
+    expected_private_plan_sha256: str,
+    expected_assay_receipt_sha256: str,
+    expected_source_commit: str,
+    expected_run_id: str,
+) -> str:
+    paths = sorted(receipt_root.glob("*.json"))
+    if len(paths) != 420 or {path.stem for path in paths} != expected_trial_ids:
+        raise ValueError("factorial matrix checkpoint topology drift")
+    for path in paths:
+        receipt = validate_factorial_trial_receipt(
+            FactorialTrialReceipt.model_validate_json(path.read_text())
+        )
+        if (
+            receipt.request_class == "literal_sentinel"
+            or receipt.public_plan_sha256 != expected_public_plan_sha256
+            or receipt.private_plan_sha256 != expected_private_plan_sha256
+            or receipt.assay_receipt_sha256 != expected_assay_receipt_sha256
+            or receipt.source_commit != expected_source_commit
+            or receipt.run_id != expected_run_id
+        ):
+            raise ValueError("factorial matrix checkpoint provenance drift")
+    return factorial_receipt_manifest_sha256(receipt_root)
 
 
 def _failure_path(output_root: Path, trial_id: str) -> Path:
@@ -244,6 +288,192 @@ def run_factorial_canonical(
         "receipts_written_this_call": written,
         "final_receipt_count": final_count,
         "missing_after_two_attempts": missing,
+        "detector_threshold_fit": False,
+        "placement_pooling": False,
+        "size_pooling": False,
+    }
+
+
+def run_factorial_sentinel_repair(
+    *,
+    public_plan_path: Path,
+    private_plan_path: Path,
+    assay_receipt_path: Path,
+    matrix_receipt_root: Path,
+    authorization_path: Path,
+    output_root: Path,
+    run_id: str,
+    execute_observation: ObservationExecutor,
+) -> dict[str, Any]:
+    public_plan = json.loads(public_plan_path.read_text())
+    validate_factorial_plan(public_plan)
+    private_plan = json.loads(private_plan_path.read_text())
+    public_sha256 = sha256_file(public_plan_path)
+    private_sha256 = sha256_file(private_plan_path)
+    if (
+        private_plan["study_id"] != public_plan["study_id"]
+        or private_plan["public_plan_sha256"] != public_sha256
+    ):
+        raise ValueError("factorial private/public plan binding drift")
+    assay = FactorialAssayReceipt.model_validate_json(assay_receipt_path.read_text())
+    assay_sha256 = sha256_file(assay_receipt_path)
+    if (
+        assay.status != "passed"
+        or assay.public_plan_sha256 != public_sha256
+        or assay.private_plan_sha256 != private_sha256
+        or assay.target_factorial_outcome_generated is not False
+    ):
+        raise ValueError("factorial assay gate has not passed for exact inputs")
+
+    observations = _canonical_observations(private_plan)
+    sentinels = [
+        row for row in observations if row["request_class"] == "literal_sentinel"
+    ]
+    matrix = [
+        row for row in observations if row["request_class"] != "literal_sentinel"
+    ]
+    if (
+        len(matrix) != 420
+        or len(sentinels) != 2
+        or {row["placement"] for row in sentinels}
+        != {"ep_before_request", "ep_after_request"}
+        or any(
+            row["material"] != "full_scaffold"
+            or row["render_group_sha256"] is not None
+            for row in sentinels
+        )
+    ):
+        raise ValueError("factorial sentinel-repair topology drift")
+
+    source_commit = _source_commit()
+    authorization = json.loads(authorization_path.read_text())
+    validate_factorial_execution_authorization(
+        authorization,
+        expected_public_plan_sha256=public_sha256,
+        expected_private_plan_sha256=private_sha256,
+        expected_source_commit=source_commit,
+        expected_stage="descriptive_sentinel_repair",
+    )
+    bindings = authorization["bindings"]
+    matrix_manifest_sha256 = validate_factorial_matrix_checkpoint(
+        matrix_receipt_root,
+        expected_trial_ids={row["trial_id"] for row in matrix},
+        expected_public_plan_sha256=public_sha256,
+        expected_private_plan_sha256=private_sha256,
+        expected_assay_receipt_sha256=assay_sha256,
+        expected_source_commit=bindings["matrix_source_commit"],
+        expected_run_id=bindings["matrix_run_id"],
+    )
+    if (
+        authorization["run_id"] != run_id
+        or bindings["assay_receipt_sha256"] != assay_sha256
+        or bindings["matrix_receipt_manifest_sha256"]
+        != matrix_manifest_sha256
+    ):
+        raise ValueError("factorial sentinel-repair authorization binding drift")
+
+    store = FactorialReceiptStore(output_root / "receipts")
+    completed = 0
+    written = 0
+    missing = 0
+    for observation in sentinels:
+        trial_id = observation["trial_id"]
+        existing = store.load_validated(
+            trial_id,
+            public_plan_sha256=public_sha256,
+            private_plan_sha256=private_sha256,
+            assay_receipt_sha256=assay_sha256,
+            source_commit=source_commit,
+            run_id=run_id,
+        )
+        if existing is not None:
+            completed += 1
+            continue
+        failure = _load_failure(
+            output_root,
+            trial_id,
+            public_plan_sha256=public_sha256,
+            private_plan_sha256=private_sha256,
+            assay_receipt_sha256=assay_sha256,
+            source_commit=source_commit,
+            run_id=run_id,
+        )
+        if failure is not None:
+            missing += 1
+            continue
+        result = None
+        attempt = 0
+        for attempt in (1, 2):
+            try:
+                result = execute_observation(observation, attempt)
+                break
+            except Exception as error:
+                if attempt == 2:
+                    _write_failure(
+                        output_root,
+                        trial_id=trial_id,
+                        public_plan_sha256=public_sha256,
+                        private_plan_sha256=private_sha256,
+                        assay_receipt_sha256=assay_sha256,
+                        source_commit=source_commit,
+                        run_id=run_id,
+                        error=error,
+                    )
+                    missing += 1
+        if result is None:
+            continue
+        immutable = {
+            "schema_version": "1.0",
+            "study_id": public_plan["study_id"],
+            "status": "complete",
+            "public_plan_sha256": public_sha256,
+            "private_plan_sha256": private_sha256,
+            "assay_receipt_sha256": assay_sha256,
+            "source_commit": source_commit,
+            "run_id": run_id,
+            "trial_id": trial_id,
+            "attempt": attempt,
+            "request_class": observation["request_class"],
+            "request_id": observation["request_id"],
+            "prompt_family_id": observation["prompt_family_id"],
+            "request_sha256": observation["request_sha256"],
+            "material": observation["material"],
+            "placement": observation["placement"],
+            "size_id": observation["size_id"],
+            "injected_token_count": observation["injected_token_count"],
+            "shared_reference": observation["shared_reference"],
+            "render_group_sha256": observation["render_group_sha256"],
+            "prompt_sha256": observation["prompt_sha256"],
+            "prompt_token_ids_sha256": observation["prompt_token_ids_sha256"],
+        }
+        overlap = set(immutable).intersection(result)
+        if overlap:
+            raise ValueError(
+                f"{trial_id}: executor attempted to override provenance "
+                f"{sorted(overlap)}"
+            )
+        store.write({**immutable, **result})
+        written += 1
+    final_count = completed + written
+    if final_count + missing != 2:
+        raise ValueError("factorial sentinel resolved-unit count drift")
+    return {
+        "schema_version": "1.0",
+        "status": "complete" if missing == 0 else "incomplete",
+        "stage": "descriptive_sentinel_repair",
+        "run_id": run_id,
+        "source_commit": source_commit,
+        "public_plan_sha256": public_sha256,
+        "private_plan_sha256": private_sha256,
+        "assay_receipt_sha256": assay_sha256,
+        "matrix_receipt_manifest_sha256": matrix_manifest_sha256,
+        "matrix_receipt_count": 420,
+        "planned_observations": 2,
+        "preexisting_receipts": completed,
+        "receipts_written_this_call": written,
+        "final_receipt_count": final_count,
+        "missing_after_two_attempts": missing,
+        "descriptive_only": True,
         "detector_threshold_fit": False,
         "placement_pooling": False,
         "size_pooling": False,

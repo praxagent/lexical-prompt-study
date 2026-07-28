@@ -134,6 +134,26 @@ def main() -> None:
     factorial_gpu.add_argument("--sae-path", type=Path, required=True)
     factorial_gpu.add_argument("--out", type=Path, required=True)
     factorial_gpu.add_argument("--run-id", required=True)
+    factorial_sentinels = sub.add_parser("run-factorial-sentinel-repair")
+    factorial_sentinels.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_sentinels.add_argument("--private-plan", type=Path, required=True)
+    factorial_sentinels.add_argument("--assay-receipt", type=Path, required=True)
+    factorial_sentinels.add_argument("--matrix-receipts", type=Path, required=True)
+    factorial_sentinels.add_argument("--authorization", type=Path, required=True)
+    factorial_sentinels.add_argument(
+        "--probe-plan",
+        type=Path,
+        default=Path("plans/study_v1.public.json"),
+    )
+    factorial_sentinels.add_argument("--model-path", required=True)
+    factorial_sentinels.add_argument("--lens-path", type=Path, required=True)
+    factorial_sentinels.add_argument("--sae-path", type=Path, required=True)
+    factorial_sentinels.add_argument("--out", type=Path, required=True)
+    factorial_sentinels.add_argument("--run-id", required=True)
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -483,6 +503,27 @@ def main() -> None:
                     public_plan_path=args.public_plan,
                     private_plan_path=args.private_plan,
                     assay_receipt_path=args.assay_receipt,
+                    authorization_path=args.authorization,
+                    probe_plan_path=args.probe_plan,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    output_root=args.out,
+                    run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-factorial-sentinel-repair":
+        from .factorial_gpu import run_factorial_sentinel_repair_gpu
+
+        print(
+            json.dumps(
+                run_factorial_sentinel_repair_gpu(
+                    public_plan_path=args.public_plan,
+                    private_plan_path=args.private_plan,
+                    assay_receipt_path=args.assay_receipt,
+                    matrix_receipt_root=args.matrix_receipts,
                     authorization_path=args.authorization,
                     probe_plan_path=args.probe_plan,
                     model_path=args.model_path,

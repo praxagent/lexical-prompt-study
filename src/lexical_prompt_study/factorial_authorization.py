@@ -23,7 +23,13 @@ def validate_factorial_execution_authorization(
         "factorial authorization study drift",
     )
     _require(
-        plan["stage"] in {"assay_canary", "canonical_factorial", "secondary_dose"},
+        plan["stage"]
+        in {
+            "assay_canary",
+            "canonical_factorial",
+            "descriptive_sentinel_repair",
+            "secondary_dose",
+        },
         "factorial authorization stage drift",
     )
     _require(plan["stage"] == expected_stage, "wrong factorial authorization stage")
@@ -55,6 +61,23 @@ def validate_factorial_execution_authorization(
             and isinstance(bindings["assay_receipt_sha256"], str)
             and len(bindings["assay_receipt_sha256"]) == 64,
             "factorial canonical authorization scope drift",
+        )
+    elif expected_stage == "descriptive_sentinel_repair":
+        _require(
+            plan["status"]
+            == "prospective_factorial_sentinel_repair_authorization"
+            and scope["target_factorial_outcomes_authorized"] is False
+            and scope["descriptive_sentinel_outcomes_authorized"] is True
+            and scope["planned_conditions"] == 2
+            and isinstance(bindings["assay_receipt_sha256"], str)
+            and len(bindings["assay_receipt_sha256"]) == 64
+            and bindings["matrix_receipt_count"] == 420
+            and isinstance(bindings["matrix_receipt_manifest_sha256"], str)
+            and len(bindings["matrix_receipt_manifest_sha256"]) == 64
+            and isinstance(bindings["matrix_source_commit"], str)
+            and len(bindings["matrix_source_commit"]) == 40
+            and isinstance(bindings["matrix_run_id"], str),
+            "factorial sentinel-repair authorization scope drift",
         )
     else:
         _require(

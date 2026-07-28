@@ -31,13 +31,22 @@ def validate_factorial_trial_receipt(
             or receipt.size_id != "natural-base"
         ):
             raise ValueError("natural no-scaffold receipt topology drift")
-    elif (
-        receipt.placement not in PLACEMENTS
-        or receipt.shared_reference is not False
-        or receipt.injected_token_count <= 0
-        or receipt.render_group_sha256 is None
-    ):
-        raise ValueError("injected factorial receipt topology drift")
+    else:
+        literal_sentinel = receipt.request_class == "literal_sentinel"
+        if (
+            receipt.placement not in PLACEMENTS
+            or receipt.shared_reference is not False
+            or receipt.injected_token_count <= 0
+            or (
+                literal_sentinel
+                and receipt.render_group_sha256 is not None
+            )
+            or (
+                not literal_sentinel
+                and receipt.render_group_sha256 is None
+            )
+        ):
+            raise ValueError("injected factorial receipt topology drift")
     if (
         receipt.request_class == "literal_sentinel"
         and receipt.material != "full_scaffold"

@@ -82,6 +82,23 @@ def _receipt(tmp_path: Path, *, injected: bool = False) -> dict:
     }
 
 
+def _literal_sentinel_receipt(tmp_path: Path) -> dict:
+    payload = _receipt(tmp_path, injected=True)
+    restricted = Path(payload["restricted_artifact_path"])
+    restricted_payload = __import__("json").loads(restricted.read_text())
+    restricted_payload["request_class"] = "literal_sentinel"
+    restricted_payload["request_id"] = "literal-sentinel"
+    payload["restricted_artifact_sha256"] = write_json_atomic(
+        restricted,
+        restricted_payload,
+    )
+    payload["request_class"] = "literal_sentinel"
+    payload["request_id"] = "literal-sentinel"
+    payload["prompt_family_id"] = "literal-sentinel-descriptive-n1"
+    payload["render_group_sha256"] = None
+    return payload
+
+
 def test_factorial_trial_receipt_accepts_base_and_injected_topologies(
     tmp_path: Path,
 ) -> None:
@@ -90,6 +107,16 @@ def test_factorial_trial_receipt_accepts_base_and_injected_topologies(
         validate_factorial_trial_receipt(_receipt(tmp_path, injected=True)).placement
         == "ep_before_request"
     )
+
+
+def test_literal_sentinel_requires_no_cross_material_render_group(
+    tmp_path: Path,
+) -> None:
+    payload = _literal_sentinel_receipt(tmp_path)
+    assert validate_factorial_trial_receipt(payload).render_group_sha256 is None
+    payload["render_group_sha256"] = "6" * 64
+    with pytest.raises(ValueError, match="injected factorial receipt topology"):
+        validate_factorial_trial_receipt(payload)
 
 
 def test_factorial_trial_receipt_rejects_raw_public_token_ids(tmp_path: Path) -> None:
