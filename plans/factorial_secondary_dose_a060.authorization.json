@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "status": "prospective_factorial_dose_authorization",
+  "stage": "secondary_dose",
+  "run_id": "factorial-secondary-dose-a060-20260727",
+  "bindings": {
+    "public_plan_sha256": "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375",
+    "private_plan_sha256": "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c",
+    "assay_receipt_sha256": "50452be9fa1e01922f8f55d219afe2ecad9b7db1498c42f9abd767cac268c987",
+    "canonical_result_sha256": "cdcfbf80d294bd6e416092a2b8fb5eae35608fcda6e37f1cc00e73987b43ebd9",
+    "canonical_execution_receipt_sha256": "d9a0e0e2ac3dadb9cd2a943d7d072f1f806045198f95769e9f2ee91736ce620b",
+    "source_commit": "4b5bda248e99b34d4394365b19cc0cf666c295da",
+    "matrix_receipt_count": 420,
+    "matrix_receipt_manifest_sha256": "edf564767a91238fe96a8fcd36989b175ad0cb2405acd2755a336bc1934c39b7",
+    "matrix_source_commit": "e5e6fe68b05ddbab0bf784d873f205edca4b3b3c",
+    "matrix_run_id": "factorial-canonical-a056-20260727",
+    "dose_observation_manifest_sha256": "bf846f9cd7810416ba2405709a54e2d2564798c7399dfc1826e98bdbb881717f"
+  },
+  "scope": {
+    "target_factorial_outcomes_authorized": true,
+    "planned_conditions": 540,
+    "canonical_conditions_reused_not_regenerated": 180,
+    "partial_injected_token_counts": [
+      64,
+      128,
+      188
+    ],
+    "request_classes": [
+      "minimal_neutral_carrier",
+      "ordinary_benign_request",
+      "harmful_request"
+    ],
+    "materials": [
+      "inert_length",
+      "structural_sham",
+      "full_scaffold"
+    ],
+    "placements": [
+      "ep_before_request",
+      "ep_after_request"
+    ],
+    "placement_pooling": false,
+    "size_pooling": false,
+    "detector_threshold_fitting": false,
+    "held_out_confirmation_opening": false,
+    "behavioral_scoring": false,
+    "completed_receipt_overwrite": false
+  },
+  "provider": {
+    "maximum_task_owned_pods": 1,
+    "gpu_count": 1,
+    "gpu_type": "NVIDIA B200",
+    "datacenter_id": "US-CA-2",
+    "secure_cloud": true,
+    "persistent_volume_id": "u85xfo0aue",
+    "persistent_volume_mount": "/workspace",
+    "fallback_allowed": false
+  },
+  "cost": {
+    "maximum_live_rate_usd_per_hour": 5.98,
+    "wall_time_minutes": 75,
+    "maximum_compute_usd": 7.475,
+    "conservative_pre_run_ceiling_usd": 97.88900617153334,
+    "conservative_post_run_ceiling_usd": 105.36400617153334,
+    "renewed_human_soft_gate_approval": true,
+    "no_progress_stop_minutes": 12
+  },
+  "throughput_basis": {
+    "prior_140_observation_elapsed_seconds": 569.31,
+    "dose_projection_seconds": 2195.91,
+    "wall_to_empirical_projection_ratio": 2.0492646188993164,
+    "current_catalog_rate_usd_per_hour": 5.98,
+    "current_catalog_stock_status": "Low",
+    "inventory_immediately_before_authorization": []
+  },
+  "authorization_basis": {
+    "scientific_scope": "Author's explicit full-program approval, including injection-size controls",
+    "execution": "Author's 2026-07-27 instruction to proceed and subsequent direct instruction to do it",
+    "soft_gate_crossed": true,
+    "hard_ceiling_usd": 200
+  }
+}
