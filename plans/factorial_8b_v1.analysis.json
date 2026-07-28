@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "status": "prospective_exact_analysis_freeze",
+  "execution_receipt_sha256": "f306a22f2ca20e641cb8086433e708c32f5f0e5f6faf541e66c099e2e98ff377",
+  "canonical_matrix_receipt_count": 420,
+  "descriptive_sentinel_receipt_count": 2,
+  "primary_readout": "feature_6779_magnitude",
+  "request_class_order": [
+    "minimal_neutral_carrier",
+    "ordinary_benign_request",
+    "harmful_request"
+  ],
+  "placement_order": [
+    "ep_before_request",
+    "ep_after_request"
+  ],
+  "material_order": [
+    "no_scaffold",
+    "inert_length",
+    "structural_sham",
+    "full_scaffold"
+  ],
+  "paired_component_order": [
+    "inert_injection_increment",
+    "sham_over_inert_increment",
+    "full_content_increment"
+  ],
+  "interaction_order": [
+    "harmful_vs_benign_full_content",
+    "harmful_vs_neutral_full_content"
+  ],
+  "uncertainty": {
+    "resampling_unit": "prompt_family_id",
+    "class_resampling": "independent_within_request_class_with_all_arms_and_both_placements_preserved",
+    "bootstrap_replicates": 100000,
+    "seed": 20260802,
+    "simultaneous_vector": "all_request_class_by_placement_paired_components_then_placement_specific_interactions_in_the_orders_above",
+    "statistic": "maximum_absolute_centered_deviation_from_the_observed_complete-vector_estimate",
+    "quantile": 0.95,
+    "numpy_quantile_method": "higher",
+    "interval": "estimate_plus_or_minus_one_common_familywise_critical_value",
+    "interval_role": "fixed_panel_stability_not_population_inference"
+  },
+  "decision_rule": {
+    "practical_margin_feature_units": 0.05,
+    "material_specific_increment_present": "simultaneous_lower_bound_strictly_exceeds_margin",
+    "harmful_request_interaction_present": "within_each_placement_both_interaction_simultaneous_lower_bounds_strictly_exceed_margin",
+    "request_class_similarity_on_fixed_panels": "within_each_placement_all_three_full_content_lower_bounds_strictly_exceed_margin_and_both_interaction_intervals_are_strictly_inside_minus_margin_to_plus_margin",
+    "otherwise": "mixed_or_inconclusive",
+    "failure_to_show_interaction_is_independence_evidence": false
+  },
+  "secondary_readouts": {
+    "frozen_subspace_score": "same_complete_arm_means_and_paired_components_reported_descriptively_without_primary_decision_reuse",
+    "assistant_boundary_jlens_margin": "same_complete_arm_means_and_paired_components_reported_descriptively_without_primary_decision_reuse",
+    "sae_reconstruction_relative_error": "cellwise_mean_min_max_and_global_assay_tolerance_check",
+    "feature_6779_positive": "cellwise_strict_positive_counts_and_prevalence_descriptive_only",
+    "generation_phase_parser": "cellwise_parser_status_refusal_finish_truncation_and_generated_token_count_summaries_only",
+    "semantic_task_completion": "deferred_null_generation_receipt_field",
+    "harmbench": "deferred_separate_blinded_hash_bound_scoring"
+  },
+  "literal_sentinels": {
+    "reported_one_per_placement": true,
+    "inferential_pooling": false,
+    "false_positive_stratum": false,
+    "threshold_fit": false
+  },
+  "forbidden": [
+    "placement_pooling",
+    "size_pooling",
+    "feature_reselection",
+    "threshold_fitting",
+    "held_out_confirmation_opening",
+    "semantic_task_completion_from_generation_receipts",
+    "population_inference",
+    "request_class_independence_claim_from_null_interaction"
+  ]
+}
