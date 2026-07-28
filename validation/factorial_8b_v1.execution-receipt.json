@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "status": "canonical_generation_complete",
+  "public_plan_sha256": "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375",
+  "private_plan_sha256": "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c",
+  "assay_receipt_sha256": "50452be9fa1e01922f8f55d219afe2ecad9b7db1498c42f9abd767cac268c987",
+  "matrix": {
+    "authorization_sha256": "9aa4b9388ba3c645d9ced7f07de7bb4a054302c5de29b1093fcbbe164951e275",
+    "run_id": "factorial-canonical-a056-20260727",
+    "source_commit": "e5e6fe68b05ddbab0bf784d873f205edca4b3b3c",
+    "receipt_count": 420,
+    "receipt_manifest_sha256": "edf564767a91238fe96a8fcd36989b175ad0cb2405acd2755a336bc1934c39b7",
+    "attempt_failures": 0
+  },
+  "descriptive_sentinels": {
+    "authorization_sha256": "a034cb661902806ca1af4865f1717b800b288c8c91ddaa2585b5c8e969a7f9a6",
+    "run_id": "factorial-sentinel-repair-a059-20260727",
+    "source_commit": "363d2d397ab0b98e48a17e41d376465954c3d7b3",
+    "receipt_count": 2,
+    "receipt_manifest_sha256": "179beb8fe79a64e13880b4794cad64cc2269f96a9eacaf003ecf14effe86e118",
+    "summary_sha256": "08d4c50c7d0d2da0fb9d8d6d8f453e7b290597423fc235455792f4fa627f27c7",
+    "attempt_failures": 0,
+    "descriptive_only": true
+  },
+  "complete_topology": {
+    "canonical_receipt_count": 422,
+    "component_binding_sha256": "10e0910c2d11f7d1e7e87b4f44dd8463881cf603d2c1e7164ee37638e2a8cd58",
+    "placement_pooling": false,
+    "size_pooling": false,
+    "literal_sentinels_in_inferential_estimands": false
+  },
+  "outcome_state_at_binding": {
+    "raw_prompt_or_generated_text_public": false,
+    "receipt_outcome_analysis_started": false,
+    "threshold_fit": false,
+    "held_out_confirmation_opened": false
+  }
+}
