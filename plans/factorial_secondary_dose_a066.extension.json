@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "status": "prospective_infrastructure_wall_extension",
+  "stage": "secondary_dose",
+  "run_id": "factorial-secondary-dose-a065-20260727",
+  "bindings": {
+    "authorization_sha256": "9abed29c2c07a18f3da83d3a2e41360b0325baf4659dabdbdcca5fe3764658b3",
+    "source_commit": "296fdde7a9b3422b09095f0c6d8bd55d0df969ef",
+    "task_pod_id": "5z1z67i7tlzj47",
+    "output_root": "/workspace/runs/factorial-secondary-dose-a065",
+    "dose_observation_manifest_sha256": "bf846f9cd7810416ba2405709a54e2d2564798c7399dfc1826e98bdbb881717f"
+  },
+  "decision_state": {
+    "runner_pid": 1025,
+    "runner_elapsed": "00:02:35",
+    "completed_receipts": 12,
+    "restricted_artifacts": 12,
+    "failure_receipts": 0,
+    "outcome_values_inspected": false,
+    "raw_artifacts_opened": false,
+    "extension_basis": "receipt-count throughput only"
+  },
+  "cost": {
+    "live_rate_usd_per_hour": 2.99,
+    "original_wall_time_minutes": 75,
+    "extended_total_wall_time_minutes": 110,
+    "maximum_total_compute_usd": 5.4816666666666665,
+    "conservative_pre_run_ceiling_usd": 97.88900617153334,
+    "conservative_post_run_ceiling_usd": 103.3706728382,
+    "renewed_human_soft_gate_approval": true,
+    "hard_ceiling_usd": 200,
+    "no_progress_stop_minutes": 12
+  },
+  "teardown": {
+    "pod_created_utc": "2026-07-28T02:01:48Z",
+    "extended_hard_teardown_utc": "2026-07-28T03:51:48Z",
+    "immediate_teardown_after_complete_retrieval": true
+  },
+  "scientific_scope_change": false
+}

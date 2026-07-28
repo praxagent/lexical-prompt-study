@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -41,6 +42,9 @@ PROBE_REPAIR_DOSE_AUTHORIZATION = (
 )
 MODEL_PATH_REPAIR_DOSE_AUTHORIZATION = (
     ROOT / "plans" / "factorial_secondary_dose_a065.authorization.json"
+)
+DOSE_WALL_EXTENSION = (
+    ROOT / "plans" / "factorial_secondary_dose_a066.extension.json"
 )
 
 
@@ -265,3 +269,25 @@ def test_a065_zero_outcome_model_path_repair_is_valid() -> None:
     assert recovery["incomplete_model_mirror_weight_shards"] == 0
     assert recovery["complete_model_snapshot_weight_shards"] == 4
     assert recovery["failed_output_root_preserved"] is True
+
+
+def test_a066_wall_extension_is_count_based_and_under_hard_ceiling() -> None:
+    payload = json.loads(DOSE_WALL_EXTENSION.read_text())
+    assert payload["status"] == "prospective_infrastructure_wall_extension"
+    assert payload["run_id"] == "factorial-secondary-dose-a065-20260727"
+    assert payload["decision_state"]["outcome_values_inspected"] is False
+    assert payload["decision_state"]["raw_artifacts_opened"] is False
+    assert payload["decision_state"]["failure_receipts"] == 0
+    cost = payload["cost"]
+    assert cost["extended_total_wall_time_minutes"] == 110
+    assert math.isclose(
+        cost["maximum_total_compute_usd"],
+        (
+            cost["live_rate_usd_per_hour"]
+            * cost["extended_total_wall_time_minutes"]
+            / 60
+        ),
+        rel_tol=0,
+        abs_tol=1e-12,
+    )
+    assert cost["conservative_post_run_ceiling_usd"] < cost["hard_ceiling_usd"]
