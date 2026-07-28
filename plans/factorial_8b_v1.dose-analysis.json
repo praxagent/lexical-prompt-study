@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "analysis_id": "factorial-8b-secondary-dose-v1",
+  "status": "prospective_before_secondary_dose_outcomes",
+  "bindings": {
+    "public_plan_sha256": "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375",
+    "private_plan_sha256": "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c",
+    "canonical_result_sha256": "cdcfbf80d294bd6e416092a2b8fb5eae35608fcda6e37f1cc00e73987b43ebd9",
+    "canonical_execution_receipt_sha256": "d9a0e0e2ac3dadb9cd2a943d7d072f1f806045198f95769e9f2ee91736ce620b",
+    "canonical_matrix_receipt_manifest_sha256": "edf564767a91238fe96a8fcd36989b175ad0cb2405acd2755a336bc1934c39b7",
+    "dose_authorization_sha256": "a3399f72ebdb163eba4995554abf6f93ac1855e09e2af166a7601a52b7ea5005",
+    "dose_observation_manifest_sha256": "bf846f9cd7810416ba2405709a54e2d2564798c7399dfc1826e98bdbb881717f",
+    "dose_execution_receipt_sha256": null
+  },
+  "inputs": {
+    "new_partial_dose_receipts": 540,
+    "reused_canonical_receipts": 180,
+    "canonical_reuse_rule": "reuse only the ten lowest request-SHA-256 rows per request class already selected prospectively in the private plan",
+    "canonical_regeneration_forbidden": true,
+    "literal_sentinels_excluded": true,
+    "held_out_confirmation_excluded": true,
+    "raw_prompt_or_generation_text_opening_forbidden": true
+  },
+  "factors": {
+    "request_classes": [
+      "minimal_neutral_carrier",
+      "ordinary_benign_request",
+      "harmful_request"
+    ],
+    "materials": [
+      "inert_length",
+      "structural_sham",
+      "full_scaffold"
+    ],
+    "placements": [
+      "ep_before_request",
+      "ep_after_request"
+    ],
+    "size_ids": [
+      "blocks-001",
+      "blocks-002",
+      "blocks-003",
+      "blocks-004"
+    ],
+    "injected_token_counts": [
+      64,
+      128,
+      188,
+      252
+    ],
+    "independent_unit": "prompt_family_id",
+    "expected_units_per_cell": 10,
+    "placement_pooling": false,
+    "size_pooling": false
+  },
+  "readouts": {
+    "primary": "feature_6779_magnitude",
+    "strict_positive_prevalence": "descriptive_only",
+    "secondary": [
+      "frozen_subspace_score",
+      "assistant_boundary_jlens_margin",
+      "refusal_detected"
+    ],
+    "semantic_task_completion_or_utility": "not_available_until_separate_blinded_scoring_stage"
+  },
+  "paired_contrasts_at_each_request_class_placement_and_size": [
+    {
+      "name": "full_content_increment",
+      "left": "full_scaffold",
+      "right": "structural_sham"
+    },
+    {
+      "name": "sham_over_inert_increment",
+      "left": "structural_sham",
+      "right": "inert_length"
+    }
+  ],
+  "descriptive_interactions_at_each_placement_and_size": [
+    "harmful_full_content_increment_minus_ordinary_benign_full_content_increment",
+    "harmful_full_content_increment_minus_minimal_neutral_full_content_increment"
+  ],
+  "uncertainty": {
+    "method": "paired_prompt_family_nonparametric_bootstrap",
+    "replicates": 10000,
+    "master_seed": 20260728,
+    "stream_rule": "master_seed_plus_zero_based_index_of_the_fully_sorted_estimand_key",
+    "interval": "two_sided_95_percent_percentile",
+    "simultaneous_or_familywise_claim": false,
+    "p_values": false,
+    "formal_pass_fail_decision": false
+  },
+  "dose_shape_policy": {
+    "plot_all_four_realized_token_counts": true,
+    "connect_points_only_within_request_class_material_and_placement": true,
+    "monotonicity_test": false,
+    "monotonicity_claim_forbidden": true,
+    "linear_dose_response_claim_forbidden": true,
+    "semantic_component_ablation_claim_forbidden": true,
+    "permitted_description": "whitespace-aligned lexical-prefix dose curves on the frozen panels"
+  },
+  "missingness": {
+    "two_deterministic_attempts_per_new_observation": true,
+    "complete_case_substitution": false,
+    "imputation": false,
+    "analysis_if_any_missing": "report exact missing topology and stop inferential-style interval generation; emit cell summaries only for complete cells"
+  },
+  "claim_limits": [
+    "secondary_descriptive_not_confirmatory",
+    "fixed_model_sae_materials_requests_and_assistant_boundary_only",
+    "no_harmful_request_detector_claim",
+    "no_request_independence_claim",
+    "no_monotonic_or_semantic_component_claim",
+    "no_causal_mechanism_claim",
+    "no_threshold_fit_or_deployment_claim"
+  ]
+}
