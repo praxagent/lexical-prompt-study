@@ -179,6 +179,39 @@ def main() -> None:
     verify_factorial_figures_parser = sub.add_parser("verify-factorial-figures")
     verify_factorial_figures_parser.add_argument("--result", type=Path, required=True)
     verify_factorial_figures_parser.add_argument("--out", type=Path, required=True)
+    factorial_dose_analysis = sub.add_parser("analyze-factorial-dose")
+    factorial_dose_analysis.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_dose_analysis.add_argument("--private-plan", type=Path, required=True)
+    factorial_dose_analysis.add_argument(
+        "--analysis-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.dose-analysis.json"),
+    )
+    factorial_dose_analysis.add_argument(
+        "--execution-receipt",
+        type=Path,
+        default=Path(
+            "validation/factorial_secondary_dose_a065.execution-receipt.json"
+        ),
+    )
+    factorial_dose_analysis.add_argument(
+        "--authorization",
+        type=Path,
+        default=Path("plans/factorial_secondary_dose_a065.authorization.json"),
+    )
+    factorial_dose_analysis.add_argument("--summary", type=Path, required=True)
+    factorial_dose_analysis.add_argument("--dose-root", type=Path, required=True)
+    factorial_dose_analysis.add_argument("--canonical-root", type=Path, required=True)
+    factorial_dose_analysis.add_argument(
+        "--canonical-execution-receipt",
+        type=Path,
+        default=Path("validation/factorial_8b_v1.execution-receipt.json"),
+    )
+    factorial_dose_analysis.add_argument("--out", type=Path, required=True)
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -591,6 +624,28 @@ def main() -> None:
         print(
             json.dumps(
                 verify_factorial_figures(args.result, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-factorial-dose":
+        from .factorial_dose_analysis import analyze_factorial_dose
+
+        print(
+            json.dumps(
+                analyze_factorial_dose(
+                    public_plan_path=args.public_plan,
+                    private_plan_path=args.private_plan,
+                    analysis_plan_path=args.analysis_plan,
+                    execution_receipt_path=args.execution_receipt,
+                    authorization_path=args.authorization,
+                    summary_path=args.summary,
+                    dose_root=args.dose_root,
+                    canonical_root=args.canonical_root,
+                    canonical_execution_receipt_path=(
+                        args.canonical_execution_receipt
+                    ),
+                    output_path=args.out,
+                ),
                 sort_keys=True,
             )
         )

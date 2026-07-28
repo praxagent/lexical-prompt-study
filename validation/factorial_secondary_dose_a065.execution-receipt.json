@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-8b-factorial-v1",
+  "analysis_id": "factorial-8b-secondary-dose-v1",
+  "status": "secondary_dose_generation_complete",
+  "run_id": "factorial-secondary-dose-a065-20260727",
+  "source_commit": "296fdde7a9b3422b09095f0c6d8bd55d0df969ef",
+  "authorization_sha256": "9abed29c2c07a18f3da83d3a2e41360b0325baf4659dabdbdcca5fe3764658b3",
+  "public_plan_sha256": "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375",
+  "private_plan_sha256": "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c",
+  "assay_receipt_sha256": "50452be9fa1e01922f8f55d219afe2ecad9b7db1498c42f9abd767cac268c987",
+  "canonical_result_sha256": "cdcfbf80d294bd6e416092a2b8fb5eae35608fcda6e37f1cc00e73987b43ebd9",
+  "canonical_execution_receipt_sha256": "d9a0e0e2ac3dadb9cd2a943d7d072f1f806045198f95769e9f2ee91736ce620b",
+  "canonical_matrix_receipt_manifest_sha256": "edf564767a91238fe96a8fcd36989b175ad0cb2405acd2755a336bc1934c39b7",
+  "dose_observation_manifest_sha256": "bf846f9cd7810416ba2405709a54e2d2564798c7399dfc1826e98bdbb881717f",
+  "summary_sha256": "e3b22a1e42fbb8b88e5561180d111f397972580ff928fde8a590e22b3d703ca7",
+  "dose_receipt_count": 540,
+  "dose_receipt_manifest_sha256": "17dfe72fe8652e94b5e4037eaeca253ff92906373c62714e1bf7a2111636dfd3",
+  "restricted_artifact_count": 540,
+  "restricted_artifact_manifest_sha256": "ca3e9f2851dbea74c5fa59b885cf7b23c6a53bd907ce87c9a706921e53e12918",
+  "local_bundle_file_count": 1084,
+  "local_bundle_manifest_sha256": "5bcce2c29dbd77a15b4527fc9c0dc70beb4f3716fe23e792155d4b3bf828188a",
+  "completion": {
+    "planned_observations": 540,
+    "final_receipt_count": 540,
+    "missing_after_two_attempts": 0,
+    "failure_receipt_count": 0,
+    "canonical_observations_regenerated": 0
+  },
+  "analysis_boundaries_at_binding": {
+    "receipt_outcome_analysis_started": false,
+    "raw_prompt_or_generated_text_opened": false,
+    "placement_pooling": false,
+    "size_pooling": false,
+    "detector_threshold_fit": false,
+    "held_out_confirmation_opened": false
+  }
+}
