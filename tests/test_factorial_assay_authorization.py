@@ -131,7 +131,7 @@ def test_a060_secondary_dose_authorization_is_exact_and_valid() -> None:
 
 def test_secondary_dose_authorization_rejects_unapproved_hardware() -> None:
     payload = json.loads(DOSE_AUTHORIZATION.read_text())
-    payload["provider"]["gpu_type"] = "NVIDIA H100 80GB HBM3"
+    payload["provider"]["gpu_type"] = "NVIDIA GeForce RTX 4090"
     with pytest.raises(ValueError, match="provider"):
         validate_factorial_execution_authorization(
             payload,

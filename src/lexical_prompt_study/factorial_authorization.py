@@ -111,8 +111,16 @@ def validate_factorial_execution_authorization(
     expected_gpu_type = provider["gpu_type"]
     permitted_gpu = expected_gpu_type == "NVIDIA B200" or (
         expected_stage == "secondary_dose"
-        and expected_gpu_type == "NVIDIA H200"
-        and provider["minimum_gpu_memory_gib"] == 141
+        and (
+            (
+                expected_gpu_type == "NVIDIA H200"
+                and provider["minimum_gpu_memory_gib"] == 141
+            )
+            or (
+                expected_gpu_type == "NVIDIA H100 80GB HBM3"
+                and provider["minimum_gpu_memory_gib"] == 80
+            )
+        )
     )
     _require(
         provider["maximum_task_owned_pods"] == 1
