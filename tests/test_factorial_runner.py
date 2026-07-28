@@ -10,7 +10,10 @@ from lexical_prompt_study.factorial_authorization import (
     validate_factorial_execution_authorization,
 )
 from lexical_prompt_study.factorial_runner import (
+    _secondary_dose_observations,
+    factorial_observation_manifest_sha256,
     run_factorial_canonical,
+    run_factorial_secondary_dose,
     run_factorial_sentinel_repair,
     validate_factorial_matrix_checkpoint,
 )
@@ -83,6 +86,24 @@ def _private_plan(tmp_path: Path) -> Path:
                             "prompt_token_ids_sha256": "e" * 64,
                         }
                     )
+                    if request_index == 0:
+                        observations.append(
+                            {
+                                **common,
+                                "trial_id": (
+                                    f"dose-{class_index}-{request_index:02d}-"
+                                    f"{material_index}-{placement_index}"
+                                ),
+                                "material": material,
+                                "placement": placement,
+                                "size_id": "blocks-001",
+                                "injected_token_count": 5,
+                                "shared_reference": False,
+                                "render_group_sha256": "4" * 64,
+                                "prompt_sha256": "5" * 64,
+                                "prompt_token_ids_sha256": "6" * 64,
+                            }
+                        )
     for placement_index, placement in enumerate(
         ("ep_before_request", "ep_after_request")
     ):
@@ -102,7 +123,7 @@ def _private_plan(tmp_path: Path) -> Path:
                 "prompt_token_ids_sha256": "3" * 64,
             }
         )
-    assert len(observations) == 422
+    assert len(observations) == 440
     path = tmp_path / "factorial.private.json"
     write_json_atomic(
         path,
@@ -111,7 +132,10 @@ def _private_plan(tmp_path: Path) -> Path:
             "study_id": "lexical-scaffold-8b-factorial-v1",
             "source_commit": _source_commit(),
             "public_plan_sha256": sha256_file(PUBLIC_PLAN),
-            "doses": [{"size_id": "blocks-004", "canonical": True}],
+            "doses": [
+                {"size_id": "blocks-001", "canonical": False},
+                {"size_id": "blocks-004", "canonical": True},
+            ],
             "observations": observations,
         },
     )
@@ -471,7 +495,13 @@ def test_sentinel_repair_uses_separate_source_lane_and_locked_matrix(
     matrix_ids = {
         row["trial_id"]
         for row in private_plan["observations"]
-        if row["request_class"] != "literal_sentinel"
+        if (
+            (
+                row["request_class"] != "literal_sentinel"
+                and row["size_id"] == "blocks-004"
+            )
+            or row["material"] == "no_scaffold"
+        )
     }
     matrix_manifest = validate_factorial_matrix_checkpoint(
         matrix_run / "receipts" / "trials",
@@ -544,3 +574,228 @@ def test_sentinel_repair_uses_separate_source_lane_and_locked_matrix(
     assert summary["final_receipt_count"] == 2
     assert summary["matrix_receipt_count"] == 420
     assert summary["descriptive_only"] is True
+
+
+def test_secondary_dose_uses_only_frozen_partial_rows_and_locked_matrix(
+    tmp_path: Path,
+) -> None:
+    private_path = _private_plan(tmp_path)
+    private_plan = json.loads(private_path.read_text())
+    assay_path = _assay_receipt(tmp_path, private_path)
+    canonical_authorization, _ = _authorization(
+        tmp_path,
+        private_path,
+        assay_path,
+    )
+
+    calls = 0
+
+    def execute(observation, attempt):
+        nonlocal calls
+        calls += 1
+        restricted = (
+            tmp_path
+            / "restricted-dose"
+            / f"{observation['trial_id']}-{attempt}.json"
+        )
+        restricted.parent.mkdir(exist_ok=True)
+        restricted_sha256 = write_json_atomic(
+            restricted,
+            {
+                "trial_id": observation["trial_id"],
+                "attempt": attempt,
+                "request_class": observation["request_class"],
+                "request_id": observation["request_id"],
+                "prompt_sha256": observation["prompt_sha256"],
+                "prompt_token_ids_sha256": observation[
+                    "prompt_token_ids_sha256"
+                ],
+                "generated_text": "safe",
+                "generated_token_ids": [1],
+            },
+        )
+        return {
+            "generated_text_sha256": sha256_text("safe"),
+            "generated_token_ids_sha256": sha256_bytes(
+                canonical_json_bytes([1])
+            ),
+            "generated_token_count": 1,
+            "finish_reason": "eos",
+            "truncated": False,
+            "feature_6779_magnitude": 0.1,
+            "feature_6779_positive": True,
+            "frozen_subspace_score": 0.2,
+            "sae_reconstruction_relative_error": 0.1,
+            "assistant_boundary_jlens_margin": -0.1,
+            "refusal_detected": False,
+            "task_completion": None,
+            "utility_score": None,
+            "phase_parser_result": {"status": "safe"},
+            "restricted_artifact_path": str(restricted),
+            "restricted_artifact_sha256": restricted_sha256,
+            "generation_elapsed_seconds": 0.01,
+            "readout_elapsed_seconds": 0.01,
+            "peak_memory_bytes": 1,
+            "model_revision": "6" * 40,
+            "tokenizer_revision": "6" * 40,
+            "lens_sha256": "7" * 64,
+            "sae_sha256": "8" * 64,
+            "software": {"python": "test"},
+        }
+
+    matrix_run = tmp_path / "matrix-for-dose"
+    run_factorial_canonical(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        authorization_path=canonical_authorization,
+        output_root=matrix_run,
+        run_id="canonical-safe",
+        execute_observation=execute,
+    )
+    matrix_rows = [
+        row
+        for row in private_plan["observations"]
+        if (
+            (
+                row["size_id"] == "blocks-004"
+                and row["request_class"] != "literal_sentinel"
+            )
+            or row["material"] == "no_scaffold"
+        )
+    ]
+    matrix_ids = {row["trial_id"] for row in matrix_rows}
+    receipt_root = matrix_run / "receipts" / "trials"
+    for path in receipt_root.glob("*.json"):
+        if path.stem not in matrix_ids:
+            path.unlink()
+    matrix_manifest = validate_factorial_matrix_checkpoint(
+        receipt_root,
+        expected_trial_ids=matrix_ids,
+        expected_public_plan_sha256=sha256_file(PUBLIC_PLAN),
+        expected_private_plan_sha256=sha256_file(private_path),
+        expected_assay_receipt_sha256=sha256_file(assay_path),
+        expected_source_commit=_source_commit(),
+        expected_run_id="canonical-safe",
+    )
+
+    execution_receipt_path = tmp_path / "execution-receipt.json"
+    write_json_atomic(
+        execution_receipt_path,
+        {
+            "schema_version": "1.0",
+            "study_id": "lexical-scaffold-8b-factorial-v1",
+            "status": "canonical_generation_complete",
+            "public_plan_sha256": sha256_file(PUBLIC_PLAN),
+            "private_plan_sha256": sha256_file(private_path),
+            "assay_receipt_sha256": sha256_file(assay_path),
+            "matrix": {
+                "source_commit": _source_commit(),
+                "run_id": "canonical-safe",
+                "receipt_count": 420,
+                "receipt_manifest_sha256": matrix_manifest,
+            },
+            "outcome_state_at_binding": {
+                "held_out_confirmation_opened": False,
+                "threshold_fit": False,
+            },
+        },
+    )
+    canonical_result_path = tmp_path / "canonical-result.json"
+    write_json_atomic(
+        canonical_result_path,
+        {
+            "schema_version": "1.0",
+            "study_id": "lexical-scaffold-8b-factorial-v1",
+            "status": "complete",
+            "public_plan_sha256": sha256_file(PUBLIC_PLAN),
+            "execution_receipt_sha256": sha256_file(execution_receipt_path),
+        },
+    )
+    dose_rows = _secondary_dose_observations(private_plan)
+    assert len(dose_rows) == 18
+    authorization = {
+        "schema_version": "1.0",
+        "study_id": "lexical-scaffold-8b-factorial-v1",
+        "status": "prospective_factorial_dose_authorization",
+        "stage": "secondary_dose",
+        "run_id": "dose-safe",
+        "bindings": {
+            "public_plan_sha256": sha256_file(PUBLIC_PLAN),
+            "private_plan_sha256": sha256_file(private_path),
+            "assay_receipt_sha256": sha256_file(assay_path),
+            "canonical_result_sha256": sha256_file(canonical_result_path),
+            "canonical_execution_receipt_sha256": sha256_file(
+                execution_receipt_path
+            ),
+            "source_commit": _source_commit(),
+            "matrix_receipt_count": 420,
+            "matrix_receipt_manifest_sha256": matrix_manifest,
+            "matrix_source_commit": _source_commit(),
+            "matrix_run_id": "canonical-safe",
+            "dose_observation_manifest_sha256": (
+                factorial_observation_manifest_sha256(dose_rows)
+            ),
+        },
+        "scope": {
+            "target_factorial_outcomes_authorized": True,
+            "planned_conditions": len(dose_rows),
+            "placement_pooling": False,
+            "size_pooling": False,
+            "detector_threshold_fitting": False,
+            "completed_receipt_overwrite": False,
+        },
+        "provider": {
+            "maximum_task_owned_pods": 1,
+            "gpu_count": 1,
+            "gpu_type": "NVIDIA B200",
+            "datacenter_id": "US-CA-2",
+            "secure_cloud": True,
+            "persistent_volume_id": "u85xfo0aue",
+            "persistent_volume_mount": "/workspace",
+            "fallback_allowed": False,
+        },
+        "cost": {
+            "maximum_live_rate_usd_per_hour": 5.98,
+            "wall_time_minutes": 60,
+            "maximum_compute_usd": 5.98,
+            "conservative_pre_run_ceiling_usd": 97.889,
+            "conservative_post_run_ceiling_usd": 103.869,
+            "renewed_human_soft_gate_approval": True,
+            "no_progress_stop_minutes": 10,
+        },
+    }
+    authorization_path = tmp_path / "dose-authorization.json"
+    authorization_path.write_text(json.dumps(authorization))
+    before_dose_calls = calls
+    first = run_factorial_secondary_dose(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        canonical_result_path=canonical_result_path,
+        canonical_execution_receipt_path=execution_receipt_path,
+        matrix_receipt_root=receipt_root,
+        authorization_path=authorization_path,
+        output_root=tmp_path / "dose-run",
+        run_id="dose-safe",
+        execute_observation=execute,
+    )
+    assert first["status"] == "complete"
+    assert first["receipts_written_this_call"] == 18
+    assert first["canonical_observations_regenerated"] == 0
+    assert calls - before_dose_calls == 18
+    second = run_factorial_secondary_dose(
+        public_plan_path=PUBLIC_PLAN,
+        private_plan_path=private_path,
+        assay_receipt_path=assay_path,
+        canonical_result_path=canonical_result_path,
+        canonical_execution_receipt_path=execution_receipt_path,
+        matrix_receipt_root=receipt_root,
+        authorization_path=authorization_path,
+        output_root=tmp_path / "dose-run",
+        run_id="dose-safe",
+        execute_observation=execute,
+    )
+    assert second["preexisting_receipts"] == 18
+    assert second["receipts_written_this_call"] == 0
+    assert calls - before_dose_calls == 18

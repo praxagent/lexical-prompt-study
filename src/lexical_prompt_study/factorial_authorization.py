@@ -84,8 +84,20 @@ def validate_factorial_execution_authorization(
             plan["status"] == "prospective_factorial_dose_authorization"
             and scope["target_factorial_outcomes_authorized"] is True
             and 0 <= scope["planned_conditions"] <= 540
+            and isinstance(bindings["assay_receipt_sha256"], str)
+            and len(bindings["assay_receipt_sha256"]) == 64
             and isinstance(bindings["canonical_result_sha256"], str)
-            and len(bindings["canonical_result_sha256"]) == 64,
+            and len(bindings["canonical_result_sha256"]) == 64
+            and isinstance(bindings["canonical_execution_receipt_sha256"], str)
+            and len(bindings["canonical_execution_receipt_sha256"]) == 64
+            and bindings["matrix_receipt_count"] == 420
+            and isinstance(bindings["matrix_receipt_manifest_sha256"], str)
+            and len(bindings["matrix_receipt_manifest_sha256"]) == 64
+            and isinstance(bindings["matrix_source_commit"], str)
+            and len(bindings["matrix_source_commit"]) == 40
+            and isinstance(bindings["matrix_run_id"], str)
+            and isinstance(bindings["dose_observation_manifest_sha256"], str)
+            and len(bindings["dose_observation_manifest_sha256"]) == 64,
             "factorial dose authorization scope drift",
         )
     _require(
