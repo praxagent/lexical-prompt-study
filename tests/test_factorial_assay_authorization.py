@@ -16,6 +16,9 @@ CANONICAL_AUTHORIZATION = (
     ROOT / "plans" / "factorial_canonical_a056.authorization.json"
 )
 ASSAY_RECEIPT = ROOT / "validation" / "factorial_assay_a055.public.json"
+SENTINEL_AUTHORIZATION = (
+    ROOT / "plans" / "factorial_sentinel_repair_a058.authorization.json"
+)
 
 
 def test_a055_factorial_assay_authorization_is_exact_and_valid() -> None:
@@ -54,4 +57,21 @@ def test_a056_factorial_canonical_authorization_is_exact_and_valid() -> None:
         sha256_file(ASSAY_RECEIPT)
         == payload["bindings"]["assay_receipt_sha256"]
     )
+    assert payload["cost"]["conservative_post_run_ceiling_usd"] < 100
+
+
+def test_a058_sentinel_repair_authorization_is_exact_and_valid() -> None:
+    payload = json.loads(SENTINEL_AUTHORIZATION.read_text())
+    validate_factorial_execution_authorization(
+        payload,
+        expected_public_plan_sha256=(
+            "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375"
+        ),
+        expected_private_plan_sha256=(
+            "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c"
+        ),
+        expected_source_commit="13e19efb91e630da88b12b1f54ef1b62a37ef25b",
+        expected_stage="descriptive_sentinel_repair",
+    )
+    assert payload["bindings"]["matrix_receipt_count"] == 420
     assert payload["cost"]["conservative_post_run_ceiling_usd"] < 100
