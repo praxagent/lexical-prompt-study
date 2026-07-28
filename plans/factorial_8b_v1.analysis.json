@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "study_id": "lexical-scaffold-8b-factorial-v1",
   "status": "prospective_exact_analysis_freeze",
-  "execution_receipt_sha256": "f306a22f2ca20e641cb8086433e708c32f5f0e5f6faf541e66c099e2e98ff377",
+  "execution_receipt_sha256": "d9a0e0e2ac3dadb9cd2a943d7d072f1f806045198f95769e9f2ee91736ce620b",
   "canonical_matrix_receipt_count": 420,
   "descriptive_sentinel_receipt_count": 2,
   "primary_readout": "feature_6779_magnitude",

@@ -18,14 +18,14 @@
     "run_id": "factorial-sentinel-repair-a059-20260727",
     "source_commit": "363d2d397ab0b98e48a17e41d376465954c3d7b3",
     "receipt_count": 2,
-    "receipt_manifest_sha256": "179beb8fe79a64e13880b4794cad64cc2269f96a9eacaf003ecf14effe86e118",
+    "receipt_manifest_sha256": "ed7b4a0b4ae880c677a3b210a0717c99d174c58a1f39108332b5029df98485da",
     "summary_sha256": "08d4c50c7d0d2da0fb9d8d6d8f453e7b290597423fc235455792f4fa627f27c7",
     "attempt_failures": 0,
     "descriptive_only": true
   },
   "complete_topology": {
     "canonical_receipt_count": 422,
-    "component_binding_sha256": "10e0910c2d11f7d1e7e87b4f44dd8463881cf603d2c1e7164ee37638e2a8cd58",
+    "component_binding_sha256": "e115e79925c6247b324a500746af90ccb83162a2c3b97a3c03ef6df2dbf4ae27",
     "placement_pooling": false,
     "size_pooling": false,
     "literal_sentinels_in_inferential_estimands": false
