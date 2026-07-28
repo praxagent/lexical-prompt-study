@@ -36,6 +36,9 @@ H100_DOSE_AUTHORIZATION = (
 LIVE_RATE_DOSE_AUTHORIZATION = (
     ROOT / "plans" / "factorial_secondary_dose_a063.authorization.json"
 )
+PROBE_REPAIR_DOSE_AUTHORIZATION = (
+    ROOT / "plans" / "factorial_secondary_dose_a064.authorization.json"
+)
 
 
 def test_a055_factorial_assay_authorization_is_exact_and_valid() -> None:
@@ -216,3 +219,25 @@ def test_a063_h100_live_rate_reconciliation_is_valid() -> None:
         "observed_over_rate_pod_terminated_before_ssh"
     ] is True
     assert payload["cost"]["conservative_post_run_ceiling_usd"] < 102
+
+
+def test_a064_zero_outcome_probe_path_repair_is_valid() -> None:
+    payload = json.loads(PROBE_REPAIR_DOSE_AUTHORIZATION.read_text())
+    validate_factorial_execution_authorization(
+        payload,
+        expected_public_plan_sha256=(
+            "8d0fdc4cd41d1ea79d0f1aebb4b642f7d0a072458c0c037a7f769c3a51c62375"
+        ),
+        expected_private_plan_sha256=(
+            "055e27e7367d68fd64fd6109f1a0d3a3120e106a293c7adbf025410b908f1c3c"
+        ),
+        expected_source_commit="296fdde7a9b3422b09095f0c6d8bd55d0df969ef",
+        expected_stage="secondary_dose",
+    )
+    assert payload["recovery_invariants"]["failed_run_receipts"] == 0
+    assert payload["recovery_invariants"]["failed_run_restricted_artifacts"] == 0
+    assert payload["recovery_invariants"]["failed_output_root_preserved"] is True
+    assert (
+        payload["recovery_invariants"]["correct_probe_source_plan"]
+        == "plans/study_v1.public.json"
+    )

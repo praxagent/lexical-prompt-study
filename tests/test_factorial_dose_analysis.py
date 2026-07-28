@@ -32,7 +32,7 @@ def test_secondary_dose_analysis_plan_is_prospective_and_exact() -> None:
         ROOT / "validation" / "factorial_8b_v1.execution-receipt.json"
     )
     assert plan["bindings"]["dose_authorization_sha256"] == sha256_file(
-        ROOT / "plans" / "factorial_secondary_dose_a063.authorization.json"
+        ROOT / "plans" / "factorial_secondary_dose_a064.authorization.json"
     )
     assert plan["bindings"]["dose_execution_receipt_sha256"] is None
 
