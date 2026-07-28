@@ -154,6 +154,25 @@ def main() -> None:
     factorial_sentinels.add_argument("--sae-path", type=Path, required=True)
     factorial_sentinels.add_argument("--out", type=Path, required=True)
     factorial_sentinels.add_argument("--run-id", required=True)
+    factorial_analysis = sub.add_parser("analyze-factorial-canonical")
+    factorial_analysis.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.public.json"),
+    )
+    factorial_analysis.add_argument(
+        "--analysis-plan",
+        type=Path,
+        default=Path("plans/factorial_8b_v1.analysis.json"),
+    )
+    factorial_analysis.add_argument(
+        "--execution-receipt",
+        type=Path,
+        default=Path("validation/factorial_8b_v1.execution-receipt.json"),
+    )
+    factorial_analysis.add_argument("--matrix-root", type=Path, required=True)
+    factorial_analysis.add_argument("--sentinel-root", type=Path, required=True)
+    factorial_analysis.add_argument("--out", type=Path, required=True)
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -531,6 +550,22 @@ def main() -> None:
                     sae_path=args.sae_path,
                     output_root=args.out,
                     run_id=args.run_id,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-factorial-canonical":
+        from .factorial_analysis import analyze_factorial_canonical
+
+        print(
+            json.dumps(
+                analyze_factorial_canonical(
+                    public_plan_path=args.public_plan,
+                    analysis_plan_path=args.analysis_plan,
+                    execution_receipt_path=args.execution_receipt,
+                    matrix_root=args.matrix_root,
+                    sentinel_root=args.sentinel_root,
+                    output_path=args.out,
                 ),
                 sort_keys=True,
             )
