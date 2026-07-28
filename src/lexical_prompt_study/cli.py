@@ -173,6 +173,12 @@ def main() -> None:
     factorial_analysis.add_argument("--matrix-root", type=Path, required=True)
     factorial_analysis.add_argument("--sentinel-root", type=Path, required=True)
     factorial_analysis.add_argument("--out", type=Path, required=True)
+    factorial_figures = sub.add_parser("figures-factorial")
+    factorial_figures.add_argument("--result", type=Path, required=True)
+    factorial_figures.add_argument("--out", type=Path, required=True)
+    verify_factorial_figures_parser = sub.add_parser("verify-factorial-figures")
+    verify_factorial_figures_parser.add_argument("--result", type=Path, required=True)
+    verify_factorial_figures_parser.add_argument("--out", type=Path, required=True)
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
@@ -567,6 +573,24 @@ def main() -> None:
                     sentinel_root=args.sentinel_root,
                     output_path=args.out,
                 ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-factorial":
+        from .factorial_figures import generate_factorial_figures
+
+        print(
+            json.dumps(
+                generate_factorial_figures(args.result, args.out),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-factorial-figures":
+        from .factorial_figures import verify_factorial_figures
+
+        print(
+            json.dumps(
+                verify_factorial_figures(args.result, args.out),
                 sort_keys=True,
             )
         )

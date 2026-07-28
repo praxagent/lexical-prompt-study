@@ -301,6 +301,67 @@ readout with ordering-dependent sign and depth structure on this exact setup.
 Forbidden overread: fitted-versus-random visual structure does not establish a
 causal circuit, transport equivalence, moderation, or detection performance.
 
+### E13. Complete feature-6779 factorial prevalence
+
+Question: Does strict-positive feature-6779 activation require harmful content,
+inert length, matched structure, or the full scaffold?
+
+Chart: two placement panels containing all request-class by material prevalence
+cells, with positive counts printed on every bar. The shared no-scaffold
+reference is repeated only for visual alignment.
+
+Independent unit: prompt family ID within request class.
+
+Required fields: request class, placement, material, strict-positive count,
+denominator, prevalence, and canonical-size identity.
+
+Permitted inference: placement-stratified strict-positive prevalence on the
+pinned model, SAE, materials, and fixed request panels.
+
+Forbidden overread: strict positivity is not a detector threshold, and the
+figure does not establish harmful specificity, causality, or deployment value.
+
+### E14. Primary feature-6779 effects and interactions
+
+Question: Does the full scaffold add activation beyond matched structural sham,
+and is that increment uniquely larger for harmful requests?
+
+Chart: full-minus-sham effects for neutral, benign, and harmful requests plus
+the two frozen harmful-minus-comparator interactions, separately for each
+placement, with the single familywise simultaneous stability interval.
+
+Independent unit: prompt family ID, resampled independently within request
+class while preserving every paired arm and both placements.
+
+Required fields: estimate, simultaneous lower and upper bounds, practical
+margin, placement, request class or interaction identity, bootstrap seed,
+replicate count, and complete-vector critical value.
+
+Permitted inference: exact-material fixed-panel effects and the prespecified
+interaction decision for each placement.
+
+Forbidden overread: no population, request-class-independence, placement,
+threshold, causal, or deployment claim.
+
+### E15. Secondary frozen-subspace and Jacobian-lens readouts
+
+Question: Do the frozen eight-feature subspace and assistant-boundary
+Jacobian-lens margin show a similar full-over-sham pattern?
+
+Chart: four placement-by-readout panels showing mean full-minus-sham contrast
+and observed prompt-family range for each request class.
+
+Independent unit: prompt family ID within request class.
+
+Required fields: metric identity, placement, request class, paired contrast
+mean, minimum, maximum, and count.
+
+Permitted inference: descriptive behavior of the two frozen secondary readouts
+on the complete canonical receipt matrix.
+
+Forbidden overread: neither secondary readout is reused for the primary
+decision, threshold fitting, causal localization, or detector performance.
+
 ## Per-figure receipt schema
 
 Each empirical figure gets `<figure-stem>.receipt.json` containing:
