@@ -339,7 +339,7 @@ def run_factorial_sentinel_repair(
         != {"ep_before_request", "ep_after_request"}
         or any(
             row["material"] != "full_scaffold"
-            or row["render_group_sha256"] is not None
+            or row.get("render_group_sha256") is not None
             for row in sentinels
         )
     ):
@@ -442,7 +442,7 @@ def run_factorial_sentinel_repair(
             "size_id": observation["size_id"],
             "injected_token_count": observation["injected_token_count"],
             "shared_reference": observation["shared_reference"],
-            "render_group_sha256": observation["render_group_sha256"],
+            "render_group_sha256": observation.get("render_group_sha256"),
             "prompt_sha256": observation["prompt_sha256"],
             "prompt_token_ids_sha256": observation["prompt_token_ids_sha256"],
         }

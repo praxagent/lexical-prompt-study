@@ -98,7 +98,6 @@ def _private_plan(tmp_path: Path) -> Path:
                 "size_id": "blocks-004",
                 "injected_token_count": 19,
                 "shared_reference": False,
-                "render_group_sha256": None,
                 "prompt_sha256": "2" * 64,
                 "prompt_token_ids_sha256": "3" * 64,
             }
