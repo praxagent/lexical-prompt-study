@@ -55,6 +55,53 @@ def main() -> None:
         type=Path,
         default=Path("plans/weaponization_breaker_v1.public.json"),
     )
+    harmless_scaffolds = sub.add_parser("compile-harmless-scaffolds")
+    harmless_scaffolds.add_argument(
+        "--library",
+        type=Path,
+        default=Path("plans/harmless_scaffold_families_v1.public.json"),
+    )
+    harmless_scaffolds.add_argument("--tokenizer", type=Path, required=True)
+    harmless_scaffolds.add_argument(
+        "--private-out",
+        type=Path,
+        default=Path("private/weaponization/harmless-scaffolds.preview.private.json"),
+    )
+    harmless_scaffolds.add_argument(
+        "--receipt",
+        type=Path,
+        default=Path("validation/harmless-scaffolds.preview.public.json"),
+    )
+    harmless_scaffolds.add_argument("--allow-unreviewed-preview", action="store_true")
+    weaponization_requests = sub.add_parser("build-weaponization-harmful-panels")
+    weaponization_requests.add_argument("--source-csv", type=Path, required=True)
+    weaponization_requests.add_argument(
+        "--predecessor-private",
+        type=Path,
+        action="append",
+        required=True,
+    )
+    weaponization_requests.add_argument(
+        "--private-out",
+        type=Path,
+        default=Path("private/weaponization/harmful-request-panels.private.json"),
+    )
+    weaponization_requests.add_argument(
+        "--receipt",
+        type=Path,
+        default=Path("validation/weaponization-harmful-panels.public.json"),
+    )
+    safe_requests = sub.add_parser("build-weaponization-safe-panels")
+    safe_requests.add_argument(
+        "--private-out",
+        type=Path,
+        default=Path("private/weaponization/safe-request-panels.private.json"),
+    )
+    safe_requests.add_argument(
+        "--receipt",
+        type=Path,
+        default=Path("validation/weaponization-safe-panels.public.json"),
+    )
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -528,6 +575,47 @@ def main() -> None:
                     "status": "weaponization_plan_valid",
                     "study_id": plan["study_id"],
                 },
+                sort_keys=True,
+            )
+        )
+    elif args.command == "compile-harmless-scaffolds":
+        from .harmless_scaffolds import compile_harmless_wrapper_files
+
+        print(
+            json.dumps(
+                compile_harmless_wrapper_files(
+                    library_path=args.library,
+                    tokenizer_path=args.tokenizer,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
+                    allow_unreviewed_preview=args.allow_unreviewed_preview,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-weaponization-harmful-panels":
+        from .weaponization_requests import build_harmful_request_panels
+
+        print(
+            json.dumps(
+                build_harmful_request_panels(
+                    source_csv_path=args.source_csv,
+                    predecessor_private_paths=args.predecessor_private,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-weaponization-safe-panels":
+        from .safe_request_panels import write_safe_request_panels
+
+        print(
+            json.dumps(
+                write_safe_request_panels(
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
+                ),
                 sort_keys=True,
             )
         )

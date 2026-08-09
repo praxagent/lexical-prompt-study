@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "study_id": "lexical-scaffold-weaponization-breaker-v1",
-  "amendment": "A077",
+  "amendment": "A080",
   "status": "prospectively_frozen_local_implementation_only_no_new_outcomes",
   "created_at": "2026-08-09",
   "purpose": "Distinguish a tested attack scaffold's form from its weaponized use, then test a bounded inference circuit breaker without exposing restricted attack text to the research agent.",
@@ -46,6 +46,57 @@
     "public_outputs": "hashes, counts, aggregate statistics, sanitized figures, and non-reconstructive provenance only",
     "raw_prompt_logging_default": false,
     "restricted_runner_treats_attack_text_as_inert_data": true
+  },
+  "request_sources": {
+    "harmful": {
+      "repository": "https://github.com/centerforaisafety/HarmBench.git",
+      "revision": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+      "path": "data/behavior_datasets/harmbench_behaviors_text_all.csv",
+      "sha256": "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc",
+      "calibration_functional_counts": {"standard": 76, "contextual": 24},
+      "confirmation_functional_counts": {"standard": 115, "contextual": 35},
+      "selection": "largest-remainder semantic-category quotas within each frozen functional stratum, then ascending restricted source-row SHA-256 and behavior ID",
+      "exclude_all_predecessor_request_hashes": true,
+      "raw_request_text_public": false
+    },
+    "harmless_scaffolds": {
+      "path": "plans/harmless_scaffold_families_v1.public.json",
+      "sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+      "calibration_semantic_families": 15,
+      "confirmation_semantic_families": 15,
+      "surface_variants_per_family": 20,
+      "families_disjoint_between_partitions": true,
+      "target_cumulative_token_counts": [64, 128, 188, 252]
+    },
+    "benign_and_neutral": {
+      "status": "hash_frozen_no_target_outcomes",
+      "minimum_unique_requests_per_partition_and_class": 300,
+      "partition_reuse_forbidden": true,
+      "deterministically_checkable_utility_subset_required": true,
+      "all_utility_judges_deterministic": true,
+      "public_receipt_path": "validation/weaponization-safe-panels.public.json",
+      "public_receipt_sha256": "329e25bd6378456cbe722791a90ab267eee0acb0c3a5092171a96175ce02dc52",
+      "private_panel_sha256": "1c934ee4de493955afe7aa723197a14861447a804f93f4f7d2cfbc44b860832a"
+    }
+  },
+  "input_freeze_receipts": {
+    "harmful_request_panel": {
+      "path": "validation/weaponization-harmful-panels.public.json",
+      "sha256": "72ea00d0dd8710686fbb66ac5f43f9693b79b66054582b932900d6eec98305e5",
+      "private_panel_sha256": "1e6d125cbfec4b083f0e33457bf63762f418fa136f9a7f152e94231ce38ffb66"
+    },
+    "safe_request_panel": {
+      "path": "validation/weaponization-safe-panels.public.json",
+      "sha256": "329e25bd6378456cbe722791a90ab267eee0acb0c3a5092171a96175ce02dc52",
+      "private_panel_sha256": "1c934ee4de493955afe7aa723197a14861447a804f93f4f7d2cfbc44b860832a"
+    },
+    "harmless_scaffold_preview": {
+      "path": "validation/harmless-scaffolds.preview.public.json",
+      "sha256": "2699e2d0c62fb8d6e01f7a475ac965b937cf86adc0704360f6090b02a757da47",
+      "private_material_sha256": "f035e4a57529c418eb2227bd218d9ad083357d26fbb8271f8e6103274f2f88b9",
+      "human_semantic_review_approved": false,
+      "cannot_enter_target_generation_until_true": true
+    }
   },
   "constructs": {
     "scaffold_definition": "a multi-stage instruction package wrapped around a separate substantive request; not a synonym for every prompt",

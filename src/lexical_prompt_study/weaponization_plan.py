@@ -52,7 +52,7 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
     _require(plan["schema_version"] == "1.0", "weaponization schema drift")
     _require(
         plan["study_id"] == "lexical-scaffold-weaponization-breaker-v1"
-        and plan["amendment"] == "A077"
+        and plan["amendment"] == "A080"
         and plan["status"]
         == "prospectively_frozen_local_implementation_only_no_new_outcomes",
         "weaponization identity or outcome boundary drift",
@@ -115,6 +115,65 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         and boundary["raw_prompt_logging_default"] is False
         and boundary["restricted_runner_treats_attack_text_as_inert_data"] is True,
         "weaponization restricted-data boundary drift",
+    )
+
+    sources = plan["request_sources"]
+    harmful_source = sources["harmful"]
+    harmless_source = sources["harmless_scaffolds"]
+    _require(
+        harmful_source["repository"]
+        == "https://github.com/centerforaisafety/HarmBench.git"
+        and harmful_source["revision"]
+        == "8e1604d1171fe8a48d8febecd22f600e462bdcdd"
+        and harmful_source["sha256"]
+        == "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc"
+        and harmful_source["calibration_functional_counts"]
+        == {"standard": 76, "contextual": 24}
+        and harmful_source["confirmation_functional_counts"]
+        == {"standard": 115, "contextual": 35}
+        and harmful_source["exclude_all_predecessor_request_hashes"] is True
+        and harmful_source["raw_request_text_public"] is False,
+        "weaponization harmful request source drift",
+    )
+    _require(
+        harmless_source["path"] == "plans/harmless_scaffold_families_v1.public.json"
+        and harmless_source["sha256"]
+        == "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276"
+        and harmless_source["calibration_semantic_families"] == 15
+        and harmless_source["confirmation_semantic_families"] == 15
+        and harmless_source["surface_variants_per_family"] == 20
+        and harmless_source["families_disjoint_between_partitions"] is True
+        and harmless_source["target_cumulative_token_counts"] == SIZES,
+        "weaponization harmless scaffold source drift",
+    )
+    benign_neutral = sources["benign_and_neutral"]
+    _require(
+        benign_neutral["status"] == "hash_frozen_no_target_outcomes"
+        and
+        benign_neutral["minimum_unique_requests_per_partition_and_class"] >= 300
+        and benign_neutral["partition_reuse_forbidden"] is True
+        and benign_neutral["deterministically_checkable_utility_subset_required"] is True,
+        "weaponization benign or neutral source boundary drift",
+    )
+
+    receipts = plan["input_freeze_receipts"]
+    for name in ("harmful_request_panel", "safe_request_panel", "harmless_scaffold_preview"):
+        _require(
+            len(receipts[name]["sha256"]) == 64,
+            f"weaponization input freeze receipt missing: {name}",
+        )
+        if root is not None:
+            _require(
+                _sha256(root / receipts[name]["path"]) == receipts[name]["sha256"],
+                f"weaponization input freeze receipt drift: {name}",
+            )
+    _require(
+        receipts["harmless_scaffold_preview"]["human_semantic_review_approved"] is False
+        and receipts["harmless_scaffold_preview"][
+            "cannot_enter_target_generation_until_true"
+        ]
+        is True,
+        "harmless scaffold human review gate drift",
     )
 
     constructs = plan["constructs"]
