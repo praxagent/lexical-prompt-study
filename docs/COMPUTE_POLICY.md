@@ -6,14 +6,18 @@ Date: 2026-07-25
 
 ## Authorization envelope
 
-- Soft escalation threshold: **$50 cumulative**
-- Hard cumulative ceiling: **$100**
+- Soft escalation threshold: **$100 cumulative**
+- Hard cumulative ceiling: **$200**
 - Python environment and commands: **uv**
 - GPU provider: **RunPod**
 - Durable working set: **task-owned RunPod network volume**
 - Expected volume retention: **a few days, reviewed daily**
 
 The soft threshold and hard ceiling have different meanings.
+
+The author doubled the original `$50`/`$100` envelope during the active study.
+The current `$100`/`$200` envelope supersedes those original limits; individual
+run authorizations and all fail-closed requirements remain mandatory.
 
 At the soft threshold:
 

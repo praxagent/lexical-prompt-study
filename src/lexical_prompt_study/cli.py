@@ -49,6 +49,12 @@ def main() -> None:
         type=Path,
         default=Path("plans/factorial_8b_v1.public.json"),
     )
+    validate_weaponization = sub.add_parser("validate-weaponization-plan")
+    validate_weaponization.add_argument(
+        "--plan",
+        type=Path,
+        default=Path("plans/weaponization_breaker_v1.public.json"),
+    )
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -502,6 +508,24 @@ def main() -> None:
                 {
                     "plan": str(args.plan),
                     "status": "factorial_plan_valid",
+                    "study_id": plan["study_id"],
+                },
+                sort_keys=True,
+            )
+        )
+    elif args.command == "validate-weaponization-plan":
+        from .weaponization_plan import (
+            load_weaponization_plan,
+            validate_weaponization_plan,
+        )
+
+        plan = load_weaponization_plan(args.plan)
+        validate_weaponization_plan(plan, root=Path.cwd())
+        print(
+            json.dumps(
+                {
+                    "plan": str(args.plan),
+                    "status": "weaponization_plan_valid",
                     "study_id": plan["study_id"],
                 },
                 sort_keys=True,
