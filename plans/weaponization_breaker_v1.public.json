@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "study_id": "lexical-scaffold-weaponization-breaker-v1",
-  "amendment": "A080",
+  "amendment": "A082",
   "status": "prospectively_frozen_local_implementation_only_no_new_outcomes",
   "created_at": "2026-08-09",
   "purpose": "Distinguish a tested attack scaffold's form from its weaponized use, then test a bounded inference circuit breaker without exposing restricted attack text to the research agent.",
@@ -36,6 +36,10 @@
     "jacobian_lens_sha256": "d5300a1575c0b5ad6e01b098c75adb072f3a6c246f184ce2fb35a3550fc8c68b",
     "frozen_feature_id": 6779,
     "frozen_subspace_feature_ids": [1980, 6779, 11954, 20449, 35705, 43596, 53185, 58843],
+    "frozen_subspace_weights": [0.45627591514620597, 0.24735941544551213, 0.33793770264806916, 0.3326831567543487, 0.5891881962701038, 0.16520059933373984, 0.14547619742632198, 0.3318860384634854],
+    "jacobian_lens_probe_source_plan": "plans/study_v1.public.json",
+    "jacobian_lens_probe_source_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "jacobian_lens_probe_manifest_sha256": "045f26e2ad2c33f912265b6337386cad8e7ae997e4ecbace6ed4be17ca269191",
     "candidate_reselection_forbidden": true
   },
   "restricted_data_boundary": {
@@ -53,8 +57,10 @@
       "revision": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
       "path": "data/behavior_datasets/harmbench_behaviors_text_all.csv",
       "sha256": "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc",
-      "calibration_functional_counts": {"standard": 76, "contextual": 24},
-      "confirmation_functional_counts": {"standard": 115, "contextual": 35},
+      "secondary_path": "data/behavior_datasets/extra_behavior_datasets/advbench_behaviors.csv",
+      "secondary_sha256": "0e635254df9065ae6f8d074534b660fa7a361d1ad269e2c8e1b7377961802a86",
+      "calibration_functional_counts": {"standard": 47, "contextual": 23, "advbench": 30},
+      "confirmation_functional_counts": {"standard": 144, "contextual": 70, "advbench": 86},
       "selection": "largest-remainder semantic-category quotas within each frozen functional stratum, then ascending restricted source-row SHA-256 and behavior ID",
       "exclude_all_predecessor_request_hashes": true,
       "raw_request_text_public": false
@@ -82,8 +88,8 @@
   "input_freeze_receipts": {
     "harmful_request_panel": {
       "path": "validation/weaponization-harmful-panels.public.json",
-      "sha256": "72ea00d0dd8710686fbb66ac5f43f9693b79b66054582b932900d6eec98305e5",
-      "private_panel_sha256": "1e6d125cbfec4b083f0e33457bf63762f418fa136f9a7f152e94231ce38ffb66"
+      "sha256": "5406548504147c00f989d9fe1cc170c95d441d8bf0cef3784a01dacfc4fec261",
+      "private_panel_sha256": "09a181aa55d2a0ae6fb1d7de4eabaec5501ce42a3f88c682961df5ccf29c5372"
     },
     "safe_request_panel": {
       "path": "validation/weaponization-safe-panels.public.json",
@@ -96,6 +102,21 @@
       "private_material_sha256": "f035e4a57529c418eb2227bd218d9ad083357d26fbb8271f8e6103274f2f88b9",
       "human_semantic_review_approved": false,
       "cannot_enter_target_generation_until_true": true
+    },
+    "calibration_topology_preview": {
+      "path": "validation/weaponization-calibration-topology.preview.public.json",
+      "sha256": "7216438a5b258c2cfd77d582bbd01b0000c4cffc62bc00242acfc05f648e2fc2",
+      "private_topology_sha256": "329ece5de806f7e49f30f20db8f54c894816a36eba25c358dc4484e35d42aecf",
+      "observation_count": 1900,
+      "target_outcome_exists": false
+    },
+    "confirmation_topology_preview": {
+      "path": "validation/weaponization-confirmation-topology.preview.public.json",
+      "sha256": "4f8eabf14807b7ba550e5215f8aa56f3c494decb049ff44373da8f03f6bd52e0",
+      "private_topology_sha256": "6a18571845b5ff75830af886d1abe08f10dceac49dba350a15dbe25667b66a87",
+      "observation_count": 5700,
+      "sealed": true,
+      "target_outcome_exists": false
     }
   },
   "constructs": {
@@ -151,7 +172,7 @@
       "families_disjoint_from_discovery_and_confirmation": true
     },
     "detector_confirmation": {
-      "positive_attempts_per_placement": 150,
+      "positive_attempts_per_placement": 300,
       "critical_negatives_per_stratum_per_placement": 300,
       "one_shot": true,
       "sealed_until_candidate_and_threshold_hashes_are_frozen": true,

@@ -76,6 +76,9 @@ def main() -> None:
     weaponization_requests = sub.add_parser("build-weaponization-harmful-panels")
     weaponization_requests.add_argument("--source-csv", type=Path, required=True)
     weaponization_requests.add_argument(
+        "--secondary-source-csv", type=Path, required=True
+    )
+    weaponization_requests.add_argument(
         "--predecessor-private",
         type=Path,
         action="append",
@@ -102,6 +105,47 @@ def main() -> None:
         type=Path,
         default=Path("validation/weaponization-safe-panels.public.json"),
     )
+    weaponization_topology = sub.add_parser("build-weaponization-topology")
+    weaponization_topology.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/weaponization_breaker_v1.public.json"),
+    )
+    weaponization_topology.add_argument("--harmful-panel", type=Path, required=True)
+    weaponization_topology.add_argument("--safe-panel", type=Path, required=True)
+    weaponization_topology.add_argument("--harmless-material", type=Path, required=True)
+    weaponization_topology.add_argument("--factorial-material", type=Path, required=True)
+    weaponization_topology.add_argument(
+        "--factorial-material-receipt", type=Path, required=True
+    )
+    weaponization_topology.add_argument("--tokenizer", type=Path, required=True)
+    weaponization_topology.add_argument("--tokenizer-revision", required=True)
+    weaponization_topology.add_argument(
+        "--partition",
+        choices=["detector_calibration", "detector_confirmation"],
+        required=True,
+    )
+    weaponization_topology.add_argument("--private-out", type=Path, required=True)
+    weaponization_topology.add_argument("--receipt", type=Path, required=True)
+    weaponization_topology.add_argument("--allow-unreviewed-preview", action="store_true")
+    weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
+    weaponization_prefill.add_argument(
+        "--public-plan",
+        type=Path,
+        default=Path("plans/weaponization_breaker_v1.public.json"),
+    )
+    weaponization_prefill.add_argument("--private-topology", type=Path, required=True)
+    weaponization_prefill.add_argument("--authorization", type=Path, required=True)
+    weaponization_prefill.add_argument(
+        "--probe-plan", type=Path, default=Path("plans/study_v1.public.json")
+    )
+    weaponization_prefill.add_argument("--model-path", required=True)
+    weaponization_prefill.add_argument("--lens-path", type=Path, required=True)
+    weaponization_prefill.add_argument("--sae-path", type=Path, required=True)
+    weaponization_prefill.add_argument("--factorial-material", type=Path, required=True)
+    weaponization_prefill.add_argument("--out", type=Path, required=True)
+    weaponization_prefill.add_argument("--run-id", required=True)
+    weaponization_prefill.add_argument("--batch-size", type=int, default=4)
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -600,6 +644,7 @@ def main() -> None:
             json.dumps(
                 build_harmful_request_panels(
                     source_csv_path=args.source_csv,
+                    secondary_source_csv_path=args.secondary_source_csv,
                     predecessor_private_paths=args.predecessor_private,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
@@ -615,6 +660,49 @@ def main() -> None:
                 write_safe_request_panels(
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-weaponization-topology":
+        from .weaponization_topology import build_weaponization_topology
+
+        print(
+            json.dumps(
+                build_weaponization_topology(
+                    public_plan_path=args.public_plan,
+                    harmful_panel_path=args.harmful_panel,
+                    safe_panel_path=args.safe_panel,
+                    harmless_material_path=args.harmless_material,
+                    factorial_material_path=args.factorial_material,
+                    factorial_material_receipt_path=args.factorial_material_receipt,
+                    tokenizer_path=args.tokenizer,
+                    tokenizer_revision=args.tokenizer_revision,
+                    partition=args.partition,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
+                    allow_unreviewed_preview=args.allow_unreviewed_preview,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-weaponization-prefill-gpu":
+        from .weaponization_gpu import run_weaponization_prefill_gpu
+
+        print(
+            json.dumps(
+                run_weaponization_prefill_gpu(
+                    public_plan_path=args.public_plan,
+                    private_topology_path=args.private_topology,
+                    authorization_path=args.authorization,
+                    probe_plan_path=args.probe_plan,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    factorial_material_path=args.factorial_material,
+                    output_root=args.out,
+                    run_id=args.run_id,
+                    batch_size=args.batch_size,
                 ),
                 sort_keys=True,
             )

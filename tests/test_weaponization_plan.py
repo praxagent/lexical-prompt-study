@@ -53,6 +53,11 @@ def test_weaponization_plan_passes_and_binds_predecessors() -> None:
             "causal-localization",
         ),
         (("size_robustness", "threshold_refit_by_size_forbidden"), False, "size-robustness"),
+        (
+            ("pinned_instrument", "jacobian_lens_probe_manifest_sha256"),
+            "0" * 64,
+            "pinned instrument",
+        ),
     ],
 )
 def test_weaponization_plan_rejects_safety_drift(

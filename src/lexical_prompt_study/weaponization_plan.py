@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+from .hashing import canonical_json_bytes, sha256_bytes
 
 
 EXPECTED_STAGE_ORDER = [
@@ -48,11 +51,21 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def weaponization_protocol_sha256(plan: dict[str, Any]) -> str:
+    """Hash the protocol while excluding its circular topology-receipt bindings."""
+
+    protocol = copy.deepcopy(plan)
+    receipts = protocol["input_freeze_receipts"]
+    receipts.pop("calibration_topology_preview", None)
+    receipts.pop("confirmation_topology_preview", None)
+    return sha256_bytes(canonical_json_bytes(protocol))
+
+
 def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = None) -> None:
     _require(plan["schema_version"] == "1.0", "weaponization schema drift")
     _require(
         plan["study_id"] == "lexical-scaffold-weaponization-breaker-v1"
-        and plan["amendment"] == "A080"
+        and plan["amendment"] == "A082"
         and plan["status"]
         == "prospectively_frozen_local_implementation_only_no_new_outcomes",
         "weaponization identity or outcome boundary drift",
@@ -97,6 +110,23 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         and instrument["sae_layer"] == 19
         and instrument["frozen_feature_id"] == 6779
         and instrument["frozen_subspace_feature_ids"] == FEATURE_IDS
+        and instrument["frozen_subspace_weights"]
+        == [
+            0.45627591514620597,
+            0.24735941544551213,
+            0.33793770264806916,
+            0.3326831567543487,
+            0.5891881962701038,
+            0.16520059933373984,
+            0.14547619742632198,
+            0.3318860384634854,
+        ]
+        and instrument["jacobian_lens_probe_source_plan"]
+        == "plans/study_v1.public.json"
+        and instrument["jacobian_lens_probe_source_plan_sha256"]
+        == "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+        and instrument["jacobian_lens_probe_manifest_sha256"]
+        == "045f26e2ad2c33f912265b6337386cad8e7ae997e4ecbace6ed4be17ca269191"
         and instrument["candidate_reselection_forbidden"] is True,
         "weaponization pinned instrument drift",
     )
@@ -127,10 +157,12 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         == "8e1604d1171fe8a48d8febecd22f600e462bdcdd"
         and harmful_source["sha256"]
         == "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc"
+        and harmful_source["secondary_sha256"]
+        == "0e635254df9065ae6f8d074534b660fa7a361d1ad269e2c8e1b7377961802a86"
         and harmful_source["calibration_functional_counts"]
-        == {"standard": 76, "contextual": 24}
+        == {"standard": 47, "contextual": 23, "advbench": 30}
         and harmful_source["confirmation_functional_counts"]
-        == {"standard": 115, "contextual": 35}
+        == {"standard": 144, "contextual": 70, "advbench": 86}
         and harmful_source["exclude_all_predecessor_request_hashes"] is True
         and harmful_source["raw_request_text_public"] is False,
         "weaponization harmful request source drift",
@@ -157,7 +189,13 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
     )
 
     receipts = plan["input_freeze_receipts"]
-    for name in ("harmful_request_panel", "safe_request_panel", "harmless_scaffold_preview"):
+    for name in (
+        "harmful_request_panel",
+        "safe_request_panel",
+        "harmless_scaffold_preview",
+        "calibration_topology_preview",
+        "confirmation_topology_preview",
+    ):
         _require(
             len(receipts[name]["sha256"]) == 64,
             f"weaponization input freeze receipt missing: {name}",
@@ -175,6 +213,27 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         is True,
         "harmless scaffold human review gate drift",
     )
+    _require(
+        receipts["calibration_topology_preview"]["observation_count"] == 1900
+        and receipts["calibration_topology_preview"]["target_outcome_exists"] is False
+        and receipts["confirmation_topology_preview"]["observation_count"] == 5700
+        and receipts["confirmation_topology_preview"]["sealed"] is True
+        and receipts["confirmation_topology_preview"]["target_outcome_exists"] is False,
+        "weaponization topology preview gate drift",
+    )
+    if root is not None:
+        protocol_sha256 = weaponization_protocol_sha256(plan)
+        for name in (
+            "calibration_topology_preview",
+            "confirmation_topology_preview",
+        ):
+            topology_receipt = json.loads((root / receipts[name]["path"]).read_text())
+            _require(
+                topology_receipt["protocol_sha256"] == protocol_sha256
+                and topology_receipt["private_topology_sha256"]
+                == receipts[name]["private_topology_sha256"],
+                f"weaponization topology protocol binding drift: {name}",
+            )
 
     constructs = plan["constructs"]
     harmless = constructs["harmless_scaffold_panel"]
@@ -230,7 +289,7 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         "detector calibration partition drift",
     )
     _require(
-        confirmation["positive_attempts_per_placement"] >= 150
+        confirmation["positive_attempts_per_placement"] >= 300
         and confirmation["critical_negatives_per_stratum_per_placement"] >= 300
         and confirmation["one_shot"] is True
         and confirmation["sealed_until_candidate_and_threshold_hashes_are_frozen"] is True

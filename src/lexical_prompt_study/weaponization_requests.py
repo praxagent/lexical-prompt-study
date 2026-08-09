@@ -14,9 +14,16 @@ from .hashing import canonical_json_bytes, sha256_bytes, sha256_file, sha256_tex
 
 SOURCE_REVISION = "8e1604d1171fe8a48d8febecd22f600e462bdcdd"
 SOURCE_FILE_SHA256 = "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc"
-PARTITION_COUNTS = {
-    "detector_calibration": {"standard": 76, "contextual": 24},
-    "detector_confirmation": {"standard": 115, "contextual": 35},
+SECONDARY_SOURCE_FILE_SHA256 = (
+    "0e635254df9065ae6f8d074534b660fa7a361d1ad269e2c8e1b7377961802a86"
+)
+HARMBENCH_PARTITION_COUNTS = {
+    "detector_calibration": {"standard": 47, "contextual": 23},
+    "detector_confirmation": {"standard": 144, "contextual": 70},
+}
+ADVBENCH_PARTITION_COUNTS = {
+    "detector_calibration": 30,
+    "detector_confirmation": 86,
 }
 
 
@@ -109,12 +116,15 @@ def _select_partition(
 def build_harmful_request_panels(
     *,
     source_csv_path: Path,
+    secondary_source_csv_path: Path,
     predecessor_private_paths: Sequence[Path],
     private_output_path: Path,
     public_receipt_path: Path,
 ) -> dict[str, Any]:
     if sha256_file(source_csv_path) != SOURCE_FILE_SHA256:
         raise ValueError("pinned HarmBench source hash drift")
+    if sha256_file(secondary_source_csv_path) != SECONDARY_SOURCE_FILE_SHA256:
+        raise ValueError("pinned AdvBench source hash drift")
     excluded_hashes: set[str] = set()
     predecessor_hashes: dict[str, str] = {}
     for path in predecessor_private_paths:
@@ -167,9 +177,12 @@ def build_harmful_request_panels(
         available[row["FunctionalCategory"]].append(row)
 
     panels: dict[str, list[dict[str, Any]]] = {}
+    selected_request_hashes: set[str] = set()
     for partition in ("detector_calibration", "detector_confirmation"):
-        selected = _select_partition(available, targets=PARTITION_COUNTS[partition])
-        expected = sum(PARTITION_COUNTS[partition].values())
+        selected = _select_partition(
+            available, targets=HARMBENCH_PARTITION_COUNTS[partition]
+        )
+        expected = sum(HARMBENCH_PARTITION_COUNTS[partition].values())
         if len(selected) != expected:
             raise ValueError(f"{partition}: insufficient disjoint harmful rows")
         panels[partition] = [
@@ -183,13 +196,76 @@ def build_harmful_request_panels(
                 else None,
                 "functional_category": row["FunctionalCategory"],
                 "semantic_category": row["SemanticCategory"],
+                "source_dataset": "harmbench",
                 "source_row_sha256": _row_hash(row),
             }
             for row in selected
         ]
+        selected_request_hashes.update(row["request_sha256"] for row in panels[partition])
+
+    with secondary_source_csv_path.open(newline="") as handle:
+        secondary_reader = csv.DictReader(handle)
+        expected_secondary_fields = {
+            "Behavior",
+            "Category",
+            "Tags",
+            "ContextString",
+            "BehaviorID",
+        }
+        if set(secondary_reader.fieldnames or ()) != expected_secondary_fields:
+            raise ValueError("AdvBench source schema drift")
+        secondary_raw = [dict(row) for row in secondary_reader]
+    if len(secondary_raw) != 520 or len({row["BehaviorID"] for row in secondary_raw}) != 520:
+        raise ValueError("AdvBench source row topology drift")
+    secondary_rows: list[dict[str, str]] = []
+    secondary_overlap_count = 0
+    secondary_seen: set[str] = set()
+    for raw in secondary_raw:
+        request_hash = sha256_text(raw["Behavior"])
+        if request_hash in excluded_hashes or request_hash in selected_request_hashes:
+            secondary_overlap_count += 1
+            continue
+        if request_hash in secondary_seen:
+            raise ValueError("duplicate AdvBench request bytes")
+        secondary_seen.add(request_hash)
+        secondary_rows.append(
+            {
+                "Behavior": raw["Behavior"],
+                "FunctionalCategory": "advbench",
+                "SemanticCategory": raw["Category"] or "advbench",
+                "Tags": raw["Tags"],
+                "ContextString": raw["ContextString"],
+                "BehaviorID": raw["BehaviorID"],
+            }
+        )
+    secondary_rows.sort(key=lambda row: (_row_hash(row), row["BehaviorID"]))
+    offset = 0
+    for partition in ("detector_calibration", "detector_confirmation"):
+        count = ADVBENCH_PARTITION_COUNTS[partition]
+        selected = secondary_rows[offset : offset + count]
+        if len(selected) != count:
+            raise ValueError(f"{partition}: insufficient disjoint AdvBench rows")
+        offset += count
+        panels[partition].extend(
+            {
+                "request_id": row["BehaviorID"],
+                "request": row["Behavior"],
+                "request_sha256": sha256_text(row["Behavior"]),
+                "context": None,
+                "context_sha256": None,
+                "functional_category": row["FunctionalCategory"],
+                "semantic_category": row["SemanticCategory"],
+                "source_dataset": "advbench",
+                "source_row_sha256": _row_hash(row),
+            }
+            for row in selected
+        )
+        panels[partition].sort(
+            key=lambda row: (row["source_row_sha256"], row["request_id"])
+        )
 
     all_selected = [row for rows in panels.values() for row in rows]
-    if len(all_selected) != 250 or len({row["request_sha256"] for row in all_selected}) != 250:
+    if len(all_selected) != 400 or len({row["request_sha256"] for row in all_selected}) != 400:
         raise ValueError("harmful panel request uniqueness drift")
     if {row["request_sha256"] for row in all_selected} & excluded_hashes:
         raise ValueError("harmful panel overlaps a protected predecessor request")
@@ -197,12 +273,20 @@ def build_harmful_request_panels(
     private_payload = {
         "schema_version": "1.0",
         "study_id": "lexical-scaffold-weaponization-breaker-v1",
-        "source": {
-            "repository": "https://github.com/centerforaisafety/HarmBench.git",
-            "revision": SOURCE_REVISION,
-            "path": "data/behavior_datasets/harmbench_behaviors_text_all.csv",
-            "sha256": SOURCE_FILE_SHA256,
-        },
+        "sources": [
+            {
+                "repository": "https://github.com/centerforaisafety/HarmBench.git",
+                "revision": SOURCE_REVISION,
+                "path": "data/behavior_datasets/harmbench_behaviors_text_all.csv",
+                "sha256": SOURCE_FILE_SHA256,
+            },
+            {
+                "repository": "https://github.com/centerforaisafety/HarmBench.git",
+                "revision": SOURCE_REVISION,
+                "path": "data/behavior_datasets/extra_behavior_datasets/advbench_behaviors.csv",
+                "sha256": SECONDARY_SOURCE_FILE_SHA256,
+            },
+        ],
         "predecessor_private_sha256": predecessor_hashes,
         "selection_rule": "largest-remainder semantic-category quotas within frozen functional strata, then ascending source-row SHA-256 and behavior ID",
         "panels": panels,
@@ -216,6 +300,7 @@ def build_harmful_request_panels(
                 "context_sha256": row["context_sha256"],
                 "functional_category": row["functional_category"],
                 "semantic_category": row["semantic_category"],
+                "source_dataset": row["source_dataset"],
                 "source_row_sha256": row["source_row_sha256"],
             }
             for row in rows
@@ -227,12 +312,20 @@ def build_harmful_request_panels(
         "study_id": "lexical-scaffold-weaponization-breaker-v1",
         "status": "harmful_request_panels_frozen_no_target_outcomes",
         "source_revision": SOURCE_REVISION,
-        "source_file_sha256": SOURCE_FILE_SHA256,
+        "source_file_sha256": {
+            "harmbench": SOURCE_FILE_SHA256,
+            "advbench": SECONDARY_SOURCE_FILE_SHA256,
+        },
         "predecessor_private_sha256": predecessor_hashes,
         "excluded_predecessor_request_hash_count": len(excluded_hashes),
         "source_overlap_rows_excluded": overlap_count,
         "duplicate_source_rows_excluded": duplicate_source_rows_excluded,
+        "secondary_source_overlap_rows_excluded": secondary_overlap_count,
         "partition_counts": {key: len(rows) for key, rows in panels.items()},
+        "source_dataset_counts": {
+            partition: dict(Counter(row["source_dataset"] for row in rows))
+            for partition, rows in panels.items()
+        },
         "functional_category_counts": {
             partition: dict(Counter(row["functional_category"] for row in rows))
             for partition, rows in panels.items()
