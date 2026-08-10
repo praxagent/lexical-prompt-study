@@ -130,6 +130,24 @@ def main() -> None:
     weaponization_topology.add_argument("--private-out", type=Path, required=True)
     weaponization_topology.add_argument("--receipt", type=Path, required=True)
     weaponization_topology.add_argument("--allow-unreviewed-preview", action="store_true")
+    jlens_breaker_topology = sub.add_parser("build-jlens-breaker-v2-topology")
+    jlens_breaker_topology.add_argument("--plan", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--harmful-panel", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--safe-panel", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--harmless-material", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--inherited-material", type=Path, required=True)
+    jlens_breaker_topology.add_argument(
+        "--inherited-material-receipt", type=Path, required=True
+    )
+    jlens_breaker_topology.add_argument("--tokenizer", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--tokenizer-revision", required=True)
+    jlens_breaker_topology.add_argument(
+        "--partition",
+        choices=("detector_calibration", "detector_confirmation"),
+        required=True,
+    )
+    jlens_breaker_topology.add_argument("--private-out", type=Path, required=True)
+    jlens_breaker_topology.add_argument("--receipt", type=Path, required=True)
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -692,6 +710,27 @@ def main() -> None:
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
                     allow_unreviewed_preview=args.allow_unreviewed_preview,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "build-jlens-breaker-v2-topology":
+        from .jlens_breaker_v2_topology import build_jlens_breaker_v2_topology
+
+        print(
+            json.dumps(
+                build_jlens_breaker_v2_topology(
+                    plan_path=args.plan,
+                    harmful_panel_path=args.harmful_panel,
+                    safe_panel_path=args.safe_panel,
+                    harmless_material_path=args.harmless_material,
+                    inherited_material_path=args.inherited_material,
+                    inherited_material_receipt_path=args.inherited_material_receipt,
+                    tokenizer_path=args.tokenizer,
+                    tokenizer_revision=args.tokenizer_revision,
+                    partition=args.partition,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
                 ),
                 sort_keys=True,
             )

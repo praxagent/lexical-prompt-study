@@ -24,6 +24,12 @@ def test_v2_plan_preserves_failed_confirmation_boundary() -> None:
     assert plan["candidate_freeze"]["v2_trainable_parameters"] == (
         "one scalar threshold per placement fitted on v2 calibration only"
     )
+    assert plan["candidate_freeze"]["private_candidate_sha256"] == sha256_file(
+        ROOT / "private" / "weaponization" / "candidate-v1.private.json"
+    )
+    assert plan["pinned_instrument"][
+        "jacobian_lens_probe_source_plan_sha256"
+    ] == sha256_file(ROOT / "plans" / "study_v1.public.json")
 
 
 def test_v2_plan_keeps_size_placement_and_deployment_gates() -> None:
@@ -62,3 +68,12 @@ def test_v2_plan_keeps_size_placement_and_deployment_gates() -> None:
     assert harmless["public_receipt_sha256"] == sha256_file(
         ROOT / "validation" / "harmless-scaffolds.v2-a099.public.json"
     )
+    inherited = plan["new_inputs"]["inherited_restricted_materials"]
+    assert inherited["private_material_sha256"] == sha256_file(
+        ROOT / "private" / "factorial-materials.private.json"
+    )
+    assert inherited["public_receipt_sha256"] == sha256_file(
+        ROOT / "validation" / "factorial_8b_v1.material-source-receipt.json"
+    )
+    assert plan["topology"]["calibration_observation_count"] == 8910
+    assert plan["topology"]["confirmation_observation_count"] == 29700

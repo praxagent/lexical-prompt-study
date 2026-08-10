@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "study_id": "lexical-jlens-breaker-v2",
-  "amendment": "A101",
+  "amendment": "A103",
   "status": "prospectively_frozen_local_implementation_only_no_v2_target_outcomes",
   "created_at": "2026-08-10",
   "headline_question": "Can the already-frozen placement-specific Jacobian-lens projection support a low-false-trip known-family breaker when tested across scaffold size, generated harmful success, benign utility, and a new sealed panel?",
@@ -29,10 +29,14 @@
     "model": "meta-llama/Llama-3.1-8B-Instruct",
     "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
     "jacobian_lens_sha256": "d5300a1575c0b5ad6e01b098c75adb072f3a6c246f184ce2fb35a3550fc8c68b",
+    "jacobian_lens_probe_source_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "jacobian_lens_probe_manifest_sha256": "045f26e2ad2c33f912265b6337386cad8e7ae997e4ecbace6ed4be17ca269191",
     "sae_sha256": "bbdc6fad591d3d420e8859dcb6eefa4ec642026090f7f39a963b1c0f27290e4f",
+    "sae_layer": 19,
     "sae_role": "diagnostic comparator only; never a required v2 breaker key",
     "frozen_feature_id": 6779,
-    "frozen_subspace_feature_ids": [1980, 6779, 11954, 20449, 35705, 43596, 53185, 58843]
+    "frozen_subspace_feature_ids": [1980, 6779, 11954, 20449, 35705, 43596, 53185, 58843],
+    "frozen_subspace_weights": [0.45627591514620597, 0.24735941544551213, 0.33793770264806916, 0.3326831567543487, 0.5891881962701038, 0.16520059933373984, 0.14547619742632198, 0.3318860384634854]
   },
   "candidate_freeze": {
     "primary_score": "the exact placement-specific 31-coordinate L2-ridge logistic J-lens projections stored in the v1 private candidate",
@@ -40,6 +44,7 @@
     "standardization_references_may_change": false,
     "placements_never_pooled": true,
     "v2_trainable_parameters": "one scalar threshold per placement fitted on v2 calibration only",
+    "private_candidate_sha256": "df83a51d734185669d6303fd2673f4caefe5e56e9afaed906ada5923d1918e0a",
     "sae_structure_gate_removed": true,
     "reason": "the J-lens head retained held-out AUROC 0.9985814815 before and 0.9921907407 after, while the SAE-dependent two-key operating rule failed",
     "comparators": [
@@ -94,6 +99,12 @@
       "public_receipt_sha256": "ae859219d859415c50992b828401fcf38980e225f04af8193031ca0211270844",
       "approved_for_target_execution": true,
       "approval_binding": "user approval of semantic library SHA-256 46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276"
+    },
+    "inherited_restricted_materials": {
+      "role": "pinned full attack, structural sham, and inert-length block prefixes only",
+      "private_material_sha256": "ee899a47ceca1b53e90787c5279174412e8d01e5872db9bba44a486921eba345",
+      "public_receipt_sha256": "88218d881d2d8d0405bcf0f6211ad775b61ecc21c04260b520600cd907ba7c13",
+      "raw_attack_text_agent_inspection_forbidden": true
     }
   },
   "factors": {
@@ -121,6 +132,13 @@
     "no_eligible_threshold": "stop placement before confirmation",
     "secondary_size_rows_per_material_request_class_and_placement": 90,
     "secondary_sizes": [64, 128, 188]
+  },
+  "topology": {
+    "injected_factorial": "every material except no_scaffold crossed with every request class, both placements, and all four injected token counts",
+    "no_scaffold_factorial": "one shared observation per request with placement null and injected token count zero",
+    "calibration_observation_count": 8910,
+    "confirmation_observation_count": 29700,
+    "confirmation_topology_creation_opens_no_model_outcome": true
   },
   "generation_calibration": {
     "purpose": "separate known-family attack-attempt detection from successful harmful-output detection and measure benign utility",
