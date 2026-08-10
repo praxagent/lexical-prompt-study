@@ -25,6 +25,10 @@ ADVBENCH_PARTITION_COUNTS = {
     "detector_calibration": 30,
     "detector_confirmation": 86,
 }
+V2_ADVBENCH_PARTITION_COUNTS = {
+    "detector_calibration": 90,
+    "detector_confirmation": 300,
+}
 
 
 def _atomic_json(path: Path, payload: Mapping[str, Any], *, mode: int) -> str:
@@ -120,7 +124,10 @@ def build_harmful_request_panels(
     predecessor_private_paths: Sequence[Path],
     private_output_path: Path,
     public_receipt_path: Path,
+    panel_epoch: str = "v1",
 ) -> dict[str, Any]:
+    if panel_epoch not in {"v1", "v2"}:
+        raise ValueError("panel_epoch must be v1 or v2")
     if sha256_file(source_csv_path) != SOURCE_FILE_SHA256:
         raise ValueError("pinned HarmBench source hash drift")
     if sha256_file(secondary_source_csv_path) != SECONDARY_SOURCE_FILE_SHA256:
@@ -176,32 +183,38 @@ def build_harmful_request_panels(
     for row in eligible_by_request_hash.values():
         available[row["FunctionalCategory"]].append(row)
 
-    panels: dict[str, list[dict[str, Any]]] = {}
+    panels: dict[str, list[dict[str, Any]]] = {
+        "detector_calibration": [],
+        "detector_confirmation": [],
+    }
     selected_request_hashes: set[str] = set()
-    for partition in ("detector_calibration", "detector_confirmation"):
-        selected = _select_partition(
-            available, targets=HARMBENCH_PARTITION_COUNTS[partition]
-        )
-        expected = sum(HARMBENCH_PARTITION_COUNTS[partition].values())
-        if len(selected) != expected:
-            raise ValueError(f"{partition}: insufficient disjoint harmful rows")
-        panels[partition] = [
-            {
-                "request_id": row["BehaviorID"],
-                "request": row["Behavior"],
-                "request_sha256": sha256_text(row["Behavior"]),
-                "context": row["ContextString"] or None,
-                "context_sha256": sha256_text(row["ContextString"])
-                if row["ContextString"]
-                else None,
-                "functional_category": row["FunctionalCategory"],
-                "semantic_category": row["SemanticCategory"],
-                "source_dataset": "harmbench",
-                "source_row_sha256": _row_hash(row),
-            }
-            for row in selected
-        ]
-        selected_request_hashes.update(row["request_sha256"] for row in panels[partition])
+    if panel_epoch == "v1":
+        for partition in ("detector_calibration", "detector_confirmation"):
+            selected = _select_partition(
+                available, targets=HARMBENCH_PARTITION_COUNTS[partition]
+            )
+            expected = sum(HARMBENCH_PARTITION_COUNTS[partition].values())
+            if len(selected) != expected:
+                raise ValueError(f"{partition}: insufficient disjoint harmful rows")
+            panels[partition] = [
+                {
+                    "request_id": row["BehaviorID"],
+                    "request": row["Behavior"],
+                    "request_sha256": sha256_text(row["Behavior"]),
+                    "context": row["ContextString"] or None,
+                    "context_sha256": sha256_text(row["ContextString"])
+                    if row["ContextString"]
+                    else None,
+                    "functional_category": row["FunctionalCategory"],
+                    "semantic_category": row["SemanticCategory"],
+                    "source_dataset": "harmbench",
+                    "source_row_sha256": _row_hash(row),
+                }
+                for row in selected
+            ]
+            selected_request_hashes.update(
+                row["request_sha256"] for row in panels[partition]
+            )
 
     with secondary_source_csv_path.open(newline="") as handle:
         secondary_reader = csv.DictReader(handle)
@@ -239,9 +252,14 @@ def build_harmful_request_panels(
             }
         )
     secondary_rows.sort(key=lambda row: (_row_hash(row), row["BehaviorID"]))
+    partition_counts = (
+        ADVBENCH_PARTITION_COUNTS
+        if panel_epoch == "v1"
+        else V2_ADVBENCH_PARTITION_COUNTS
+    )
     offset = 0
     for partition in ("detector_calibration", "detector_confirmation"):
-        count = ADVBENCH_PARTITION_COUNTS[partition]
+        count = partition_counts[partition]
         selected = secondary_rows[offset : offset + count]
         if len(selected) != count:
             raise ValueError(f"{partition}: insufficient disjoint AdvBench rows")
@@ -265,14 +283,28 @@ def build_harmful_request_panels(
         )
 
     all_selected = [row for rows in panels.values() for row in rows]
-    if len(all_selected) != 400 or len({row["request_sha256"] for row in all_selected}) != 400:
+    expected_total = 400 if panel_epoch == "v1" else 390
+    if len(all_selected) != expected_total or len(
+        {row["request_sha256"] for row in all_selected}
+    ) != expected_total:
         raise ValueError("harmful panel request uniqueness drift")
     if {row["request_sha256"] for row in all_selected} & excluded_hashes:
         raise ValueError("harmful panel overlaps a protected predecessor request")
 
+    study_id = (
+        "lexical-scaffold-weaponization-breaker-v1"
+        if panel_epoch == "v1"
+        else "lexical-jlens-breaker-v2"
+    )
+    selection_rule = (
+        "largest-remainder semantic-category quotas within frozen functional strata, then ascending source-row SHA-256 and behavior ID"
+        if panel_epoch == "v1"
+        else "exclude all predecessor request hashes and HarmBench copyright rows; select eligible AdvBench rows by ascending source-row SHA-256 and behavior ID"
+    )
     private_payload = {
         "schema_version": "1.0",
-        "study_id": "lexical-scaffold-weaponization-breaker-v1",
+        "study_id": study_id,
+        "panel_epoch": panel_epoch,
         "sources": [
             {
                 "repository": "https://github.com/centerforaisafety/HarmBench.git",
@@ -288,7 +320,7 @@ def build_harmful_request_panels(
             },
         ],
         "predecessor_private_sha256": predecessor_hashes,
-        "selection_rule": "largest-remainder semantic-category quotas within frozen functional strata, then ascending source-row SHA-256 and behavior ID",
+        "selection_rule": selection_rule,
         "panels": panels,
     }
     private_sha256 = _atomic_json(private_output_path, private_payload, mode=0o600)
@@ -309,7 +341,8 @@ def build_harmful_request_panels(
     }
     receipt = {
         "schema_version": "1.0",
-        "study_id": "lexical-scaffold-weaponization-breaker-v1",
+        "study_id": study_id,
+        "panel_epoch": panel_epoch,
         "status": "harmful_request_panels_frozen_no_target_outcomes",
         "source_revision": SOURCE_REVISION,
         "source_file_sha256": {

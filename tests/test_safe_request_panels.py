@@ -35,6 +35,25 @@ def test_safe_request_panels_are_disjoint_and_balanced() -> None:
     assert calibration.isdisjoint(confirmation)
 
 
+def test_v2_safe_requests_are_byte_disjoint_from_v1() -> None:
+    first = build_safe_request_panels()
+    second = build_safe_request_panels(surface_epoch="v2-a099")
+    first_hashes = {
+        row["request_sha256"]
+        for classes in first["partitions"].values()
+        for rows in classes.values()
+        for row in rows
+    }
+    second_hashes = {
+        row["request_sha256"]
+        for classes in second["partitions"].values()
+        for rows in classes.values()
+        for row in rows
+    }
+    assert first_hashes.isdisjoint(second_hashes)
+    assert second["surface_epoch"] == "v2-a099"
+
+
 @pytest.mark.parametrize(
     ("text", "judge", "expected"),
     [

@@ -40,3 +40,25 @@ def test_v2_plan_keeps_size_placement_and_deployment_gates() -> None:
     assert plan["restricted_data_boundary"][
         "agent_plaintext_or_reconstructive_token_inspection"
     ] is False
+    harmful = plan["new_inputs"]["harmful_requests"]
+    assert harmful["calibration_unique_requests"] == 90
+    assert harmful["confirmation_unique_requests"] == 300
+    assert harmful["eligible_noncopyright_advbench_hashes_remaining_before_v2"] == 393
+    assert harmful["calibration_unique_requests"] + harmful[
+        "confirmation_unique_requests"
+    ] <= harmful["eligible_noncopyright_advbench_hashes_remaining_before_v2"]
+    assert harmful["public_receipt_sha256"] == sha256_file(
+        ROOT / "validation" / "weaponization-harmful-panels.v2-a100.public.json"
+    )
+    assert plan["new_inputs"]["safe_requests"][
+        "public_receipt_sha256"
+    ] == sha256_file(
+        ROOT / "validation" / "weaponization-safe-panels.v2-a099.public.json"
+    )
+    harmless = plan["new_inputs"]["harmless_wrappers"]
+    assert harmless["approved_semantic_library_sha256"] == sha256_file(
+        ROOT / "plans" / "harmless_scaffold_families_v1.public.json"
+    )
+    assert harmless["public_receipt_sha256"] == sha256_file(
+        ROOT / "validation" / "harmless-scaffolds.v2-a099.public.json"
+    )

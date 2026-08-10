@@ -14,6 +14,10 @@ PARTITIONS = {
     "detector_calibration": 1000,
     "detector_confirmation": 5000,
 }
+V2_PARTITIONS = {
+    "detector_calibration": 30000,
+    "detector_confirmation": 40000,
+}
 ITEMS_PER_CLASS_PER_PARTITION = 300
 SAFE_WORDS = (
     "amber",
@@ -195,9 +199,12 @@ def _benign_rows(partition: str, offset: int) -> list[dict[str, Any]]:
     return rows
 
 
-def build_safe_request_panels() -> dict[str, Any]:
+def build_safe_request_panels(*, surface_epoch: str = "v1") -> dict[str, Any]:
+    if surface_epoch not in {"v1", "v2-a099"}:
+        raise ValueError("unknown safe-request surface epoch")
+    partition_offsets = PARTITIONS if surface_epoch == "v1" else V2_PARTITIONS
     panels: dict[str, dict[str, list[dict[str, Any]]]] = {}
-    for partition, offset in PARTITIONS.items():
+    for partition, offset in partition_offsets.items():
         panels[partition] = {
             "minimal_neutral_carrier": _neutral_rows(partition, offset),
             "ordinary_benign_request": _benign_rows(partition, offset),
@@ -212,16 +219,24 @@ def build_safe_request_panels() -> dict[str, Any]:
         raise ValueError("safe request panels must contain 1,200 unique requests")
     return {
         "schema_version": "1.0",
-        "study_id": "lexical-scaffold-weaponization-breaker-v1",
-        "generator": "safe-request-panels-v1",
+        "study_id": (
+            "lexical-scaffold-weaponization-breaker-v1"
+            if surface_epoch == "v1"
+            else "lexical-jlens-breaker-v2"
+        ),
+        "generator": f"safe-request-panels-{surface_epoch}",
+        "surface_epoch": surface_epoch,
         "partitions": panels,
     }
 
 
 def write_safe_request_panels(
-    *, private_output_path: Path, public_receipt_path: Path
+    *,
+    private_output_path: Path,
+    public_receipt_path: Path,
+    surface_epoch: str = "v1",
 ) -> dict[str, Any]:
-    payload = build_safe_request_panels()
+    payload = build_safe_request_panels(surface_epoch=surface_epoch)
     private_sha256 = _atomic_json(private_output_path, payload, mode=0o600)
     public_manifest: dict[str, dict[str, list[dict[str, Any]]]] = {}
     for partition, classes in payload["partitions"].items():
@@ -242,6 +257,7 @@ def write_safe_request_panels(
         "study_id": payload["study_id"],
         "status": "safe_request_panels_frozen_no_target_outcomes",
         "generator": payload["generator"],
+        "surface_epoch": payload["surface_epoch"],
         "private_panel_sha256": private_sha256,
         "partition_class_counts": {
             partition: {request_class: len(rows) for request_class, rows in classes.items()}

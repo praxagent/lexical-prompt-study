@@ -76,6 +76,7 @@ def main() -> None:
     )
     harmless_scaffolds.add_argument("--human-review-receipt", type=Path)
     harmless_scaffolds.add_argument("--allow-unreviewed-preview", action="store_true")
+    harmless_scaffolds.add_argument("--surface-epoch", default="v1")
     weaponization_requests = sub.add_parser("build-weaponization-harmful-panels")
     weaponization_requests.add_argument("--source-csv", type=Path, required=True)
     weaponization_requests.add_argument("--secondary-source-csv", type=Path, required=True)
@@ -95,6 +96,7 @@ def main() -> None:
         type=Path,
         default=Path("validation/weaponization-harmful-panels.public.json"),
     )
+    weaponization_requests.add_argument("--panel-epoch", default="v1")
     safe_requests = sub.add_parser("build-weaponization-safe-panels")
     safe_requests.add_argument(
         "--private-out",
@@ -106,6 +108,7 @@ def main() -> None:
         type=Path,
         default=Path("validation/weaponization-safe-panels.public.json"),
     )
+    safe_requests.add_argument("--surface-epoch", default="v1")
     weaponization_topology = sub.add_parser("build-weaponization-topology")
     weaponization_topology.add_argument(
         "--public-plan",
@@ -637,6 +640,7 @@ def main() -> None:
                     public_receipt_path=args.receipt,
                     human_review_receipt_path=args.human_review_receipt,
                     allow_unreviewed_preview=args.allow_unreviewed_preview,
+                    surface_epoch=args.surface_epoch,
                 ),
                 sort_keys=True,
             )
@@ -652,6 +656,7 @@ def main() -> None:
                     predecessor_private_paths=args.predecessor_private,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                    panel_epoch=args.panel_epoch,
                 ),
                 sort_keys=True,
             )
@@ -664,6 +669,7 @@ def main() -> None:
                 write_safe_request_panels(
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                    surface_epoch=args.surface_epoch,
                 ),
                 sort_keys=True,
             )

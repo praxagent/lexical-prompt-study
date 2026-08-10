@@ -199,8 +199,14 @@ def compile_harmless_wrappers(
     library: Mapping[str, Any],
     tokenizer: TokenizerLike,
     human_semantic_review: Mapping[str, Any] | None = None,
+    surface_epoch: str = "v1",
 ) -> dict[str, Any]:
     validate_harmless_library(library)
+    if not surface_epoch or any(
+        character not in "abcdefghijklmnopqrstuvwxyz0123456789-_"
+        for character in surface_epoch
+    ):
+        raise ValueError("invalid harmless-wrapper surface epoch")
     families = {str(row["family_id"]): row for row in library["families"]}
     variants = list(library["surface_variants"])
     wrappers: list[dict[str, Any]] = []
@@ -211,12 +217,18 @@ def compile_harmless_wrappers(
         for family_id in family_ids:
             for variant in variants:
                 variant_id = str(variant["variant_id"])
-                wrapper_id = f"{partition}:{family_id}:{variant_id}"
+                wrapper_id = (
+                    f"{partition}:{family_id}:{variant_id}"
+                    if surface_epoch == "v1"
+                    else f"{partition}:{surface_epoch}:{family_id}:{variant_id}"
+                )
                 prefix = ""
                 blocks: list[dict[str, Any]] = []
                 for index, (core, target) in enumerate(
                     zip(_core_blocks(families[family_id], variant), TARGET_CUMULATIVE_TOKEN_COUNTS)
                 ):
+                    if surface_epoch != "v1" and index == 0:
+                        core += f" Benign surface reference {surface_epoch}."
                     block = _pad_block_exactly(
                         tokenizer=tokenizer,
                         prefix=prefix,
@@ -252,6 +264,7 @@ def compile_harmless_wrappers(
         "schema_version": "1.0",
         "library_id": library["library_id"],
         "library_sha256": sha256_bytes(canonical_json_bytes(library)),
+        "surface_epoch": surface_epoch,
         "human_semantic_review": dict(
             human_semantic_review
             if human_semantic_review is not None
@@ -270,6 +283,7 @@ def compile_harmless_wrapper_files(
     public_receipt_path: Path,
     human_review_receipt_path: Path | None = None,
     allow_unreviewed_preview: bool = False,
+    surface_epoch: str = "v1",
 ) -> dict[str, Any]:
     from transformers import AutoTokenizer
 
@@ -288,6 +302,7 @@ def compile_harmless_wrapper_files(
         library=library,
         tokenizer=tokenizer,
         human_semantic_review=review,
+        surface_epoch=surface_epoch,
     )
     private_sha256 = _atomic_json(private_output_path, compiled, mode=0o600)
     tokenizer_manifest = []
@@ -319,7 +334,11 @@ def compile_harmless_wrapper_files(
     }
     receipt = {
         "schema_version": "1.0",
-        "study_id": "lexical-scaffold-weaponization-breaker-v1",
+        "study_id": (
+            "lexical-scaffold-weaponization-breaker-v1"
+            if surface_epoch == "v1"
+            else "lexical-jlens-breaker-v2"
+        ),
         "status": (
             "harmless_wrapper_preview_complete_pending_human_review"
             if review["approved"] is not True
@@ -327,6 +346,13 @@ def compile_harmless_wrapper_files(
         ),
         "library_path": str(library_path),
         "library_sha256": library_sha256,
+        "surface_epoch": surface_epoch,
+        "surface_epoch_transform": (
+            "none"
+            if surface_epoch == "v1"
+            else "compiler-added benign epoch marker plus epoch-bound wrapper ID"
+        ),
+        "human_review_scope": "approved semantic library bound by library_sha256",
         "human_review_receipt_path": (
             str(human_review_receipt_path)
             if human_review_receipt_path is not None

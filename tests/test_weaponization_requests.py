@@ -123,3 +123,54 @@ def test_weaponization_request_builder_rejects_source_hash_drift(tmp_path) -> No
             private_output_path=tmp_path / "private.json",
             public_receipt_path=tmp_path / "receipt.json",
         )
+
+
+def test_v2_builder_uses_only_disjoint_advbench_rows(tmp_path, monkeypatch) -> None:
+    source = tmp_path / "behaviors.csv"
+    _write_source(source)
+    monkeypatch.setattr(
+        "lexical_prompt_study.weaponization_requests.SOURCE_FILE_SHA256",
+        hashlib.sha256(source.read_bytes()).hexdigest(),
+    )
+    secondary = tmp_path / "secondary.csv"
+    _write_secondary_source(secondary)
+    monkeypatch.setattr(
+        "lexical_prompt_study.weaponization_requests.SECONDARY_SOURCE_FILE_SHA256",
+        hashlib.sha256(secondary.read_bytes()).hexdigest(),
+    )
+    with secondary.open(newline="") as handle:
+        secondary_rows = list(csv.DictReader(handle))
+    predecessor = tmp_path / "prior.private.json"
+    predecessor.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {"request_sha256": sha256_text(row["Behavior"])}
+                    for row in secondary_rows[:127]
+                ]
+            }
+        )
+    )
+    private_out = tmp_path / "panels.private.json"
+    receipt = tmp_path / "receipt.json"
+
+    result = build_harmful_request_panels(
+        source_csv_path=source,
+        secondary_source_csv_path=secondary,
+        predecessor_private_paths=[predecessor],
+        private_output_path=private_out,
+        public_receipt_path=receipt,
+        panel_epoch="v2",
+    )
+
+    assert result["partition_counts"] == {
+        "detector_calibration": 90,
+        "detector_confirmation": 300,
+    }
+    private = json.loads(private_out.read_text())
+    selected = [row for panel in private["panels"].values() for row in panel]
+    assert len(selected) == 390
+    assert {row["source_dataset"] for row in selected} == {"advbench"}
+    excluded = {sha256_text(row["Behavior"]) for row in secondary_rows[:127]}
+    assert not ({row["request_sha256"] for row in selected} & excluded)
+    assert "Synthetic secondary safe request" not in receipt.read_text()

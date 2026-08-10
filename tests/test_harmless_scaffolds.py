@@ -81,3 +81,18 @@ def test_harmless_compiler_makes_disjoint_exact_size_partitions() -> None:
             TARGET_CUMULATIVE_TOKEN_COUNTS
         )
         assert all(block["text"] for block in row["blocks"])
+
+
+def test_new_surface_epoch_is_byte_disjoint_but_semantically_bound() -> None:
+    library = _library()
+    first = compile_harmless_wrappers(library=library, tokenizer=WordTokenizer())
+    second = compile_harmless_wrappers(
+        library=library,
+        tokenizer=WordTokenizer(),
+        surface_epoch="v2-a099",
+    )
+    assert second["library_sha256"] == first["library_sha256"]
+    assert second["surface_epoch"] == "v2-a099"
+    assert {row["text_sha256"] for row in first["wrappers"]}.isdisjoint(
+        {row["text_sha256"] for row in second["wrappers"]}
+    )
