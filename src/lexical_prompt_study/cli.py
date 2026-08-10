@@ -147,6 +147,18 @@ def main() -> None:
     weaponization_prefill.add_argument("--out", type=Path, required=True)
     weaponization_prefill.add_argument("--run-id", required=True)
     weaponization_prefill.add_argument("--batch-size", type=int, default=4)
+    weaponization_analysis = sub.add_parser("analyze-weaponization-calibration")
+    weaponization_analysis.add_argument("--analysis-plan", type=Path, required=True)
+    weaponization_analysis.add_argument(
+        "--analysis-authorization", type=Path, required=True
+    )
+    weaponization_analysis.add_argument("--bundle", type=Path, required=True)
+    weaponization_analysis.add_argument("--private-topology", type=Path, required=True)
+    weaponization_analysis.add_argument("--factorial-material", type=Path, required=True)
+    weaponization_analysis.add_argument("--public-out", type=Path, required=True)
+    weaponization_analysis.add_argument(
+        "--private-candidate-out", type=Path, required=True
+    )
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -705,6 +717,23 @@ def main() -> None:
                     output_root=args.out,
                     run_id=args.run_id,
                     batch_size=args.batch_size,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-weaponization-calibration":
+        from .weaponization_analysis import analyze_weaponization_calibration
+
+        print(
+            json.dumps(
+                analyze_weaponization_calibration(
+                    analysis_plan_path=args.analysis_plan,
+                    analysis_authorization_path=args.analysis_authorization,
+                    bundle_path=args.bundle,
+                    private_topology_path=args.private_topology,
+                    factorial_material_path=args.factorial_material,
+                    public_output_path=args.public_out,
+                    private_candidate_output_path=args.private_candidate_out,
                 ),
                 sort_keys=True,
             )
