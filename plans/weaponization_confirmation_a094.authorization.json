@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A094",
+  "status": "weaponization_prefill_authorized",
+  "paid_compute_authorized": true,
+  "human_semantic_review_approved": true,
+  "partition": "detector_confirmation",
+  "run_id": "weaponization-confirmation-a094-20260809",
+  "expected_observations": 5700,
+  "single_task_owned_pod_maximum": 1,
+  "hard_ceiling_usd": 200,
+  "bindings": {
+    "source_commit": "ecc87beed1e293cb2897509390b933bbcdbc78c0",
+    "public_plan_sha256": "884f41878efb2081425bd9dfeec429262e1a2c1c9f5589285460cc0802b8be18",
+    "private_topology_sha256": "1ba9fe5e544deea315e114da3330d5c5b62997fd01d7f9937c58b4a8ff8f9648",
+    "public_topology_receipt_sha256": "beb01fb65fa607279ea9dc62c070a5e1aa8d67215d90ee81fcf3ac41e25baaac",
+    "protocol_sha256": "7574640bc6fb8f088fe3a793757faa1e7c348845dd89620f77608e3759b6b267",
+    "human_review_receipt_sha256": "b70e42e05f471e3aabbd513da61d6e7dab14c857b60646c70e857cf4dfb05b1b",
+    "probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "calibration_result_sha256": "aa6d6c03bb89181974266494de76da7168cc08a859deb5e43768c9678ab56e82",
+    "private_candidate_sha256": "df83a51d734185669d6303fd2673f4caefe5e56e9afaed906ada5923d1918e0a",
+    "confirmation_analysis_plan_sha256": "fadf28ab7bfc4e4236ef98c0193471edac6d32d84c2b8660ed111240448d021d"
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA A100-SXM4-80GB",
+    "gpu_count": 1,
+    "minimum_gpu_memory_gb": 80,
+    "data_center_id": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "maximum_rate_usd_per_hour": 1.59,
+    "fallback_gpu_or_cloud_allowed": false
+  },
+  "execution": {
+    "batch_size": 4,
+    "environment": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"},
+    "maximum_wall_minutes_from_creation": 90,
+    "no_progress_stop_minutes": 15,
+    "maximum_attempts_per_trial": 2,
+    "raw_prompt_or_generation_logging": false,
+    "calibration_rows_may_not_be_rerun": true,
+    "confirmation_outcomes_may_not_be_analyzed_until_complete_bundle_retrieval_and_binding": true
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 105.76878194072222,
+    "maximum_new_compute_usd": 2.385,
+    "conservative_post_run_infrastructure_usd": 108.15378194072222,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "do not create a task pod if any task-owned pod already exists",
+    "stop before model load if pod, GPU, volume, source, plan, topology, artifact, candidate, analysis-plan, environment, or rate binding differs",
+    "stop after 15 minutes without receipt-count progress",
+    "terminate only the exact task-owned pod at completion, failure, or the 90-minute wall",
+    "do not analyze confirmation outcomes until the complete receipt bundle is retrieved and hash-bound",
+    "do not refit any candidate coefficient, empirical reference, threshold, placement, or gate"
+  ],
+  "supersedes": "plans/weaponization_confirmation_a093.authorization.json",
+  "prelaunch_inventory_receipt": "validation/weaponization-a093.prelaunch-inventory.public.json"
+}
