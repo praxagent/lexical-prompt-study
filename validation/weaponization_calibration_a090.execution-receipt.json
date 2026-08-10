@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A090",
+  "status": "complete_retrieved_and_compute_torn_down",
+  "run_id": "weaponization-calibration-a090-20260809",
+  "partition": "detector_calibration",
+  "observation_count": 1900,
+  "bindings": {
+    "source_commit": "614ee925da9a3a46f573cb83265ad0813943bd05",
+    "public_plan_sha256": "884f41878efb2081425bd9dfeec429262e1a2c1c9f5589285460cc0802b8be18",
+    "private_topology_sha256": "d21970ef0163e43ed8d0541cfe2b8aea03c5385882ade45b7e1d5bb84ced5e1e",
+    "public_topology_receipt_sha256": "9f8abb8ba88ffc90cb94be6d4d04db63ce32d9ebc10a8441d24e77b62fc485e6",
+    "protocol_sha256": "7574640bc6fb8f088fe3a793757faa1e7c348845dd89620f77608e3759b6b267",
+    "authorization_sha256": "d1eb00d575fa434daa908630309a4a3e92b5180ca2f98cd899198c91edeb63ef",
+    "receipt_manifest_sha256": "03d792201da176b75ea7847c121ea2c5b7c839f65702f6f82612d9adfa5ece11"
+  },
+  "private_bundle": {
+    "path": "private/runs/weaponization-a090/weaponization-calibration-a090.tar.gz",
+    "sha256": "ac7293340a128d423f62e3fb0c275b01e43a8bf999f5d54f5b4ed7407008f6d3",
+    "bytes": 2151652,
+    "schema_and_provenance_validated_before_packaging": true,
+    "local_hash_matches_remote_hash": true,
+    "raw_prompt_token_or_outcome_content_inspected_before_binding": false
+  },
+  "acquisition": {
+    "task_pod_id": "s2d7s05f3r7n7n",
+    "pod_created_at": "2026-08-10T01:20:02.904Z",
+    "teardown_confirmed_at": "2026-08-10T01:41:08Z",
+    "creation_to_confirmed_teardown_seconds": 1265.096,
+    "rate_usd_per_hour": 6.79,
+    "creation_to_confirmed_teardown_cost_upper_bound_usd": 2.3861116222222223,
+    "post_teardown_account_pod_count": 0
+  },
+  "budget": {
+    "conservative_prior_infrastructure_usd": 103.3826703185,
+    "conservative_infrastructure_with_a090_upper_bound_usd": 105.76878194072222,
+    "hard_ceiling_usd": 200,
+    "hard_ceiling_respected": true
+  },
+  "confirmation_executed_or_opened": false,
+  "calibration_outcome_analysis_started": false
+}
