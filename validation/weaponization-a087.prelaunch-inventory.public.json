@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "observed_at": "2026-08-10T01:18:03Z",
+  "provider": "RunPod",
+  "superseded_h100_allocation_attempts": 2,
+  "superseded_h200_allocation_attempts": 1,
+  "superseded_attempt_result": "no instances available; no pod ID and no charge",
+  "task_owned_pods": [],
+  "unrelated_pods": [
+    {"id": "un54rg5sa01fkx", "name": "ndl-tent-map-20260809", "desired_status": "RUNNING", "cost_per_hour_usd": 0.32}
+  ],
+  "unrelated_pods_must_not_be_mutated": true,
+  "task_volume": {"id": "u85xfo0aue", "name": "lexical-prompt-study-v1", "size_gb": 500, "data_center_id": "US-CA-2"},
+  "selected_gpu": {"id": "NVIDIA B200", "display_name": "B200", "memory_gb": 180, "cloud_type": "SECURE", "stock_status": "Low", "uninterruptable_price_usd_per_hour": 6.79},
+  "read_only_query": true
+}
