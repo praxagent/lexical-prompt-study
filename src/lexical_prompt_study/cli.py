@@ -159,6 +159,16 @@ def main() -> None:
     verify_weaponization_figures = sub.add_parser("verify-weaponization-figures")
     verify_weaponization_figures.add_argument("--result", type=Path, required=True)
     verify_weaponization_figures.add_argument("--out", type=Path, required=True)
+    weaponization_confirmation = sub.add_parser("analyze-weaponization-confirmation")
+    weaponization_confirmation.add_argument("--analysis-plan", type=Path, required=True)
+    weaponization_confirmation.add_argument("--analysis-authorization", type=Path, required=True)
+    weaponization_confirmation.add_argument("--calibration-result", type=Path, required=True)
+    weaponization_confirmation.add_argument("--private-candidate", type=Path, required=True)
+    weaponization_confirmation.add_argument("--bundle", type=Path, required=True)
+    weaponization_confirmation.add_argument("--private-topology", type=Path, required=True)
+    weaponization_confirmation.add_argument("--factorial-material", type=Path, required=True)
+    weaponization_confirmation.add_argument("--public-out", type=Path, required=True)
+    weaponization_confirmation.add_argument("--private-decisions-out", type=Path, required=True)
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -710,6 +720,25 @@ def main() -> None:
         from .weaponization_figures import verify_weaponization_figures
 
         print(json.dumps(verify_weaponization_figures(args.result, args.out), sort_keys=True))
+    elif args.command == "analyze-weaponization-confirmation":
+        from .weaponization_confirmation import analyze_weaponization_confirmation
+
+        print(
+            json.dumps(
+                analyze_weaponization_confirmation(
+                    analysis_plan_path=args.analysis_plan,
+                    analysis_authorization_path=args.analysis_authorization,
+                    calibration_result_path=args.calibration_result,
+                    private_candidate_path=args.private_candidate,
+                    confirmation_bundle_path=args.bundle,
+                    private_topology_path=args.private_topology,
+                    factorial_material_path=args.factorial_material,
+                    public_output_path=args.public_out,
+                    private_decisions_output_path=args.private_decisions_out,
+                ),
+                sort_keys=True,
+            )
+        )
     elif args.command == "assemble-factorial-materials":
         from .factorial_materials import assemble_factorial_material_source
 
