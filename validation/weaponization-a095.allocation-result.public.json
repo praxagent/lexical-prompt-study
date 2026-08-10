@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A095",
+  "status": "single_task_pod_allocated",
+  "allocation_attempts_in_ladder": [
+    {"gpu_type_id": "NVIDIA A40", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA RTX A6000", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA L40", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA RTX 6000 Ada Generation", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA RTX PRO 5000 Blackwell", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA L40S", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA H100 PCIe", "result": "supply_constraint_no_pod"},
+    {"gpu_type_id": "NVIDIA H100 80GB HBM3", "result": "allocated"}
+  ],
+  "zero_pod_inventory_verified_between_failures": true,
+  "allocated_pod": {
+    "id": "2qg9953g83ufut",
+    "name": "lexical-weaponization-confirmation-a095",
+    "created_at": "2026-08-10T02:16:26.712Z",
+    "desired_status": "RUNNING",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "data_center_id": "US-CA-2",
+    "image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "volume_mount_path": "/workspace",
+    "network_volume_id": "u85xfo0aue",
+    "rate_usd_per_hour": 3.29
+  },
+  "model_or_restricted_input_loaded_before_exact_runtime_freeze": false
+}
