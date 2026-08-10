@@ -162,6 +162,22 @@ def main() -> None:
     jlens_breaker_prefill.add_argument("--output-root", type=Path, required=True)
     jlens_breaker_prefill.add_argument("--run-id", required=True)
     jlens_breaker_prefill.add_argument("--batch-size", type=int, default=8)
+    jlens_breaker_analysis = sub.add_parser("analyze-jlens-breaker-v2-calibration")
+    jlens_breaker_analysis.add_argument("--analysis-plan", type=Path, required=True)
+    jlens_breaker_analysis.add_argument(
+        "--analysis-authorization", type=Path, required=True
+    )
+    jlens_breaker_analysis.add_argument("--bundle", type=Path, required=True)
+    jlens_breaker_analysis.add_argument(
+        "--private-topology", type=Path, required=True
+    )
+    jlens_breaker_analysis.add_argument(
+        "--frozen-candidate", type=Path, required=True
+    )
+    jlens_breaker_analysis.add_argument("--public-out", type=Path, required=True)
+    jlens_breaker_analysis.add_argument(
+        "--private-threshold-out", type=Path, required=True
+    )
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -766,6 +782,25 @@ def main() -> None:
                     output_root=args.output_root,
                     run_id=args.run_id,
                     batch_size=args.batch_size,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-jlens-breaker-v2-calibration":
+        from .jlens_breaker_v2_analysis import (
+            analyze_jlens_breaker_v2_calibration,
+        )
+
+        print(
+            json.dumps(
+                analyze_jlens_breaker_v2_calibration(
+                    analysis_plan_path=args.analysis_plan,
+                    analysis_authorization_path=args.analysis_authorization,
+                    bundle_path=args.bundle,
+                    private_topology_path=args.private_topology,
+                    frozen_candidate_path=args.frozen_candidate,
+                    public_output_path=args.public_out,
+                    private_threshold_output_path=args.private_threshold_out,
                 ),
                 sort_keys=True,
             )
