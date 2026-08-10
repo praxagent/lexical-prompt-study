@@ -3,6 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+from lexical_prompt_study.weaponization_topology import _normalize_prompt_token_ids
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,3 +56,29 @@ def test_weaponization_topology_receipts_contain_no_raw_fields() -> None:
         assert '"prompt_text"' not in serialized
         assert '"prompt_token_ids"' not in serialized
         assert '"request"' not in serialized
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    (
+        ([11, 12], [11, 12]),
+        ([[11, 12]], [11, 12]),
+        ({"input_ids": [11, 12], "attention_mask": [1, 1]}, [11, 12]),
+        ({"input_ids": [[11, 12]], "attention_mask": [[1, 1]]}, [11, 12]),
+    ),
+)
+def test_normalize_prompt_token_ids_accepts_supported_unbatched_shapes(
+    raw: object, expected: list[int]
+) -> None:
+    assert _normalize_prompt_token_ids(raw) == expected
+
+
+@pytest.mark.parametrize(
+    "raw",
+    ({"attention_mask": [1]}, ["input_ids"], [], [[1], [2]], [True]),
+)
+def test_normalize_prompt_token_ids_rejects_ambiguous_or_noninteger_shapes(
+    raw: object,
+) -> None:
+    with pytest.raises(ValueError):
+        _normalize_prompt_token_ids(raw)

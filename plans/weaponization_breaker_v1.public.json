@@ -111,15 +111,15 @@
     },
     "calibration_topology_preview": {
       "path": "validation/weaponization-calibration-topology.reviewed.public.json",
-      "sha256": "c240fd8de3a24a1ad3cc51d175afbf0b698673e7aed8cb0e2e21d1f300a990dd",
-      "private_topology_sha256": "5d5cfb80e39d3e53facc7b2b6f11b808b4d9aa35a3c5ca98a12fa5064bfa37e3",
+      "sha256": "9f8abb8ba88ffc90cb94be6d4d04db63ce32d9ebc10a8441d24e77b62fc485e6",
+      "private_topology_sha256": "d21970ef0163e43ed8d0541cfe2b8aea03c5385882ade45b7e1d5bb84ced5e1e",
       "observation_count": 1900,
       "target_outcome_exists": false
     },
     "confirmation_topology_preview": {
       "path": "validation/weaponization-confirmation-topology.reviewed.public.json",
-      "sha256": "1fe0c10fffb62e1fd0b8db8869fd9eec5cb1d8746b5584faadd2ccce648989fa",
-      "private_topology_sha256": "bdbcf321b55e1949516465ffa4fd339c940fbf0e8600ad75750a25ead2ace5bd",
+      "sha256": "beb01fb65fa607279ea9dc62c070a5e1aa8d67215d90ee81fcf3ac41e25baaac",
+      "private_topology_sha256": "1ba9fe5e544deea315e114da3330d5c5b62997fd01d7f9937c58b4a8ff8f9648",
       "observation_count": 5700,
       "sealed": true,
       "target_outcome_exists": false

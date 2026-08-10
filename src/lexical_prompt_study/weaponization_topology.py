@@ -4,6 +4,7 @@ import json
 import os
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from numbers import Integral
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +59,30 @@ def _atomic_json(path: Path, payload: Mapping[str, Any], *, mode: int) -> str:
 def _token_ids(tokenizer: Any, text: str) -> list[int]:
     value = tokenizer.encode(text, add_special_tokens=False)
     return value.tolist() if hasattr(value, "tolist") else list(value)
+
+
+def _normalize_prompt_token_ids(value: Any) -> list[int]:
+    """Normalize one unbatched tokenizer result and reject ambiguous shapes."""
+    if isinstance(value, Mapping):
+        if "input_ids" not in value:
+            raise ValueError("chat-template mapping has no input_ids")
+        value = value["input_ids"]
+    if hasattr(value, "tolist"):
+        value = value.tolist()
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        raise ValueError("chat-template input_ids are not a sequence")
+    values = list(value)
+    if (
+        len(values) == 1
+        and isinstance(values[0], Sequence)
+        and not isinstance(values[0], (str, bytes))
+    ):
+        values = list(values[0])
+    if not values or any(
+        isinstance(item, bool) or not isinstance(item, Integral) for item in values
+    ):
+        raise ValueError("chat-template input_ids are not one non-empty integer sequence")
+    return [int(item) for item in values]
 
 
 def _request_text(row: Mapping[str, Any]) -> str:
@@ -156,7 +181,7 @@ def _shared_render(tokenizer: Any, request: str) -> dict[str, Any]:
     prompt_ids = tokenizer.apply_chat_template(
         messages, tokenize=True, add_generation_prompt=True
     )
-    prompt_ids = prompt_ids.tolist() if hasattr(prompt_ids, "tolist") else list(prompt_ids)
+    prompt_ids = _normalize_prompt_token_ids(prompt_ids)
     prompt_text = tokenizer.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
     )
