@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A105",
+  "status": "single_pod_allocation_authorized",
+  "provider": "RunPod",
+  "inventory_checked_at": "2026-08-10T03:53:00Z",
+  "maximum_task_owned_pods": 1,
+  "current_account_pods": 0,
+  "requested_infrastructure": {
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "display_name": "H100 SXM",
+    "minimum_gpu_memory_gb": 80,
+    "gpu_count": 1,
+    "stock_status": "Medium",
+    "maximum_rate_usd_per_hour": 3.29,
+    "data_center_id_forced_by_volume": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "network_volume_name": "lexical-prompt-study-v1",
+    "network_volume_size_gb": 500,
+    "volume_mount_path": "/workspace",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404"
+  },
+  "bindings": {
+    "source_commit": "087c5b22d952158c8a8a4849796ed803ad6ace2e",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_topology_sha256": "3125638c2a3cb568f41f48b9c9e39b47dc2c044967580e7b96480f4187382db8",
+    "public_topology_receipt_sha256": "f03702c4539310fb6c45ebcfe94c465affe857e5a9027b3aabade44d2aa8378b",
+    "approved_harmless_library_sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276"
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 121.802,
+    "maximum_wall_minutes": 60,
+    "maximum_new_compute_usd": 3.29,
+    "conservative_post_run_infrastructure_usd": 125.092,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "allocation_rules": [
+    "create exactly one task-owned pod and stop after the first successful allocation",
+    "do not create a fallback pod while any account pod exists",
+    "reject and terminate the task pod if cloud, GPU, memory, image, volume, data center, or rate exceeds this authorization",
+    "do not stage restricted inputs or load the model until a separate execution authorization binds the returned pod ID, creation time, rate, teardown, source, and topology",
+    "never execute or open the sealed confirmation topology during calibration"
+  ],
+  "paid_model_execution_authorized": false
+}
