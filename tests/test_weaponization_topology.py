@@ -12,20 +12,20 @@ def _receipt(name: str) -> dict:
 
 
 def test_weaponization_calibration_topology_is_prefill_only_and_blocked() -> None:
-    receipt = _receipt("weaponization-calibration-topology.preview.public.json")
+    receipt = _receipt("weaponization-calibration-topology.reviewed.public.json")
     assert receipt["partition"] == "detector_calibration"
     assert receipt["observation_count"] == 1900
     assert receipt["stratum_counts"]["positive_attack_harmful"] == 200
     assert receipt["stratum_counts"]["negative_harmless_harmful"] == 200
     assert receipt["stratum_counts"]["shared_no_scaffold_harmful"] == 100
     assert receipt["prefill_only"] is True
-    assert receipt["human_semantic_review_approved"] is False
+    assert receipt["human_semantic_review_approved"] is True
     assert receipt["target_generation_authorized"] is False
     assert receipt["target_outcome_exists"] is False
 
 
 def test_weaponization_confirmation_topology_has_300_families_per_placement() -> None:
-    receipt = _receipt("weaponization-confirmation-topology.preview.public.json")
+    receipt = _receipt("weaponization-confirmation-topology.reviewed.public.json")
     assert receipt["partition"] == "detector_confirmation"
     assert receipt["observation_count"] == 5700
     for stratum in (
@@ -44,8 +44,8 @@ def test_weaponization_confirmation_topology_has_300_families_per_placement() ->
 
 def test_weaponization_topology_receipts_contain_no_raw_fields() -> None:
     for name in (
-        "weaponization-calibration-topology.preview.public.json",
-        "weaponization-confirmation-topology.preview.public.json",
+        "weaponization-calibration-topology.reviewed.public.json",
+        "weaponization-confirmation-topology.reviewed.public.json",
     ):
         payload = _receipt(name)
         serialized = json.dumps(payload, sort_keys=True)

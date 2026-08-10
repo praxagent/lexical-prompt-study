@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "status": "approved",
+  "reviewer_role": "study_author",
+  "reviewed_at": "2026-08-10T01:04:03Z",
+  "library_path": "plans/harmless_scaffold_families_v1.public.json",
+  "library_sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+  "approved": true,
+  "attestation_text_sha256": "1178c370df79be5a0c3c663bca7b96583e954812dfe290a1e248f78adc43b2f2",
+  "scope": "target-model execution as harmless structured controls under the frozen weaponization-breaker protocol",
+  "raw_attack_text_reviewed_or_present": false
+}

@@ -72,6 +72,7 @@ def main() -> None:
         type=Path,
         default=Path("validation/harmless-scaffolds.preview.public.json"),
     )
+    harmless_scaffolds.add_argument("--human-review-receipt", type=Path)
     harmless_scaffolds.add_argument("--allow-unreviewed-preview", action="store_true")
     weaponization_requests = sub.add_parser("build-weaponization-harmful-panels")
     weaponization_requests.add_argument("--source-csv", type=Path, required=True)
@@ -632,6 +633,7 @@ def main() -> None:
                     tokenizer_path=args.tokenizer,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                    human_review_receipt_path=args.human_review_receipt,
                     allow_unreviewed_preview=args.allow_unreviewed_preview,
                 ),
                 sort_keys=True,

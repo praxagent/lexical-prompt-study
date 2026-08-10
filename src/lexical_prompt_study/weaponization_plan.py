@@ -61,11 +61,16 @@ def weaponization_protocol_sha256(plan: dict[str, Any]) -> str:
     return sha256_bytes(canonical_json_bytes(protocol))
 
 
-def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = None) -> None:
+def validate_weaponization_plan(
+    plan: dict[str, Any],
+    *,
+    root: Path | None = None,
+    validate_topology_bindings: bool = True,
+) -> None:
     _require(plan["schema_version"] == "1.0", "weaponization schema drift")
     _require(
         plan["study_id"] == "lexical-scaffold-weaponization-breaker-v1"
-        and plan["amendment"] == "A082"
+        and plan["amendment"] == "A084"
         and plan["status"]
         == "prospectively_frozen_local_implementation_only_no_new_outcomes",
         "weaponization identity or outcome boundary drift",
@@ -193,6 +198,7 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         "harmful_request_panel",
         "safe_request_panel",
         "harmless_scaffold_preview",
+        "harmless_scaffold_human_review",
         "calibration_topology_preview",
         "confirmation_topology_preview",
     ):
@@ -206,12 +212,18 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
                 f"weaponization input freeze receipt drift: {name}",
             )
     _require(
-        receipts["harmless_scaffold_preview"]["human_semantic_review_approved"] is False
+        receipts["harmless_scaffold_preview"]["human_semantic_review_approved"] is True
         and receipts["harmless_scaffold_preview"][
             "cannot_enter_target_generation_until_true"
         ]
         is True,
         "harmless scaffold human review gate drift",
+    )
+    _require(
+        receipts["harmless_scaffold_human_review"]["approved"] is True
+        and receipts["harmless_scaffold_human_review"]["library_sha256"]
+        == "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+        "harmless scaffold review receipt drift",
     )
     _require(
         receipts["calibration_topology_preview"]["observation_count"] == 1900
@@ -221,7 +233,7 @@ def validate_weaponization_plan(plan: dict[str, Any], *, root: Path | None = Non
         and receipts["confirmation_topology_preview"]["target_outcome_exists"] is False,
         "weaponization topology preview gate drift",
     )
-    if root is not None:
+    if root is not None and validate_topology_bindings:
         protocol_sha256 = weaponization_protocol_sha256(plan)
         for name in (
             "calibration_topology_preview",

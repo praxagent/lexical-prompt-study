@@ -11,6 +11,7 @@ from lexical_prompt_study.harmless_scaffolds import (
     TARGET_CUMULATIVE_TOKEN_COUNTS,
     compile_harmless_wrappers,
     validate_harmless_library,
+    validate_human_review_receipt,
 )
 
 
@@ -44,6 +45,22 @@ def test_harmless_library_rejects_family_count_drift() -> None:
     library["families"].pop()
     with pytest.raises(ValueError, match="30 semantic families"):
         validate_harmless_library(library)
+
+
+def test_human_review_receipt_binds_exact_library() -> None:
+    receipt = json.loads(
+        (ROOT / "validation" / "harmless-scaffolds.human-review.public.json").read_text()
+    )
+    validate_human_review_receipt(
+        receipt,
+        library_sha256="46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+    )
+    receipt["library_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="boundary drift"):
+        validate_human_review_receipt(
+            receipt,
+            library_sha256="46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+        )
 
 
 def test_harmless_compiler_makes_disjoint_exact_size_partitions() -> None:

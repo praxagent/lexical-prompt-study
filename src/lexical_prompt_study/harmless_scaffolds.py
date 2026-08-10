@@ -117,6 +117,25 @@ def validate_harmless_library(library: Mapping[str, Any]) -> None:
                 raise ValueError("harmless library variant text cannot be empty")
 
 
+def validate_human_review_receipt(
+    review: Mapping[str, Any], *, library_sha256: str
+) -> None:
+    if (
+        review.get("schema_version") != "1.0"
+        or review.get("study_id") != "lexical-scaffold-weaponization-breaker-v1"
+        or review.get("status") != "approved"
+        or review.get("reviewer_role") != "study_author"
+        or review.get("library_sha256") != library_sha256
+        or review.get("approved") is not True
+        or review.get("raw_attack_text_reviewed_or_present") is not False
+    ):
+        raise ValueError("harmless human-review receipt boundary drift")
+    for field in ("attestation_text_sha256", "library_sha256"):
+        value = str(review.get(field, ""))
+        if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
+            raise ValueError(f"harmless human-review receipt hash drift: {field}")
+
+
 def _core_blocks(family: Mapping[str, Any], variant: Mapping[str, Any]) -> list[str]:
     purpose = str(family["purpose"])
     task = str(family["safe_task_instruction"])
@@ -179,6 +198,7 @@ def compile_harmless_wrappers(
     *,
     library: Mapping[str, Any],
     tokenizer: TokenizerLike,
+    human_semantic_review: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_harmless_library(library)
     families = {str(row["family_id"]): row for row in library["families"]}
@@ -232,7 +252,11 @@ def compile_harmless_wrappers(
         "schema_version": "1.0",
         "library_id": library["library_id"],
         "library_sha256": sha256_bytes(canonical_json_bytes(library)),
-        "human_semantic_review": dict(library["human_semantic_review"]),
+        "human_semantic_review": dict(
+            human_semantic_review
+            if human_semantic_review is not None
+            else library["human_semantic_review"]
+        ),
         "target_cumulative_token_counts": list(TARGET_CUMULATIVE_TOKEN_COUNTS),
         "wrappers": wrappers,
     }
@@ -244,17 +268,27 @@ def compile_harmless_wrapper_files(
     tokenizer_path: Path,
     private_output_path: Path,
     public_receipt_path: Path,
+    human_review_receipt_path: Path | None = None,
     allow_unreviewed_preview: bool = False,
 ) -> dict[str, Any]:
     from transformers import AutoTokenizer
 
     library = json.loads(library_path.read_text())
     validate_harmless_library(library)
-    review = library["human_semantic_review"]
+    library_sha256 = sha256_file(library_path)
+    if human_review_receipt_path is not None:
+        review = json.loads(human_review_receipt_path.read_text())
+        validate_human_review_receipt(review, library_sha256=library_sha256)
+    else:
+        review = library["human_semantic_review"]
     if review["approved"] is not True and not allow_unreviewed_preview:
         raise ValueError("human semantic review is required before final material compilation")
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True)
-    compiled = compile_harmless_wrappers(library=library, tokenizer=tokenizer)
+    compiled = compile_harmless_wrappers(
+        library=library,
+        tokenizer=tokenizer,
+        human_semantic_review=review,
+    )
     private_sha256 = _atomic_json(private_output_path, compiled, mode=0o600)
     tokenizer_manifest = []
     for relative in TOKENIZER_FILES:
@@ -292,7 +326,18 @@ def compile_harmless_wrapper_files(
             else "harmless_wrapper_materials_complete_human_reviewed"
         ),
         "library_path": str(library_path),
-        "library_sha256": sha256_file(library_path),
+        "library_sha256": library_sha256,
+        "human_review_receipt_path": (
+            str(human_review_receipt_path)
+            if human_review_receipt_path is not None
+            else None
+        ),
+        "human_review_receipt_sha256": (
+            sha256_file(human_review_receipt_path)
+            if human_review_receipt_path is not None
+            else None
+        ),
+        "attestation_text_sha256": review.get("attestation_text_sha256"),
         "tokenizer_file_count": len(tokenizer_manifest),
         "tokenizer_manifest_sha256": sha256_bytes(canonical_json_bytes(tokenizer_manifest)),
         "private_material_sha256": private_sha256,

@@ -77,7 +77,11 @@ def _load_inputs(
     factorial_material_receipt_path: Path,
 ) -> tuple[dict[str, Any], ...]:
     public_plan = json.loads(public_plan_path.read_text())
-    validate_weaponization_plan(public_plan, root=public_plan_path.resolve().parents[1])
+    validate_weaponization_plan(
+        public_plan,
+        root=public_plan_path.resolve().parents[1],
+        validate_topology_bindings=False,
+    )
     bindings = public_plan["input_freeze_receipts"]
     harmful = json.loads(harmful_panel_path.read_text())
     safe = json.loads(safe_panel_path.read_text())

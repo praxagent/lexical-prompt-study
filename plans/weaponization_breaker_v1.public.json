@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "study_id": "lexical-scaffold-weaponization-breaker-v1",
-  "amendment": "A082",
+  "amendment": "A084",
   "status": "prospectively_frozen_local_implementation_only_no_new_outcomes",
   "created_at": "2026-08-09",
   "purpose": "Distinguish a tested attack scaffold's form from its weaponized use, then test a bounded inference circuit breaker without exposing restricted attack text to the research agent.",
@@ -97,23 +97,29 @@
       "private_panel_sha256": "1c934ee4de493955afe7aa723197a14861447a804f93f4f7d2cfbc44b860832a"
     },
     "harmless_scaffold_preview": {
-      "path": "validation/harmless-scaffolds.preview.public.json",
-      "sha256": "2699e2d0c62fb8d6e01f7a475ac965b937cf86adc0704360f6090b02a757da47",
-      "private_material_sha256": "f035e4a57529c418eb2227bd218d9ad083357d26fbb8271f8e6103274f2f88b9",
-      "human_semantic_review_approved": false,
+      "path": "validation/harmless-scaffolds.reviewed.public.json",
+      "sha256": "c127812c8b0dcae5bb479dd944905c904423bd464408ea02dac5c53a198b88b0",
+      "private_material_sha256": "ed7583efb9a58380bbaf15d9e05f7e76e1d7a8a4ab665191f8ac455ececa947e",
+      "human_semantic_review_approved": true,
       "cannot_enter_target_generation_until_true": true
     },
+    "harmless_scaffold_human_review": {
+      "path": "validation/harmless-scaffolds.human-review.public.json",
+      "sha256": "b70e42e05f471e3aabbd513da61d6e7dab14c857b60646c70e857cf4dfb05b1b",
+      "library_sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+      "approved": true
+    },
     "calibration_topology_preview": {
-      "path": "validation/weaponization-calibration-topology.preview.public.json",
-      "sha256": "7216438a5b258c2cfd77d582bbd01b0000c4cffc62bc00242acfc05f648e2fc2",
-      "private_topology_sha256": "329ece5de806f7e49f30f20db8f54c894816a36eba25c358dc4484e35d42aecf",
+      "path": "validation/weaponization-calibration-topology.reviewed.public.json",
+      "sha256": "c240fd8de3a24a1ad3cc51d175afbf0b698673e7aed8cb0e2e21d1f300a990dd",
+      "private_topology_sha256": "5d5cfb80e39d3e53facc7b2b6f11b808b4d9aa35a3c5ca98a12fa5064bfa37e3",
       "observation_count": 1900,
       "target_outcome_exists": false
     },
     "confirmation_topology_preview": {
-      "path": "validation/weaponization-confirmation-topology.preview.public.json",
-      "sha256": "4f8eabf14807b7ba550e5215f8aa56f3c494decb049ff44373da8f03f6bd52e0",
-      "private_topology_sha256": "6a18571845b5ff75830af886d1abe08f10dceac49dba350a15dbe25667b66a87",
+      "path": "validation/weaponization-confirmation-topology.reviewed.public.json",
+      "sha256": "1fe0c10fffb62e1fd0b8db8869fd9eec5cb1d8746b5584faadd2ccce648989fa",
+      "private_topology_sha256": "bdbcf321b55e1949516465ffa4fd339c940fbf0e8600ad75750a25ead2ace5bd",
       "observation_count": 5700,
       "sealed": true,
       "target_outcome_exists": false
