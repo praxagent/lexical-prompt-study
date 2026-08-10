@@ -14,20 +14,20 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
-**A new weaponization-detector and bounded-breaker round is prospectively
-frozen for local implementation.** The completed factorial distinguished the
-tested structured wrapper from ordinary prompt conditions, but did not
-distinguish harmful from harmless use. The new protocol therefore compares the
-same attack scaffold around harmful and benign requests, and the same harmful
-requests under the attack scaffold and at least 30 families of harmless
-size-matched structured wrappers. It evaluates a two-key SAE/Jacobian-lens
-candidate against exact, fuzzy lexical, and structural baselines, then permits
-only offline, shadow, and local-canary request cancellation if placement-
-specific false-positive, recall, latency, and utility gates pass. The public
-freeze is
-[plans/weaponization_breaker_v1.public.json](plans/weaponization_breaker_v1.public.json).
-No new target outcome or paid task compute exists yet, and the public Research
-Note remains a draft.
+**The new two-key attack-attempt detector passed calibration in both scaffold
+placements; held-out confirmation remains sealed.** On 100 attack-plus-harmful
+calibration prompts per placement, recall was `100/100` when the scaffold came
+before the request and `92/100` when it came after. Every one of six
+claim-defining negative strata recorded `0/100` false positives in both
+placements, including attack-plus-benign, attack-plus-neutral,
+harmless-wrapper-plus-harmful, and structural-sham-plus-harmful controls. The
+SAE readouts supply the required structure key but fail as standalone
+detectors; the placement-specific 31-coordinate Jacobian-lens head supplies
+the harmful-use separation in calibration. This is an in-sample attack-attempt
+result, not yet a held-out detector, classifier of successful harmful output,
+causal circuit, or deployable breaker. See the bound result
+[results/weaponization-calibration-v1.public.json](results/weaponization-calibration-v1.public.json)
+and receipt-backed figures under `figures/weaponization-calibration/`.
 
 **Study v1 reached its prospectively frozen Gate-4 stop rule.** Gate 2
 confirmed a large behavioral scaffold effect, Gate 3 produced a receipt-backed

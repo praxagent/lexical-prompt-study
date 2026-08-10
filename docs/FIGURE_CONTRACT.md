@@ -362,6 +362,70 @@ on the complete canonical receipt matrix.
 Forbidden overread: neither secondary readout is reused for the primary
 decision, threshold fitting, causal localization, or detector performance.
 
+### E21. Weaponization calibration gate
+
+Question: Does the frozen two-key candidate meet the 0.90 recall floor and
+0.02 false-positive ceiling in every critical negative stratum, separately
+for scaffold-before-request and scaffold-after-request?
+
+Chart: placement columns with positive recall above and all six negative-stratum
+false-positive rates below, including exact counts and frozen gate lines.
+
+Independent unit: calibration request or harmless-wrapper family.
+
+Permitted inference: calibration eligibility on the pinned model, candidate,
+placements, and fixed panels.
+
+Forbidden overread: no held-out, successful-weaponization, adaptive-attack,
+causal, or deployment claim.
+
+### E22. Weaponization candidate comparison
+
+Question: Which frozen readout supplies ranking power, and do scaffold-only,
+lexical, or structural baselines meet the same calibration gate?
+
+Chart: placement-separated AUROC and average-precision bars for the two-key
+candidate, J-lens head, feature 6779, frozen subspace, exact match, private
+fuzzy five-byte-gram coverage, and structural head.
+
+Independent unit: critical calibration observation.
+
+Permitted inference: descriptive calibration ranking and gate eligibility.
+
+Forbidden overread: no out-of-sample, behavioral-success, causal, or
+production-superiority claim.
+
+### E23. Weaponization SAE contrast decomposition
+
+Question: Do feature 6779 and the frozen subspace distinguish harmful from
+benign use of the attack scaffold, attack from harmless structure around the
+same harmful request, or their difference-in-differences?
+
+Chart: three fixed mean contrasts for each SAE readout and placement.
+
+Independent unit: calibration request or wrapper family.
+
+Permitted inference: fixed-panel mean SAE contrasts.
+
+Forbidden overread: no SAE-only detector, uncertainty, causal, or generic
+harmless-scaffold population claim.
+
+### E24. Weaponization Jacobian-lens trajectories
+
+Question: Across model depth, how do attack-plus-harmful, attack-plus-benign,
+harmless-plus-harmful, and sham-plus-harmful prompts differ?
+
+Chart: both placements, all 31 source-layer mean refusal-minus-compliance
+coordinates, and four claim-defining strata.
+
+Independent unit: calibration request or wrapper family.
+
+Permitted inference: descriptive placement-specific internal trajectory
+separation on calibration.
+
+Forbidden overread: no selected layer, causal circuit, held-out replication,
+or behavior-success classification.
+
 ## Per-figure receipt schema
 
 Each empirical figure gets `<figure-stem>.receipt.json` containing:

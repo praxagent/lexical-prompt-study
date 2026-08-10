@@ -41,7 +41,9 @@ def main() -> None:
     build.add_argument("--artifacts", type=Path, default=Path("plans/artifacts.v1.json"))
     validate = sub.add_parser("validate-plan")
     validate.add_argument("--public", type=Path, default=Path("plans/study_v1.public.json"))
-    validate.add_argument("--private", type=Path, default=Path("private/plans/study_v1.private.json"))
+    validate.add_argument(
+        "--private", type=Path, default=Path("private/plans/study_v1.private.json")
+    )
     validate.add_argument("--artifacts", type=Path, default=Path("plans/artifacts.v1.json"))
     validate_factorial = sub.add_parser("validate-factorial-plan")
     validate_factorial.add_argument(
@@ -76,9 +78,7 @@ def main() -> None:
     harmless_scaffolds.add_argument("--allow-unreviewed-preview", action="store_true")
     weaponization_requests = sub.add_parser("build-weaponization-harmful-panels")
     weaponization_requests.add_argument("--source-csv", type=Path, required=True)
-    weaponization_requests.add_argument(
-        "--secondary-source-csv", type=Path, required=True
-    )
+    weaponization_requests.add_argument("--secondary-source-csv", type=Path, required=True)
     weaponization_requests.add_argument(
         "--predecessor-private",
         type=Path,
@@ -116,9 +116,7 @@ def main() -> None:
     weaponization_topology.add_argument("--safe-panel", type=Path, required=True)
     weaponization_topology.add_argument("--harmless-material", type=Path, required=True)
     weaponization_topology.add_argument("--factorial-material", type=Path, required=True)
-    weaponization_topology.add_argument(
-        "--factorial-material-receipt", type=Path, required=True
-    )
+    weaponization_topology.add_argument("--factorial-material-receipt", type=Path, required=True)
     weaponization_topology.add_argument("--tokenizer", type=Path, required=True)
     weaponization_topology.add_argument("--tokenizer-revision", required=True)
     weaponization_topology.add_argument(
@@ -149,16 +147,18 @@ def main() -> None:
     weaponization_prefill.add_argument("--batch-size", type=int, default=4)
     weaponization_analysis = sub.add_parser("analyze-weaponization-calibration")
     weaponization_analysis.add_argument("--analysis-plan", type=Path, required=True)
-    weaponization_analysis.add_argument(
-        "--analysis-authorization", type=Path, required=True
-    )
+    weaponization_analysis.add_argument("--analysis-authorization", type=Path, required=True)
     weaponization_analysis.add_argument("--bundle", type=Path, required=True)
     weaponization_analysis.add_argument("--private-topology", type=Path, required=True)
     weaponization_analysis.add_argument("--factorial-material", type=Path, required=True)
     weaponization_analysis.add_argument("--public-out", type=Path, required=True)
-    weaponization_analysis.add_argument(
-        "--private-candidate-out", type=Path, required=True
-    )
+    weaponization_analysis.add_argument("--private-candidate-out", type=Path, required=True)
+    weaponization_figures = sub.add_parser("figures-weaponization")
+    weaponization_figures.add_argument("--result", type=Path, required=True)
+    weaponization_figures.add_argument("--out", type=Path, required=True)
+    verify_weaponization_figures = sub.add_parser("verify-weaponization-figures")
+    verify_weaponization_figures.add_argument("--result", type=Path, required=True)
+    verify_weaponization_figures.add_argument("--out", type=Path, required=True)
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -173,9 +173,7 @@ def main() -> None:
     factorial_materials.add_argument(
         "--compiled-blocks",
         type=Path,
-        default=Path(
-            "private/reviews/factorial-block-boundaries-v1/blocks.private.json"
-        ),
+        default=Path("private/reviews/factorial-block-boundaries-v1/blocks.private.json"),
     )
     factorial_materials.add_argument(
         "--private-out",
@@ -304,9 +302,7 @@ def main() -> None:
     factorial_dose_analysis.add_argument(
         "--execution-receipt",
         type=Path,
-        default=Path(
-            "validation/factorial_secondary_dose_a065.execution-receipt.json"
-        ),
+        default=Path("validation/factorial_secondary_dose_a065.execution-receipt.json"),
     )
     factorial_dose_analysis.add_argument(
         "--authorization",
@@ -325,24 +321,16 @@ def main() -> None:
     factorial_dose_figures = sub.add_parser("figures-factorial-dose")
     factorial_dose_figures.add_argument("--result", type=Path, required=True)
     factorial_dose_figures.add_argument("--out", type=Path, required=True)
-    verify_factorial_dose_figures_parser = sub.add_parser(
-        "verify-factorial-dose-figures"
-    )
-    verify_factorial_dose_figures_parser.add_argument(
-        "--result", type=Path, required=True
-    )
-    verify_factorial_dose_figures_parser.add_argument(
-        "--out", type=Path, required=True
-    )
+    verify_factorial_dose_figures_parser = sub.add_parser("verify-factorial-dose-figures")
+    verify_factorial_dose_figures_parser.add_argument("--result", type=Path, required=True)
+    verify_factorial_dose_figures_parser.add_argument("--out", type=Path, required=True)
     judges = sub.add_parser("validate-published-judges")
     judges.add_argument(
         "--source",
         type=Path,
         default=Path("private/source/JBB-Behaviors/data/judge-comparison.csv"),
     )
-    judges.add_argument(
-        "--out", type=Path, default=Path("validation/evaluator_validation.v1.json")
-    )
+    judges.add_argument("--out", type=Path, default=Path("validation/evaluator_validation.v1.json"))
     schemas = sub.add_parser("write-schemas")
     schemas.add_argument("--out", type=Path, default=Path("schemas"))
     volume = sub.add_parser("prepare-volume")
@@ -384,12 +372,8 @@ def main() -> None:
     verify_figures.add_argument("--out", type=Path, required=True)
     mechanism = sub.add_parser("run-mechanism-discovery")
     mechanism.add_argument("--private-plan", type=Path, required=True)
-    mechanism.add_argument(
-        "--public-plan", type=Path, default=Path("plans/study_v1.public.json")
-    )
-    mechanism.add_argument(
-        "--artifacts", type=Path, default=Path("plans/artifacts.v1.json")
-    )
+    mechanism.add_argument("--public-plan", type=Path, default=Path("plans/study_v1.public.json"))
+    mechanism.add_argument("--artifacts", type=Path, default=Path("plans/artifacts.v1.json"))
     mechanism.add_argument("--generation-root", type=Path, required=True)
     mechanism.add_argument("--model-path", required=True)
     mechanism.add_argument("--lens-path", type=Path, required=True)
@@ -420,15 +404,9 @@ def main() -> None:
     intervention_calibration = sub.add_parser("run-intervention-calibration")
     intervention_calibration.add_argument("--private-plan", type=Path, required=True)
     intervention_calibration.add_argument("--public-plan", type=Path, required=True)
-    intervention_calibration.add_argument(
-        "--intervention-plan", type=Path, required=True
-    )
-    intervention_calibration.add_argument(
-        "--gate3-analysis", type=Path, required=True
-    )
-    intervention_calibration.add_argument(
-        "--generation-root", type=Path, required=True
-    )
+    intervention_calibration.add_argument("--intervention-plan", type=Path, required=True)
+    intervention_calibration.add_argument("--gate3-analysis", type=Path, required=True)
+    intervention_calibration.add_argument("--generation-root", type=Path, required=True)
     intervention_calibration.add_argument("--model-path", required=True)
     intervention_calibration.add_argument("--sae-path", type=Path, required=True)
     intervention_calibration.add_argument("--out", type=Path, required=True)
@@ -508,9 +486,7 @@ def main() -> None:
     followup_behavior_analysis.add_argument(
         "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
     )
-    followup_behavior_analysis.add_argument(
-        "--generation-root", type=Path, required=True
-    )
+    followup_behavior_analysis.add_argument("--generation-root", type=Path, required=True)
     followup_behavior_analysis.add_argument("--score-root", type=Path, required=True)
     followup_behavior_analysis.add_argument("--out", type=Path, required=True)
     followup_behavior_analysis.add_argument(
@@ -530,9 +506,7 @@ def main() -> None:
     followup_mechanism.add_argument("--sae-path", type=Path, required=True)
     followup_mechanism.add_argument("--out", type=Path, required=True)
     followup_mechanism.add_argument("--run-id", required=True)
-    followup_patch_private = sub.add_parser(
-        "build-followup-patch-private-plan"
-    )
+    followup_patch_private = sub.add_parser("build-followup-patch-private-plan")
     followup_patch_private.add_argument(
         "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
     )
@@ -552,21 +526,15 @@ def main() -> None:
     followup_coarse_patch.add_argument("--run-id", required=True)
     followup_coarse_patch.add_argument("--selected-layer", type=int)
     followup_coarse_patch.add_argument("--qualification-only", action="store_true")
-    followup_coarse_patch.add_argument(
-        "--safe-positive-control-result", type=Path, required=True
-    )
+    followup_coarse_patch.add_argument("--safe-positive-control-result", type=Path, required=True)
     followup_patch_analysis = sub.add_parser("analyze-followup-coarse-patch")
     followup_patch_analysis.add_argument(
         "--public-plan", type=Path, default=Path("plans/followup_v2.public.json")
     )
     followup_patch_analysis.add_argument("--patch-root", type=Path, required=True)
     followup_patch_analysis.add_argument("--patch-score-root", type=Path, required=True)
-    followup_patch_analysis.add_argument(
-        "--baseline-generation-root", type=Path, required=True
-    )
-    followup_patch_analysis.add_argument(
-        "--baseline-score-root", type=Path, required=True
-    )
+    followup_patch_analysis.add_argument("--baseline-generation-root", type=Path, required=True)
+    followup_patch_analysis.add_argument("--baseline-score-root", type=Path, required=True)
     followup_patch_analysis.add_argument(
         "--partition", choices=["discovery", "calibration"], required=True
     )
@@ -576,20 +544,14 @@ def main() -> None:
     followup_patch_figures.add_argument("--result", type=Path, required=True)
     followup_patch_figures.add_argument("--plan", type=Path, required=True)
     followup_patch_figures.add_argument("--out", type=Path, required=True)
-    verify_followup_patch_figures_parser = sub.add_parser(
-        "verify-followup-patch-figures"
-    )
-    verify_followup_patch_figures_parser.add_argument(
-        "--result", type=Path, required=True
-    )
+    verify_followup_patch_figures_parser = sub.add_parser("verify-followup-patch-figures")
+    verify_followup_patch_figures_parser.add_argument("--result", type=Path, required=True)
     verify_followup_patch_figures_parser.add_argument("--plan", type=Path, required=True)
     verify_followup_patch_figures_parser.add_argument("--out", type=Path, required=True)
     followup_mechanism_figures = sub.add_parser("figures-followup-mechanisms")
     followup_mechanism_figures.add_argument("--result", type=Path, required=True)
     followup_mechanism_figures.add_argument("--out", type=Path, required=True)
-    verify_followup_mechanism_figures = sub.add_parser(
-        "verify-followup-mechanism-figures"
-    )
+    verify_followup_mechanism_figures = sub.add_parser("verify-followup-mechanism-figures")
     verify_followup_mechanism_figures.add_argument("--result", type=Path, required=True)
     verify_followup_mechanism_figures.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -599,7 +561,9 @@ def main() -> None:
     elif args.command == "synthetic":
         print(json.dumps(run_synthetic(args.out, args.n, args.stop_after), sort_keys=True))
     elif args.command == "build-plan":
-        print(json.dumps(build_plan(args.public, args.private_root, args.artifacts), sort_keys=True))
+        print(
+            json.dumps(build_plan(args.public, args.private_root, args.artifacts), sort_keys=True)
+        )
     elif args.command == "validate-plan":
         print(json.dumps(validate_plan(args.public, args.private, args.artifacts), sort_keys=True))
     elif args.command == "validate-factorial-plan":
@@ -738,6 +702,14 @@ def main() -> None:
                 sort_keys=True,
             )
         )
+    elif args.command == "figures-weaponization":
+        from .weaponization_figures import generate_weaponization_figures
+
+        print(json.dumps(generate_weaponization_figures(args.result, args.out), sort_keys=True))
+    elif args.command == "verify-weaponization-figures":
+        from .weaponization_figures import verify_weaponization_figures
+
+        print(json.dumps(verify_weaponization_figures(args.result, args.out), sort_keys=True))
     elif args.command == "assemble-factorial-materials":
         from .factorial_materials import assemble_factorial_material_source
 
@@ -884,9 +856,7 @@ def main() -> None:
                     summary_path=args.summary,
                     dose_root=args.dose_root,
                     canonical_root=args.canonical_root,
-                    canonical_execution_receipt_path=(
-                        args.canonical_execution_receipt
-                    ),
+                    canonical_execution_receipt_path=(args.canonical_execution_receipt),
                     output_path=args.out,
                 ),
                 sort_keys=True,
