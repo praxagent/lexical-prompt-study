@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A085",
+  "status": "weaponization_prefill_authorized",
+  "paid_compute_authorized": true,
+  "human_semantic_review_approved": true,
+  "partition": "detector_calibration",
+  "run_id": "weaponization-calibration-a085-20260809",
+  "expected_observations": 1900,
+  "single_task_owned_pod_maximum": 1,
+  "hard_ceiling_usd": 200,
+  "bindings": {
+    "source_commit": "956431020f2cd135542adbeb4e4e94bdb0d314ca",
+    "public_plan_sha256": "d2309e1d422c369c49b23f0252a8ab2470f692fa17e65a6f7f40a012966d9d7e",
+    "private_topology_sha256": "5d5cfb80e39d3e53facc7b2b6f11b808b4d9aa35a3c5ca98a12fa5064bfa37e3",
+    "public_topology_receipt_sha256": "c240fd8de3a24a1ad3cc51d175afbf0b698673e7aed8cb0e2e21d1f300a990dd",
+    "protocol_sha256": "7574640bc6fb8f088fe3a793757faa1e7c348845dd89620f77608e3759b6b267",
+    "human_review_receipt_sha256": "b70e42e05f471e3aabbd513da61d6e7dab14c857b60646c70e857cf4dfb05b1b",
+    "probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_count": 1,
+    "minimum_gpu_memory_gb": 80,
+    "data_center_id": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "maximum_rate_usd_per_hour": 3.29,
+    "fallback_gpu_or_cloud_allowed": false
+  },
+  "execution": {
+    "batch_size": 4,
+    "maximum_wall_minutes_from_creation": 120,
+    "no_progress_stop_minutes": 15,
+    "maximum_attempts_per_trial": 2,
+    "raw_prompt_or_generation_logging": false,
+    "confirmation_topology_may_be_staged_but_not_executed_or_opened": true
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 103.3826703185,
+    "maximum_new_compute_usd": 6.58,
+    "conservative_post_run_infrastructure_usd": 109.9626703185,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "do not create a task pod if any task-owned pod already exists",
+    "never mutate the two unrelated pods in the bound prelaunch inventory",
+    "stop before model load if pod, GPU, volume, source, plan, topology, artifact, or rate binding differs",
+    "stop after 15 minutes without receipt-count progress",
+    "terminate only the exact task-owned pod at completion, failure, or the 120-minute wall",
+    "do not analyze calibration outcomes until the complete receipt bundle is retrieved and hash-bound",
+    "do not execute or open detector confirmation"
+  ],
+  "prelaunch_inventory_receipt": "validation/weaponization-a085.prelaunch-inventory.public.json"
+}

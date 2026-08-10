@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "observed_at": "2026-08-10T01:11:22Z",
+  "provider": "RunPod",
+  "task_owned_pods": [],
+  "unrelated_pods": [
+    {"id": "35fgcklf1dto3y", "name": "butterfly-exp197-barrio-z", "desired_status": "RUNNING", "cost_per_hour_usd": 0.27},
+    {"id": "un54rg5sa01fkx", "name": "ndl-tent-map-20260809", "desired_status": "RUNNING", "cost_per_hour_usd": 0.32}
+  ],
+  "unrelated_pods_must_not_be_mutated": true,
+  "task_volume": {"id": "u85xfo0aue", "name": "lexical-prompt-study-v1", "size_gb": 500, "data_center_id": "US-CA-2"},
+  "selected_gpu": {"id": "NVIDIA H100 80GB HBM3", "display_name": "H100 SXM", "memory_gb": 80, "cloud_type": "SECURE", "stock_status": "Low", "uninterruptable_price_usd_per_hour": 3.29},
+  "read_only_query": true
+}
