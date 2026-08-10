@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A112",
+  "status": "single_generation_pod_allocation_authorized",
+  "provider": "RunPod",
+  "inventory_checked_at": "2026-08-10T04:40:11Z",
+  "maximum_task_owned_pods": 1,
+  "current_account_pods": 0,
+  "requested_infrastructure": {
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "display_name": "H100 SXM",
+    "minimum_gpu_memory_gb": 80,
+    "gpu_count": 1,
+    "stock_status": "Medium",
+    "maximum_rate_usd_per_hour": 3.29,
+    "data_center_id_forced_by_volume": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "network_volume_name": "lexical-prompt-study-v1",
+    "network_volume_size_gb": 500,
+    "volume_mount_path": "/workspace",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "ports": ["22/tcp"]
+  },
+  "bindings": {
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "public_generation_topology_receipt_sha256": "5b4732c97d280c532395c8f8ef1dc00f60e0d811935a75a456cb701dd1f29a7e",
+    "calibration_result_sha256": "aecf28d861669b4f722a488bfac32b0bc044c7bef4a9229f1dcfc70316c9e332",
+    "private_threshold_sha256": "095a11729f922083ef857760c75cfaec74f3c41b1f891936989e69f34fd3fd1e",
+    "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "approved_harmless_library_sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276"
+  },
+  "generation_contract": {
+    "expected_observations": 2430,
+    "primary_injected_token_count": 252,
+    "max_new_tokens": 128,
+    "deterministic_decoding": true,
+    "batch_size": 16,
+    "maximum_attempts_per_batch": 2,
+    "raw_generation_storage": "restricted chmod-600 artifacts on the retained volume",
+    "enforcement_enabled": false,
+    "sealed_confirmation_opened_or_executed": false
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 123.07809047222222,
+    "maximum_wall_minutes": 90,
+    "maximum_new_compute_usd": 4.935,
+    "conservative_post_run_infrastructure_usd": 128.01309047222222,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "allocation_rules": [
+    "create exactly one task-owned pod and stop after the first successful allocation",
+    "do not create a fallback pod while any account pod exists",
+    "reject and terminate the task pod if cloud, GPU, memory, image, volume, data center, or rate exceeds this authorization",
+    "do not stage restricted inputs or load the model until a separate execution authorization binds the returned pod ID, creation time, rate, teardown, source, and topology",
+    "never execute or open the sealed confirmation topology",
+    "never enable the candidate circuit breaker during calibration generation"
+  ],
+  "paid_model_execution_authorized": false
+}
