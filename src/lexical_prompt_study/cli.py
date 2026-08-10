@@ -169,6 +169,22 @@ def main() -> None:
     weaponization_confirmation.add_argument("--factorial-material", type=Path, required=True)
     weaponization_confirmation.add_argument("--public-out", type=Path, required=True)
     weaponization_confirmation.add_argument("--private-decisions-out", type=Path, required=True)
+    weaponization_confirmation_figures = sub.add_parser(
+        "figures-weaponization-confirmation"
+    )
+    weaponization_confirmation_figures.add_argument("--result", type=Path, required=True)
+    weaponization_confirmation_figures.add_argument(
+        "--calibration-result", type=Path, required=True
+    )
+    weaponization_confirmation_figures.add_argument("--out", type=Path, required=True)
+    verify_weaponization_confirmation = sub.add_parser(
+        "verify-weaponization-confirmation-figures"
+    )
+    verify_weaponization_confirmation.add_argument("--result", type=Path, required=True)
+    verify_weaponization_confirmation.add_argument(
+        "--calibration-result", type=Path, required=True
+    )
+    verify_weaponization_confirmation.add_argument("--out", type=Path, required=True)
     factorial_materials = sub.add_parser("assemble-factorial-materials")
     factorial_materials.add_argument(
         "--public-plan",
@@ -735,6 +751,32 @@ def main() -> None:
                     factorial_material_path=args.factorial_material,
                     public_output_path=args.public_out,
                     private_decisions_output_path=args.private_decisions_out,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "figures-weaponization-confirmation":
+        from .weaponization_confirmation_figures import (
+            generate_weaponization_confirmation_figures,
+        )
+
+        print(
+            json.dumps(
+                generate_weaponization_confirmation_figures(
+                    args.result, args.calibration_result, args.out
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "verify-weaponization-confirmation-figures":
+        from .weaponization_confirmation_figures import (
+            verify_weaponization_confirmation_figures,
+        )
+
+        print(
+            json.dumps(
+                verify_weaponization_confirmation_figures(
+                    args.result, args.calibration_result, args.out
                 ),
                 sort_keys=True,
             )
