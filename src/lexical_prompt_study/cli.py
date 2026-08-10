@@ -818,6 +818,21 @@ def main() -> None:
         from .jlens_breaker_v2_analysis import (
             analyze_jlens_breaker_v2_calibration,
         )
+
+        print(
+            json.dumps(
+                analyze_jlens_breaker_v2_calibration(
+                    analysis_plan_path=args.analysis_plan,
+                    analysis_authorization_path=args.analysis_authorization,
+                    bundle_path=args.bundle,
+                    private_topology_path=args.private_topology,
+                    frozen_candidate_path=args.frozen_candidate,
+                    public_output_path=args.public_out,
+                    private_threshold_output_path=args.private_threshold_out,
+                ),
+                sort_keys=True,
+            )
+        )
     elif args.command == "build-jlens-breaker-v2-generation-topology":
         from .jlens_breaker_v2_generation_topology import (
             build_jlens_breaker_v2_generation_topology,
@@ -837,21 +852,6 @@ def main() -> None:
                     private_threshold_path=args.private_threshold,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
-                ),
-                sort_keys=True,
-            )
-        )
-
-        print(
-            json.dumps(
-                analyze_jlens_breaker_v2_calibration(
-                    analysis_plan_path=args.analysis_plan,
-                    analysis_authorization_path=args.analysis_authorization,
-                    bundle_path=args.bundle,
-                    private_topology_path=args.private_topology,
-                    frozen_candidate_path=args.frozen_candidate,
-                    public_output_path=args.public_out,
-                    private_threshold_output_path=args.private_threshold_out,
                 ),
                 sort_keys=True,
             )
