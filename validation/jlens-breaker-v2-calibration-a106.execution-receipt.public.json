@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A106",
+  "status": "calibration_acquisition_complete_compute_terminated_outcomes_unanalyzed",
+  "run_id": "jlens-breaker-v2-calibration-a106-20260809",
+  "bindings": {
+    "source_commit": "087c5b22d952158c8a8a4849796ed803ad6ace2e",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_topology_sha256": "3125638c2a3cb568f41f48b9c9e39b47dc2c044967580e7b96480f4187382db8",
+    "public_topology_receipt_sha256": "f03702c4539310fb6c45ebcfe94c465affe857e5a9027b3aabade44d2aa8378b",
+    "authorization_sha256": "f8dfbb0e220485f2984459fa09b76998462d774426ccc4c3959ed2ff0152fa7b"
+  },
+  "acquisition": {
+    "expected_observations": 8910,
+    "completed_observations": 8910,
+    "receipt_manifest_sha256": "6cf659bd720da8c009b3c54bbb958211258f31230ac3adb1f82c43a13a953212",
+    "schema_validated_receipts": 8910,
+    "raw_fields_accepted": false,
+    "private_bundle_sha256": "845e3ee733d5d863416650d130c6bdecf9dc14ee272459082dcaf6a27fed312c",
+    "private_bundle_bytes": 9987753,
+    "outcomes_analyzed": false
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "task_pod_id": "dmtqbmjit7cxsx",
+    "gpu_type": "H100 SXM",
+    "rate_usd_per_hour": 3.29,
+    "created_at": "2026-08-10T03:54:28.670Z",
+    "confirmed_terminated_at": "2026-08-10T04:17:45Z",
+    "creation_to_teardown_seconds": 1396.33,
+    "conservative_compute_usd": 1.2760904722222222,
+    "post_run_infrastructure_ceiling_usd": 123.07809047222222,
+    "hard_ceiling_usd": 200,
+    "post_teardown_account_pods": 0,
+    "network_volume_id": "u85xfo0aue",
+    "network_volume_retained": true
+  },
+  "sealed_confirmation_executed_or_opened": false,
+  "target_outcome_public": false
+}

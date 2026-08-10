@@ -84,3 +84,31 @@ def test_a106_execution_authorization_binds_exact_pod_source_and_topology() -> N
     assert authorization["conservative_postrun_infrastructure_ceiling_usd"] <= (
         authorization["hard_ceiling_usd"]
     )
+
+
+def test_a106_execution_receipt_binds_complete_private_bundle_and_teardown() -> None:
+    receipt = json.loads(
+        (
+            ROOT
+            / "validation"
+            / "jlens-breaker-v2-calibration-a106.execution-receipt.public.json"
+        ).read_text()
+    )
+    acquisition = receipt["acquisition"]
+    assert acquisition["completed_observations"] == acquisition[
+        "expected_observations"
+    ] == 8910
+    assert acquisition["schema_validated_receipts"] == 8910
+    assert acquisition["outcomes_analyzed"] is False
+    assert acquisition["private_bundle_sha256"] == sha256_file(
+        ROOT
+        / "private"
+        / "runs"
+        / "jlens-v2-a106"
+        / "jlens-breaker-v2-calibration-a106.tar.gz"
+    )
+    assert receipt["infrastructure"]["post_teardown_account_pods"] == 0
+    assert receipt["sealed_confirmation_executed_or_opened"] is False
+    assert receipt["infrastructure"]["post_run_infrastructure_ceiling_usd"] < (
+        receipt["infrastructure"]["hard_ceiling_usd"]
+    )
