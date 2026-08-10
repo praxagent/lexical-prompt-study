@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A090",
+  "qualified_at": "2026-08-10T01:38Z",
+  "task_pod_id": "s2d7s05f3r7n7n",
+  "source_commit": "614ee925da9a3a46f573cb83265ad0813943bd05",
+  "failed_a089_trial_receipt_count": 0,
+  "failed_a089_summary_exists": false,
+  "runner_active_before_canary": false,
+  "environment": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "torch_deterministic_algorithms": true
+  },
+  "canary": {
+    "kind": "synthetic_gpu_matrix_multiply",
+    "shape": [8, 8],
+    "model_loaded": false,
+    "prompt_or_topology_loaded": false,
+    "passed": true
+  },
+  "raw_prompt_token_or_outcome_content_inspected": false
+}

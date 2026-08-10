@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A090",
+  "status": "weaponization_prefill_authorized",
+  "paid_compute_authorized": true,
+  "human_semantic_review_approved": true,
+  "partition": "detector_calibration",
+  "run_id": "weaponization-calibration-a090-20260809",
+  "expected_observations": 1900,
+  "single_task_owned_pod_maximum": 1,
+  "hard_ceiling_usd": 200,
+  "bindings": {
+    "source_commit": "614ee925da9a3a46f573cb83265ad0813943bd05",
+    "public_plan_sha256": "884f41878efb2081425bd9dfeec429262e1a2c1c9f5589285460cc0802b8be18",
+    "private_topology_sha256": "d21970ef0163e43ed8d0541cfe2b8aea03c5385882ade45b7e1d5bb84ced5e1e",
+    "public_topology_receipt_sha256": "9f8abb8ba88ffc90cb94be6d4d04db63ce32d9ebc10a8441d24e77b62fc485e6",
+    "protocol_sha256": "7574640bc6fb8f088fe3a793757faa1e7c348845dd89620f77608e3759b6b267",
+    "human_review_receipt_sha256": "b70e42e05f471e3aabbd513da61d6e7dab14c857b60646c70e857cf4dfb05b1b",
+    "probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e"
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "task_pod_id": "s2d7s05f3r7n7n",
+    "task_pod_created_at": "2026-08-10T01:20:02.904Z",
+    "hard_teardown_at": "2026-08-10T03:20:02Z",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA B200",
+    "gpu_count": 1,
+    "data_center_id": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "maximum_rate_usd_per_hour": 6.79,
+    "new_pod_creation_allowed": false,
+    "fallback_gpu_or_cloud_allowed": false
+  },
+  "execution": {
+    "batch_size": 4,
+    "environment": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+    },
+    "maximum_wall_minutes_from_original_pod_creation": 120,
+    "no_progress_stop_minutes": 15,
+    "maximum_attempts_per_trial": 2,
+    "raw_prompt_or_generation_logging": false,
+    "failed_a087_and_a089_roots_must_remain_immutable": true,
+    "confirmation_topology_may_be_staged_but_not_executed_or_opened": true
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 103.3826703185,
+    "maximum_new_compute_from_original_pod_creation_usd": 13.58,
+    "conservative_post_run_infrastructure_usd": 116.9626703185,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "do not create another task pod",
+    "stop before model load if exact task pod, GPU, volume, source, plan, topology, artifact, rate, or deterministic environment binding differs",
+    "stop after 15 minutes without receipt-count progress",
+    "terminate only task pod s2d7s05f3r7n7n at completion, failure, or 2026-08-10T03:20:02Z",
+    "do not analyze calibration outcomes until the complete receipt bundle is retrieved and hash-bound",
+    "do not execute or open detector confirmation"
+  ],
+  "supersedes": "plans/weaponization_calibration_a089.authorization.json",
+  "runtime_qualification_receipt": "validation/weaponization-a090.deterministic-runtime.public.json"
+}
