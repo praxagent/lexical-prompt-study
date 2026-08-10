@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-program-through-weaponization-confirmation",
+  "queried_at_utc": "2026-08-10T02:32:22Z",
+  "provider": "RunPod",
+  "billing_query": {
+    "endpoint": "GET https://rest.runpod.io/v1/billing/pods",
+    "start_time": "2026-07-25T00:00:00Z",
+    "end_time": "2026-08-10T02:32:22Z",
+    "bucket_size": "day",
+    "grouping": "podId"
+  },
+  "source_receipts": {
+    "pod_billing_sha256": "48cbbb3e6451d2cac7e35b8a0afd982b21a3c5658a4c469fdd67d7cd7fba0a1d",
+    "network_volume_inventory_sha256": "a68c588a137210070421ece64f7fd3714f1111f96a63c464d18c3a4047372721",
+    "post_teardown_pod_inventory_sha256": "141087272111b721309c109e8d1e530e5af1daa0a8b3d323babb930503777123",
+    "calibration_execution_receipt_sha256": "c34bdfc90f54b91b4712d4e3c371829095db6dfef37c0ae6311c2a2de40c5a74",
+    "confirmation_execution_receipt_sha256": "7a077f528cdda171297bcb1585ee85ac395fe8602d426f3189883ba4c0540278",
+    "scope": "Private full-account responses are retained locally; only exact task-owned aggregate values are public."
+  },
+  "task_owned_provider_ingestion": {
+    "declared_task_pod_count": 24,
+    "provider_ingested_task_pod_count": 23,
+    "provider_ingested_amount_usd": 102.87385417963378,
+    "provider_ingested_time_billed_ms": 55603012,
+    "missing_recent_task_pod_ids": ["2qg9953g83ufut"]
+  },
+  "conservative_recent_run_adjustments": [
+    {
+      "pod_id": "s2d7s05f3r7n7n",
+      "purpose": "weaponization calibration",
+      "provider_ingested_amount_usd": 2.353269302751869,
+      "creation_to_confirmed_teardown_upper_bound_usd": 2.3861116222222223,
+      "additional_reserved_amount_usd": 0.03284231947035332
+    },
+    {
+      "pod_id": "2qg9953g83ufut",
+      "purpose": "weaponization confirmation",
+      "provider_ingested_amount_usd": 0.0,
+      "creation_to_confirmed_teardown_upper_bound_usd": 0.8730270888888889,
+      "additional_reserved_amount_usd": 0.8730270888888889
+    }
+  ],
+  "conservative_gpu_compute_ceiling_usd": 103.77972358799302,
+  "active_pod_inventory": [],
+  "retained_network_volume": {
+    "id": "u85xfo0aue",
+    "size_gb": 500,
+    "data_center_id": "US-CA-2",
+    "listed_monthly_rate_usd": 35,
+    "created_at_utc": "2026-07-25T17:09:00Z",
+    "hours_through_query": 369.38944444444445,
+    "estimated_accrual_through_query_usd": 17.956431327160495,
+    "billing_scope_note": "The provider network-volume billing endpoint does not attribute account-wide buckets to a volume, so this is the listed-rate estimate using a 30-day month."
+  },
+  "conservative_estimated_task_infrastructure_ceiling_usd": 121.73615491515352,
+  "budget": {
+    "soft_gate_usd": 100,
+    "hard_ceiling_usd": 200,
+    "soft_gate_crossed_and_previously_approved": true,
+    "hard_ceiling_respected": true
+  },
+  "scope": [
+    "Only exact task-owned pod IDs were selected from the provider billing response.",
+    "The two newest task pods are charged at creation-to-confirmed-teardown upper bounds until provider ingestion is certainly complete.",
+    "No account pod is active; the retained task volume remains intentionally provisioned for the next approved experiment.",
+    "The total includes estimated task-volume accrual through the confirmation teardown query, not only GPU compute."
+  ]
+}

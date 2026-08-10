@@ -14,20 +14,20 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
-**The new two-key attack-attempt detector passed calibration in both scaffold
-placements; held-out confirmation remains sealed.** On 100 attack-plus-harmful
-calibration prompts per placement, recall was `100/100` when the scaffold came
-before the request and `92/100` when it came after. Every one of six
-claim-defining negative strata recorded `0/100` false positives in both
-placements, including attack-plus-benign, attack-plus-neutral,
-harmless-wrapper-plus-harmful, and structural-sham-plus-harmful controls. The
-SAE readouts supply the required structure key but fail as standalone
-detectors; the placement-specific 31-coordinate Jacobian-lens head supplies
-the harmful-use separation in calibration. This is an in-sample attack-attempt
-result, not yet a held-out detector, classifier of successful harmful output,
-causal circuit, or deployable breaker. See the bound result
-[results/weaponization-calibration-v1.public.json](results/weaponization-calibration-v1.public.json)
-and receipt-backed figures under `figures/weaponization-calibration/`.
+**A strong Jacobian-lens attack-attempt signal survived held-out testing, but
+the frozen two-key circuit breaker did not.** The before-request rule detected
+`290/300` held-out attack-plus-harmful prompts, but falsely tripped on `5/300`
+structural shams. The after-request rule detected only `258/300` and falsely
+tripped once on harmless-wrapper-plus-harmful controls and once on structural
+shams. Neither placement passed the prespecified conjunction of recall and
+zero-false-trip gates, so production deployment is not authorized. The
+frozen J-lens head nevertheless retained held-out AUROC `0.9986` before the
+request and `0.9922` after it; feature `6779` was much weaker (`0.8100` and
+`0.8759`). This cleanly redirects the next round toward a J-lens-first detector
+and finer causal localization, with a new untouched confirmation panel—not
+post-hoc rescue of this failed test. See the immutable public result
+[results/weaponization-confirmation-v1.public.json](results/weaponization-confirmation-v1.public.json)
+and byte-verified figures under `figures/weaponization-confirmation/`.
 
 **Study v1 reached its prospectively frozen Gate-4 stop rule.** Gate 2
 confirmed a large behavioral scaffold effect, Gate 3 produced a receipt-backed

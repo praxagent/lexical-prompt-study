@@ -1,11 +1,14 @@
-# A Strong Lexical Effect and an 8B Internal Replication, but No Defense Yet
+# A Strong J-Lens Signal Survived Held-Out Testing—but the Circuit Breaker Failed
 
-**Status:** Complete through the frozen Gate 4 discovery calibration and the
-post-study four-arm SAE replay on Llama 3.3 70B, plus ordering-controlled
-behavioral, internal, scaffold-dose, and coarse causal-patching stages on
-Llama 3.1 8B. The 70B held-out intervention outcomes were not opened. The 8B
-detector threshold, benign utility calibration, causal-patch calibration and
-confirmation, and Qwen transfer remain unrun.
+**Status:** Complete through the frozen Gate 4 discovery calibration and
+four-arm SAE replay on Llama 3.3 70B, plus ordering-controlled behavioral,
+internal, scaffold-dose, coarse causal-patching, harmless-scaffold, detector
+calibration, and one-shot held-out detector-confirmation stages on Llama 3.1
+8B. The 70B held-out intervention outcomes were not opened. The frozen 8B
+two-key circuit breaker failed confirmation in both placements and is not
+authorized for deployment. Fine causal localization, behavior-success
+detection, adaptive robustness, a new independently confirmed J-lens-first
+candidate, and Qwen transfer remain unrun.
 
 > **Draft and AI-use status.** Generative-AI tools helped implement, audit,
 > execute, interpret, visualize, and draft this study. The author selected the
@@ -71,6 +74,35 @@ single-site residual-post replacement as a sufficiently strong bidirectional
 handle under this protocol; it does not rule out finer tokenwise, component,
 feature, or subspace circuits.
 
+The next round asked the defense question directly: can internal readouts
+distinguish the known attack scaffold around a harmful request from the same
+attack around benign or neutral requests, from harmless structured wrappers
+around harmful requests, and from inert-length and structural-sham controls?
+We froze a two-key rule on 1,900 calibration observations. Its structure key
+combined feature `6779` with an eight-feature SAE subspace; its weaponization
+key was a placement-specific, 31-coordinate regularized Jacobian-lens head.
+Both placements cleared calibration, and we then applied the rule once—without
+refitting—to 5,700 sealed confirmation observations.
+
+Neither placement passed. With the scaffold before the request, the rule
+recalled `290/300` held-out attack-plus-harmful prompts but falsely tripped on
+`5/300` structural-sham harmful controls. With the scaffold after the request,
+recall fell to `258/300`; one harmless-wrapper harmful control and one
+structural-sham harmful control also tripped. The prespecified gate required
+at least `0.90` recall and zero false positives in every 300-row critical
+negative stratum, separately for each placement.
+
+The failure contains a strong lead. The frozen J-lens head retained held-out
+AUROC `0.9985814815` before the request and `0.9921907407` after it, with
+average precision `0.9890973625` and `0.9767704412`. Feature `6779` was much
+weaker: AUROC `0.8099481481` and `0.8759185185`. The SAE coordinate remains a
+useful scaffold readout, but it degraded the operating rule. We therefore do
+not have a circuit breaker. We do have held-out evidence that the J-lens
+trajectory carries a highly discriminative attack-by-harmful-request signal
+on this checkpoint and exact attack family. That signal now warrants a new,
+prospectively frozen J-lens-first calibration, fine causal localization, and a
+genuinely untouched confirmation panel.
+
 We also varied the matched injected material over four realized sizes: `64`,
 `128`, `188`, and `252` tokens. This secondary descriptive arm used 540 new
 receipts and reused 180 prospectively selected canonical receipts. Inert
@@ -98,6 +130,8 @@ attack component, a harmful-request detector, or a causal mechanism.
 | Feature 6779 is invariant to scaffold size | Not supported | Four-size curves vary strongly by material, placement, and request class |
 | The 8B J-lens trajectory is placement-invariant or causal | Not established | Orderings differ; descriptive controls only |
 | One of five coarse 8B residual-post sites bidirectionally transfers the behavior in both orderings | No layer passed | 1,800 discovery patches and scores; calibration closed |
+| A frozen two-key prefill circuit breaker survives held-out confirmation | Failed in both placements | Before: 290/300 recall but 5/300 sham false trips; after: 258/300 recall plus two critical-control false trips |
+| A frozen J-lens score retains held-out ranking power | Strong descriptive lead | AUROC 0.9986 before and 0.9922 after; no approved operating threshold or behavior-success endpoint |
 
 ## Prior work, contribution, and non-claims
 
@@ -602,6 +636,77 @@ attention/MLP, tokenwise, multi-layer, or subspace interventions will fail.
 Because discovery selected no common layer, calibration was not generated and
 no held-out causal outcome was opened.
 
+## Held-out circuit-breaker test: the SAE gate breaks, the J-lens lead survives
+
+The defense follow-up used four kinds of content—harmful, ordinary benign,
+neutral, and the attack scaffold without substantive harmful content—and
+crossed them with no scaffold, inert length, structural sham, the focal attack
+scaffold, and 30 human-approved harmless structured-wrapper families. Every
+injected comparison used the exact canonical 252-token budget. Scaffold-before
+and scaffold-after placement remained separate throughout.
+
+The primary positive was an attack-scaffold attempt around a harmful request.
+Six critical negatives per placement asked different failure questions:
+attack plus benign, attack plus neutral, harmless wrapper plus harmful,
+harmless wrapper plus benign, structural sham plus harmful, and inert length
+plus harmful. This endpoint detects a known-family attack attempt during
+prefill. It does not say whether the model would have generated harmful output.
+
+Calibration froze a conjunction. A structure score averaged the empirical
+percentile ranks of feature `6779` and the discovery-frozen eight-feature SAE
+subspace. A separately fitted, L2-regularized 31-coordinate J-lens head supplied
+the weaponization score. Both scores had to exceed placement-specific frozen
+thresholds. Calibration contained 100 positives and 100 observations in each
+critical-negative stratum per placement; confirmation tripled each to 300.
+
+![Held-out circuit-breaker gate](figures/weaponization-confirmation/E25-heldout-circuit-breaker-gate.png)
+
+*Figure E25. The exact held-out go/no-go result. Before-request placement kept
+high recall but tripped on five structural shams. After-request placement
+missed the recall gate and tripped on two critical controls. Source:
+[confirmation result](results/weaponization-confirmation-v1.public.json).
+Receipt: [E25 receipt](figures/weaponization-confirmation/E25-heldout-circuit-breaker-gate.receipt.json).*
+
+The before-request rule passed recall: `290/300`, or `0.9666666667`, with a
+one-sided 95% exact-binomial lower bound of `0.9441152595`. But its `5/300`
+false trips on structural shams violated the zero-false-positive rule; the
+one-sided upper bound was `0.0347222443`, above the `0.01` ceiling.
+
+The after-request rule failed recall at `258/300`, or `0.86`, even though its
+one-sided lower bound was `0.8227181917`. It also recorded `1/300` false trips
+in the harmless-wrapper-plus-harmful stratum and `1/300` in structural shams.
+No placement passed, and production deployment remains unauthorized.
+
+![Held-out readout ranking](figures/weaponization-confirmation/E26-heldout-readout-ranking.png)
+
+*Figure E26. Ranking performance is not the operating gate, but it reveals
+where the remaining signal lives. The frozen J-lens head generalizes far
+better than feature `6779`, the SAE subspace, or their two-key rank. Source:
+[confirmation result](results/weaponization-confirmation-v1.public.json).
+Receipt: [E26 receipt](figures/weaponization-confirmation/E26-heldout-readout-ranking.receipt.json).*
+
+The J-lens head alone retained AUROC `0.9985814815` and average precision
+`0.9890973625` before the request, and AUROC `0.9921907407` with average
+precision `0.9767704412` after it. Those are strong held-out ranking results.
+They do not rescue the failed detector: no J-lens-only threshold was frozen or
+tested here, and the endpoint is attack attempt rather than successful harmful
+generation. They do justify making J-lens the primary readout in a new
+prospective round.
+
+![Calibration to confirmation](figures/weaponization-confirmation/E27-calibration-to-confirmation.png)
+
+*Figure E27. Calibration had zero false trips in every critical stratum. The
+one permitted held-out application exposed placement-specific failure: sham
+false trips before the request and both recall loss and false trips after it.
+Source: [calibration result](results/weaponization-calibration-v1.public.json)
+and [confirmation result](results/weaponization-confirmation-v1.public.json).
+Receipt: [E27 receipt](figures/weaponization-confirmation/E27-calibration-to-confirmation.receipt.json).*
+
+We will not tune the failed thresholds on these 5,700 observations and call
+that confirmation. Any exploratory diagnosis using them makes them development
+data. A successor detector needs new calibration logic, new independently
+sampled controls, and another untouched confirmation panel.
+
 ## Interpretation
 
 The cleanest conclusion is asymmetric. We have strong evidence that the full
@@ -676,9 +781,14 @@ hypothesis, but the protocol did not test monotonicity and several contrasts
 reverse at intermediate sizes. A future test would need to freeze a denser
 size grid and new lexical materials before using that hypothesis.
 
-The next detector gate is not deployment. It is a disjoint, powered
-threshold-calibration protocol with hard structured-benign negatives, multiple
-sizes, and both placements, followed by one sealed confirmation.
+The first detector gate was not deployment, and it correctly stopped. The next
+round should treat A096 as a failed held-out test, not a threshold-tuning set.
+The lead worth carrying forward is the J-lens trajectory: build a simpler
+J-lens-first candidate under a new calibration partition, test it against
+expanded hard structured-benign and sham negatives at multiple sizes, and
+evaluate it once on another sealed confirmation panel. A separate generation-
+phase arm must determine whether the score tracks successful harmful behavior
+rather than merely a known attack attempt.
 The coarse causal arm has separately stopped; any finer
 component/token/subspace localization must begin under a new prospective
 protocol rather than reuse the failed layer selector. A detector alone would
@@ -720,9 +830,15 @@ still not explain or repair the vulnerability.
 | Secondary scaffold-dose outcome binding | [validation/factorial_secondary_dose_a065.execution-receipt.json](validation/factorial_secondary_dose_a065.execution-receipt.json) | 540 new receipt/restricted pairs bound before outcome analysis |
 | Secondary scaffold-dose analysis freeze | [plans/factorial_8b_v1.dose-analysis.json](plans/factorial_8b_v1.dose-analysis.json) | Four sizes, placements separate, 10,000-replicate pointwise bootstrap |
 | Secondary scaffold-dose figures | [figures/factorial-dose/provenance.factorial-dose.json](figures/factorial-dose/provenance.factorial-dose.json) | Five figures, fifteen byte-identical SVG/PNG/PDF verification checks |
+| Weaponization calibration result | [results/weaponization-calibration-v1.public.json](results/weaponization-calibration-v1.public.json) | `aa6d6c03bb89181974266494de76da7168cc08a859deb5e43768c9678ab56e82` |
+| Weaponization confirmation analysis freeze | [plans/weaponization_confirmation_analysis_v1.public.json](plans/weaponization_confirmation_analysis_v1.public.json) | `fadf28ab7bfc4e4236ef98c0193471edac6d32d84c2b8660ed111240448d021d`; no refit, placements separate |
+| Weaponization confirmation acquisition | [validation/weaponization_confirmation_a096.execution-receipt.json](validation/weaponization_confirmation_a096.execution-receipt.json) | 5,700 receipts; private bundle and manifest hash-bound before analysis |
+| Weaponization confirmation result | [results/weaponization-confirmation-v1.public.json](results/weaponization-confirmation-v1.public.json) | `e3e8124b024705f02126051a5fd784ff1abd5c295911f41c6b7324e72f3a6b8a` |
+| Weaponization confirmation figures | [figures/weaponization-confirmation/provenance.weaponization-confirmation.json](figures/weaponization-confirmation/provenance.weaponization-confirmation.json) | Three figures, nine byte-identical SVG/PNG/PDF verification checks |
 | Initial compute reconciliation | [results/compute-reconciliation.json](results/compute-reconciliation.json) | `a6aab64095ac7dbc878ef5bb5a218b79c09d277f77b3564e5a571d72310373e2` |
 | Follow-up compute reconciliation | [results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json) | `8bbfcd5b644ef0353bed310558f9e6b29699865501b30729a8ca7bdd3de5b650` |
 | Final compute reconciliation through the dose stage | [results/compute-reconciliation.final.json](results/compute-reconciliation.final.json) | `a312368a0b867f1c117b95acbe6d8c2ad656ff8fe3e1e509c142a675779a76f3` |
+| Reconciliation through weaponization confirmation | [results/compute-reconciliation.weaponization.json](results/compute-reconciliation.weaponization.json) | `48cecc034ffb642f2982fb2320a76efcccfa8653d3623c66b9a358c13a79bb8d`; fresh provider ledger plus conservative recent-run and retained-volume adjustments |
 
 Private, non-raw checkpoint bundles are retained locally for receipt audit:
 
@@ -737,35 +853,30 @@ Private, non-raw checkpoint bundles are retained locally for receipt audit:
 - Secondary scaffold dose: SHA-256
   `5bcce2c29dbd77a15b4527fc9c0dc70beb4f3716fe23e792155d4b3bf828188a`
 
-All twenty empirical figures ship as SVG, PNG, and PDF with individual receipt
+All 27 empirical figures ship as SVG, PNG, and PDF with individual receipt
 files. The figure verifiers regenerate them into temporary directories and
 require byte-identical outputs.
 
 ## Compute and storage
 
-A RunPod billing query after the secondary scaffold-dose stage attributes
-`$99.5172346870` to 22 ingested task-owned pods over `53,151,296` billed
-milliseconds. The final dose-pod row may not yet contain its complete last
-billing interval. Replacing that row with the larger
-creation-to-confirmed-teardown upper bound yields a conservative GPU-compute
-ceiling of `$100.4742675407`. No task-owned GPU pod remains active, so GPU
-billing is `$0/hour`.
+A fresh RunPod billing query through the confirmation teardown time attributes
+`$102.8738541796` to 23 ingested task-owned pods over `55,603,012` billed
+milliseconds. The newest confirmation pod is not yet present in the provider
+ledger, and the calibration row is slightly below its creation-to-confirmed-
+teardown upper bound. Reserving those two upper bounds produces a conservative
+GPU-compute ceiling of `$103.7797235880`. Fresh account inventory is empty, so
+GPU billing is `$0/hour`.
 
 The persistent 500 GB RunPod network volume remains provisioned at
 `$35/month`, or about `$1.17/day`, to preserve the pinned model and resumable
-artifacts during the short reporting window. RunPod's network-volume billing
-endpoint returns account-wide buckets without volume IDs, so it cannot yet
-support an exact task-volume charge. The rate-derived accrual through the final
-query is approximately `$2.9084027778`. Combining that estimate with the
-conservative GPU ceiling gives an estimated infrastructure ceiling of
-`$103.3826703185`. This crosses the user-approved `$100` soft gate and remains
-well below the `$200` hard ceiling. The original, follow-up, and final
-reconciliation methods, task-owned rows, pending-ingestion adjustment,
-source-receipt hashes, and volume scope are recorded in
-[results/compute-reconciliation.json](results/compute-reconciliation.json) and
-[results/compute-reconciliation.followup.json](results/compute-reconciliation.followup.json),
-with the current ledger in
-[results/compute-reconciliation.final.json](results/compute-reconciliation.final.json).
+artifacts for the next round. The rate-derived accrual from creation through
+the confirmation query is approximately `$17.9564313272`. Combining that
+estimate with the conservative GPU ceiling gives an all-in infrastructure
+ceiling of `$121.7361549152`. This crosses the user-approved `$100` soft gate
+and remains below the `$200` hard ceiling. Exact task-owned aggregation,
+private source-receipt hashes, recent-run adjustments, and the retained-volume
+method are recorded in
+[results/compute-reconciliation.weaponization.json](results/compute-reconciliation.weaponization.json).
 
 ## Appendix: release inventory
 
