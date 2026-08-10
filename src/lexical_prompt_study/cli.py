@@ -178,6 +178,34 @@ def main() -> None:
     jlens_breaker_analysis.add_argument(
         "--private-threshold-out", type=Path, required=True
     )
+    jlens_breaker_generation_topology = sub.add_parser(
+        "build-jlens-breaker-v2-generation-topology"
+    )
+    jlens_breaker_generation_topology.add_argument("--plan", type=Path, required=True)
+    jlens_breaker_generation_topology.add_argument(
+        "--calibration-topology", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--calibration-topology-receipt", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--calibration-bundle", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--calibration-execution-receipt", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--calibration-result", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--private-threshold", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--private-out", type=Path, required=True
+    )
+    jlens_breaker_generation_topology.add_argument(
+        "--receipt", type=Path, required=True
+    )
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -789,6 +817,29 @@ def main() -> None:
     elif args.command == "analyze-jlens-breaker-v2-calibration":
         from .jlens_breaker_v2_analysis import (
             analyze_jlens_breaker_v2_calibration,
+        )
+    elif args.command == "build-jlens-breaker-v2-generation-topology":
+        from .jlens_breaker_v2_generation_topology import (
+            build_jlens_breaker_v2_generation_topology,
+        )
+
+        print(
+            json.dumps(
+                build_jlens_breaker_v2_generation_topology(
+                    public_plan_path=args.plan,
+                    calibration_topology_path=args.calibration_topology,
+                    calibration_topology_receipt_path=args.calibration_topology_receipt,
+                    calibration_bundle_path=args.calibration_bundle,
+                    calibration_execution_receipt_path=(
+                        args.calibration_execution_receipt
+                    ),
+                    calibration_result_path=args.calibration_result,
+                    private_threshold_path=args.private_threshold,
+                    private_output_path=args.private_out,
+                    public_receipt_path=args.receipt,
+                ),
+                sort_keys=True,
+            )
         )
 
         print(
