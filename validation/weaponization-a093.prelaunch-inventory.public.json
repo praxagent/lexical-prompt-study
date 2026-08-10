@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A093",
+  "queried_at": "2026-08-10T02:05Z",
+  "provider": "RunPod",
+  "account_running_pod_count": 0,
+  "task_owned_pod_count": 0,
+  "network_volume": {
+    "id": "u85xfo0aue",
+    "name": "lexical-prompt-study-v1",
+    "data_center_id": "US-CA-2",
+    "size_gb": 500
+  },
+  "requested_gpu": {
+    "id": "NVIDIA A100 80GB PCIe",
+    "display_name": "A100 PCIe",
+    "memory_gb": 80,
+    "secure_price_usd_per_hour": 1.39
+  },
+  "raw_prompt_token_or_outcome_content_inspected": false
+}
