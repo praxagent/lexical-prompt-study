@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A096",
+  "status": "complete_retrieved_and_compute_torn_down",
+  "run_id": "weaponization-confirmation-a096-20260809",
+  "partition": "detector_confirmation",
+  "observation_count": 5700,
+  "bindings": {
+    "source_commit": "ecc87beed1e293cb2897509390b933bbcdbc78c0",
+    "public_plan_sha256": "884f41878efb2081425bd9dfeec429262e1a2c1c9f5589285460cc0802b8be18",
+    "private_topology_sha256": "1ba9fe5e544deea315e114da3330d5c5b62997fd01d7f9937c58b4a8ff8f9648",
+    "public_topology_receipt_sha256": "beb01fb65fa607279ea9dc62c070a5e1aa8d67215d90ee81fcf3ac41e25baaac",
+    "protocol_sha256": "7574640bc6fb8f088fe3a793757faa1e7c348845dd89620f77608e3759b6b267",
+    "authorization_sha256": "b19364c134674925f678e5216d4fd408092c69de67dc67e182244d0ef8ac2843",
+    "confirmation_analysis_plan_sha256": "fadf28ab7bfc4e4236ef98c0193471edac6d32d84c2b8660ed111240448d021d",
+    "calibration_result_sha256": "aa6d6c03bb89181974266494de76da7168cc08a859deb5e43768c9678ab56e82",
+    "private_candidate_sha256": "df83a51d734185669d6303fd2673f4caefe5e56e9afaed906ada5923d1918e0a",
+    "receipt_manifest_sha256": "2611944ddbf51010d805e6c20d12fe015dc148e35485c4038284f4ac2ae774c9"
+  },
+  "private_bundle": {
+    "path": "private/runs/weaponization-a096/weaponization-confirmation-a096.tar.gz",
+    "sha256": "ff52772435ea92444d57cefef27bfeb0138960f53e9bf665f112232d060dd28e",
+    "bytes": 6467883,
+    "schema_and_provenance_validated_before_packaging": true,
+    "local_hash_matches_remote_hash": true,
+    "raw_prompt_token_or_outcome_content_inspected_before_binding": false
+  },
+  "acquisition": {
+    "task_pod_id": "2qg9953g83ufut",
+    "pod_created_at": "2026-08-10T02:16:26.712Z",
+    "teardown_confirmed_at": "2026-08-10T02:32:22Z",
+    "creation_to_confirmed_teardown_seconds": 955.288,
+    "rate_usd_per_hour": 3.29,
+    "creation_to_confirmed_teardown_cost_upper_bound_usd": 0.8730270888888889,
+    "post_teardown_account_pod_count": 0
+  },
+  "budget": {
+    "conservative_prior_infrastructure_usd": 105.76878194072222,
+    "conservative_infrastructure_with_a096_upper_bound_usd": 106.64180902961111,
+    "hard_ceiling_usd": 200,
+    "hard_ceiling_respected": true
+  },
+  "confirmation_outcome_analysis_started": false
+}
