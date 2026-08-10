@@ -148,6 +148,20 @@ def main() -> None:
     )
     jlens_breaker_topology.add_argument("--private-out", type=Path, required=True)
     jlens_breaker_topology.add_argument("--receipt", type=Path, required=True)
+    jlens_breaker_prefill = sub.add_parser("run-jlens-breaker-v2-prefill-gpu")
+    jlens_breaker_prefill.add_argument("--plan", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--private-topology", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--authorization", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--probe-plan", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--model-path", required=True)
+    jlens_breaker_prefill.add_argument("--lens-path", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--sae-path", type=Path, required=True)
+    jlens_breaker_prefill.add_argument(
+        "--inherited-material", type=Path, required=True
+    )
+    jlens_breaker_prefill.add_argument("--output-root", type=Path, required=True)
+    jlens_breaker_prefill.add_argument("--run-id", required=True)
+    jlens_breaker_prefill.add_argument("--batch-size", type=int, default=8)
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -731,6 +745,27 @@ def main() -> None:
                     partition=args.partition,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-jlens-breaker-v2-prefill-gpu":
+        from .jlens_breaker_v2_gpu import run_jlens_breaker_v2_prefill_gpu
+
+        print(
+            json.dumps(
+                run_jlens_breaker_v2_prefill_gpu(
+                    public_plan_path=args.plan,
+                    private_topology_path=args.private_topology,
+                    authorization_path=args.authorization,
+                    probe_plan_path=args.probe_plan,
+                    model_path=args.model_path,
+                    lens_path=args.lens_path,
+                    sae_path=args.sae_path,
+                    inherited_material_path=args.inherited_material,
+                    output_root=args.output_root,
+                    run_id=args.run_id,
+                    batch_size=args.batch_size,
                 ),
                 sort_keys=True,
             )
