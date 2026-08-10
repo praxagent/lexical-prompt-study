@@ -76,3 +76,24 @@ def test_v2_threshold_maximizes_recall_and_allows_at_most_one_false_trip() -> No
         row["false_positive_count"] <= 1
         for row in result["metrics"]["critical_negatives"].values()
     )
+
+
+def test_a108_authorizes_one_local_analysis_without_confirmation() -> None:
+    authorization = json.loads(
+        (
+            ROOT
+            / "plans"
+            / "jlens_breaker_v2_calibration_analysis_a108.authorization.json"
+        ).read_text()
+    )
+    assert authorization["analysis_source_commit"] == (
+        "b422f4c4e13bb8facd3a6cb1831feebdb4193f67"
+    )
+    assert authorization["analysis_plan_sha256"] == sha256_file(
+        ROOT
+        / "plans"
+        / "jlens_breaker_v2_calibration_analysis_a107.public.json"
+    )
+    assert authorization["single_invocation"] is True
+    assert authorization["confirmation_open_or_execute_authorized"] is False
+    assert authorization["projection_or_reference_refit_authorized"] is False
