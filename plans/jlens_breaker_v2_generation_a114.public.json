@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A114",
+  "status": "pinned_model_storage_repair_and_generation_resume_authorized",
+  "authorized_at": "2026-08-10T22:30:26Z",
+  "explicit_user_approval_recorded_privately": true,
+  "repair_reason": "the prior attempt generated zero outcomes because the retained snapshot lacked four weight shards that had previously existed only on disposable storage",
+  "scientific_change": false,
+  "same_task_resource_only": true,
+  "new_resource_creation_allowed": false,
+  "credential_or_access_material_public": false,
+  "credential_persistence_or_logging_allowed": false,
+  "pinned_download": {
+    "repository": "meta-llama/Llama-3.1-8B-Instruct",
+    "revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "allowed_files": [
+      {
+        "filename": "model-00001-of-00004.safetensors",
+        "size_bytes": 4976698672,
+        "sha256": "2b1879f356aed350030bb40eb45ad362c89d9891096f79a3ab323d3ba5607668"
+      },
+      {
+        "filename": "model-00002-of-00004.safetensors",
+        "size_bytes": 4999802720,
+        "sha256": "09d433f650646834a83c580877bd60c6d1f88f7755305c12576b5c7058f9af15"
+      },
+      {
+        "filename": "model-00003-of-00004.safetensors",
+        "size_bytes": 4915916176,
+        "sha256": "fc1cdddd6bfa91128d6e94ee73d0ce62bfcdb7af29e978ddcab30c66ae9ea7fa"
+      },
+      {
+        "filename": "model-00004-of-00004.safetensors",
+        "size_bytes": 1168138808,
+        "sha256": "92ecfe1a2414458b4821ac8c13cf8cb70aed66b5eea8dc5ad9eeb4ff309d6d7b"
+      }
+    ],
+    "metadata_provenance": "exact-revision repository metadata queried locally before repair",
+    "all_sizes_and_hashes_must_match_before_model_load": true,
+    "persistent_storage_required": true
+  },
+  "generation_bindings": {
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "run_id": "jlens-breaker-v2-generation-a113-20260810",
+    "expected_observations": 2430,
+    "existing_completed_observations": 0,
+    "batch_size": 16,
+    "max_new_tokens": 128,
+    "enforcement_enabled": false,
+    "sealed_confirmation_opened_or_executed": false
+  },
+  "budget": {
+    "reconciled_infrastructure_ceiling_before_restart_usd": 123.731833236,
+    "maximum_additional_wall_minutes": 120,
+    "maximum_additional_compute_usd": 6.58,
+    "conservative_postrun_infrastructure_ceiling_usd": 130.311833236,
+    "hard_teardown_at": "2026-08-11T00:45:00Z",
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "refuse resume if any duplicate task resource exists",
+    "stop before model load unless all four exact shard sizes and SHA-256 values match",
+    "stop after 15 minutes without downloader or receipt progress",
+    "terminate the singular task compute at completion, failure, or the hard deadline",
+    "never publish restricted prompt or generation content or any credential-derived material",
+    "never execute sealed confirmation and never enable enforcement"
+  ]
+}
