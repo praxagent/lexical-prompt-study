@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A112",
+  "status": "single_generation_pod_allocated_no_model_execution",
+  "provider": "RunPod",
+  "pod": {
+    "id": "23r2ftxcvcox2k",
+    "name": "lexical-jlens-v2-generation-a112",
+    "last_started_at": "2026-08-10T04:41:17.055Z",
+    "desired_status": "RUNNING",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_display_name": "H100 SXM",
+    "gpu_count": 1,
+    "cost_per_hour_usd": 3.29,
+    "image_name": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "network_volume_id": "u85xfo0aue",
+    "network_volume_name": "lexical-prompt-study-v1",
+    "network_volume_size_gb": 500,
+    "volume_mount_path": "/workspace",
+    "data_center_id": "US-CA-2"
+  },
+  "inventory_after_allocation_count": 1,
+  "model_loaded": false,
+  "target_generation_outcome_exists": false,
+  "enforcement_enabled": false,
+  "sealed_confirmation_opened_or_executed": false
+}

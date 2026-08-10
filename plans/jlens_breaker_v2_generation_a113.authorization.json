@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A113",
+  "status": "v2_generation_calibration_authorized",
+  "paid_compute_authorized": true,
+  "approved_harmless_library_sha256": "46d5697068e3de551cd4a1ef06d2112248e4e66c4b613365d72f61340a8e0276",
+  "run_id": "jlens-breaker-v2-generation-a113-20260810",
+  "expected_observations": 2430,
+  "single_task_owned_pod_maximum": 1,
+  "hard_ceiling_usd": 200,
+  "maximum_new_compute_usd": 4.935,
+  "conservative_postrun_infrastructure_ceiling_usd": 128.01309047222222,
+  "enforcement_enabled": false,
+  "sealed_confirmation_opened_or_executed": false,
+  "bindings": {
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "public_generation_topology_receipt_sha256": "5b4732c97d280c532395c8f8ef1dc00f60e0d811935a75a456cb701dd1f29a7e",
+    "calibration_result_sha256": "aecf28d861669b4f722a488bfac32b0bc044c7bef4a9229f1dcfc70316c9e332",
+    "private_threshold_sha256": "095a11729f922083ef857760c75cfaec74f3c41b1f891936989e69f34fd3fd1e",
+    "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659"
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "task_pod_id": "23r2ftxcvcox2k",
+    "task_pod_created_at": "2026-08-10T04:41:17.055Z",
+    "hard_teardown_at": "2026-08-10T06:11:17Z",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_count": 1,
+    "minimum_gpu_memory_gb": 80,
+    "data_center_id": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "maximum_rate_usd_per_hour": 3.29,
+    "new_pod_creation_allowed": false,
+    "fallback_gpu_or_cloud_allowed": false
+  },
+  "execution": {
+    "batch_size": 16,
+    "max_new_tokens": 128,
+    "deterministic_decoding": true,
+    "maximum_wall_minutes_from_creation": 90,
+    "no_progress_stop_minutes": 15,
+    "maximum_attempts_per_batch": 2,
+    "raw_prompt_or_generation_logging": false,
+    "raw_generations_restricted_to_chmod_600_artifacts": true,
+    "candidate_breaker_enforcement_enabled": false,
+    "sealed_confirmation_may_not_be_executed_or_opened": true
+  },
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 123.07809047222222,
+    "maximum_new_compute_usd": 4.935,
+    "conservative_post_run_infrastructure_usd": 128.01309047222222,
+    "soft_gate_usd": 100,
+    "soft_gate_already_approved": true,
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "do not create another task pod",
+    "stop before model load if exact task pod, GPU, volume, source, plan, topology, model revision, or rate binding differs",
+    "stop after 15 minutes without receipt-count progress",
+    "terminate only task pod 23r2ftxcvcox2k at completion, failure, or 2026-08-10T06:11:17Z",
+    "keep every raw generation private and retrieve a hash-bound complete bundle before analysis",
+    "do not execute or open the sealed confirmation topology",
+    "do not enforce the candidate breaker during calibration generation",
+    "do not change either frozen J-lens projection or threshold"
+  ],
+  "supersedes": "plans/jlens_breaker_v2_generation_a112.allocation-authorization.json",
+  "allocation_result_receipt": "validation/jlens-breaker-v2-generation-a112.allocation-result.public.json"
+}
