@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A095",
+  "status": "ordered_single_pod_allocation_authorized",
+  "provider": "RunPod",
+  "maximum_task_owned_pods": 1,
+  "current_task_owned_pods": 0,
+  "request_order": [
+    {"gpu_type_id": "NVIDIA A40", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.44},
+    {"gpu_type_id": "NVIDIA RTX A6000", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.53},
+    {"gpu_type_id": "NVIDIA L40", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.82},
+    {"gpu_type_id": "NVIDIA RTX 6000 Ada Generation", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.84},
+    {"gpu_type_id": "NVIDIA RTX PRO 5000 Blackwell", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.96},
+    {"gpu_type_id": "NVIDIA L40S", "memory_gb": 48, "maximum_rate_usd_per_hour": 0.99},
+    {"gpu_type_id": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition", "memory_gb": 96, "maximum_rate_usd_per_hour": 1.89},
+    {"gpu_type_id": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "memory_gb": 96, "maximum_rate_usd_per_hour": 2.09},
+    {"gpu_type_id": "NVIDIA H100 PCIe", "memory_gb": 80, "maximum_rate_usd_per_hour": 2.89},
+    {"gpu_type_id": "NVIDIA H100 80GB HBM3", "memory_gb": 80, "maximum_rate_usd_per_hour": 3.29},
+    {"gpu_type_id": "NVIDIA H200", "memory_gb": 141, "maximum_rate_usd_per_hour": 4.59},
+    {"gpu_type_id": "NVIDIA B200", "memory_gb": 180, "maximum_rate_usd_per_hour": 6.79}
+  ],
+  "common_infrastructure": {
+    "cloud_type": "SECURE",
+    "gpu_count": 1,
+    "data_center_id_forced_by_volume": "US-CA-2",
+    "network_volume_id": "u85xfo0aue",
+    "volume_mount_path": "/workspace",
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404"
+  },
+  "allocation_rules": [
+    "submit requests strictly in listed order",
+    "after a supply failure, verify fresh account inventory contains zero pods before the next request",
+    "stop immediately at the first allocated pod",
+    "never submit a request while any task-owned pod exists",
+    "do not stage restricted inputs or load a model until a separate exact pod, GPU, rate, creation-time, hard-teardown, source, and input runtime authorization is committed",
+    "terminate an allocated pod if its returned cloud, GPU, memory, image, volume, data center, or rate exceeds the corresponding listed binding"
+  ],
+  "budget": {
+    "conservative_pre_run_infrastructure_usd": 105.76878194072222,
+    "maximum_wall_minutes": 90,
+    "maximum_rate_usd_per_hour": 6.79,
+    "maximum_new_compute_usd": 10.185,
+    "conservative_post_run_infrastructure_usd": 115.95378194072223,
+    "hard_ceiling_usd": 200
+  },
+  "paid_model_execution_authorized": false,
+  "supersedes_unallocated_requests": [
+    "plans/weaponization_confirmation_a093.authorization.json",
+    "plans/weaponization_confirmation_a094.authorization.json"
+  ]
+}
