@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A091",
+  "status": "calibration_analysis_authorized",
+  "analysis_source_commit": "8ad5e06389a7abf91ae2ca26ba07324aa37501cc",
+  "analysis_plan_sha256": "fa7a667d5ebf6de221f2886722f71d6592e722b33a8e46f5ecc0405c2f1f9ffd",
+  "execution_receipt_sha256": "c34bdfc90f54b91b4712d4e3c371829095db6dfef37c0ae6311c2a2de40c5a74",
+  "private_bundle_sha256": "ac7293340a128d423f62e3fb0c275b01e43a8bf999f5d54f5b4ed7407008f6d3",
+  "receipt_manifest_sha256": "03d792201da176b75ea7847c121ea2c5b7c839f65702f6f82612d9adfa5ece11",
+  "private_topology_sha256": "d21970ef0163e43ed8d0541cfe2b8aea03c5385882ade45b7e1d5bb84ced5e1e",
+  "factorial_material_sha256": "ee899a47ceca1b53e90787c5279174412e8d01e5872db9bba44a486921eba345",
+  "expected_observations": 1900,
+  "public_output": "results/weaponization-calibration-v1.public.json",
+  "private_candidate_output": "private/weaponization/candidate-v1.private.json",
+  "single_invocation": true,
+  "confirmation_may_be_opened_or_executed": false,
+  "paid_compute_authorized": false,
+  "stop_rules": [
+    "stop on any source, plan, bundle, manifest, topology, material, receipt-count, schema, identity, or finiteness drift",
+    "do not change the model, feature/subspace transform, J-lens head, threshold search, eligibility gate, comparator, tie rule, or placement separation after reading outcomes",
+    "if no placement has an eligible primary two-key threshold pair, stop before detector confirmation",
+    "if one placement fails, that placement remains closed even if the other passes",
+    "do not open or execute confirmation until the public result and exact private candidate hash are committed and a new authorization is frozen"
+  ]
+}
