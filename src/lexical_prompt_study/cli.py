@@ -206,6 +206,20 @@ def main() -> None:
     jlens_breaker_generation_topology.add_argument(
         "--receipt", type=Path, required=True
     )
+    jlens_breaker_generation = sub.add_parser(
+        "run-jlens-breaker-v2-generation-gpu"
+    )
+    jlens_breaker_generation.add_argument("--plan", type=Path, required=True)
+    jlens_breaker_generation.add_argument(
+        "--private-topology", type=Path, required=True
+    )
+    jlens_breaker_generation.add_argument(
+        "--authorization", type=Path, required=True
+    )
+    jlens_breaker_generation.add_argument("--model-path", required=True)
+    jlens_breaker_generation.add_argument("--output-root", type=Path, required=True)
+    jlens_breaker_generation.add_argument("--run-id", required=True)
+    jlens_breaker_generation.add_argument("--batch-size", type=int, default=16)
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -852,6 +866,25 @@ def main() -> None:
                     private_threshold_path=args.private_threshold,
                     private_output_path=args.private_out,
                     public_receipt_path=args.receipt,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "run-jlens-breaker-v2-generation-gpu":
+        from .jlens_breaker_v2_generation import (
+            run_jlens_breaker_v2_generation_gpu,
+        )
+
+        print(
+            json.dumps(
+                run_jlens_breaker_v2_generation_gpu(
+                    public_plan_path=args.plan,
+                    private_topology_path=args.private_topology,
+                    authorization_path=args.authorization,
+                    model_path=args.model_path,
+                    output_root=args.output_root,
+                    run_id=args.run_id,
+                    batch_size=args.batch_size,
                 ),
                 sort_keys=True,
             )
