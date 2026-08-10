@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-scaffold-weaponization-breaker-v1",
+  "amendment": "A097",
+  "status": "confirmation_analysis_authorized",
+  "analysis_source_commit": "ecc87beed1e293cb2897509390b933bbcdbc78c0",
+  "analysis_plan_sha256": "fadf28ab7bfc4e4236ef98c0193471edac6d32d84c2b8660ed111240448d021d",
+  "execution_receipt_sha256": "7a077f528cdda171297bcb1585ee85ac395fe8602d426f3189883ba4c0540278",
+  "private_bundle_sha256": "ff52772435ea92444d57cefef27bfeb0138960f53e9bf665f112232d060dd28e",
+  "receipt_manifest_sha256": "2611944ddbf51010d805e6c20d12fe015dc148e35485c4038284f4ac2ae774c9",
+  "bundle_root": "weaponization-confirmation-a096",
+  "calibration_public_result_sha256": "aa6d6c03bb89181974266494de76da7168cc08a859deb5e43768c9678ab56e82",
+  "private_candidate_sha256": "df83a51d734185669d6303fd2673f4caefe5e56e9afaed906ada5923d1918e0a",
+  "private_topology_sha256": "1ba9fe5e544deea315e114da3330d5c5b62997fd01d7f9937c58b4a8ff8f9648",
+  "factorial_material_sha256": "ee899a47ceca1b53e90787c5279174412e8d01e5872db9bba44a486921eba345",
+  "expected_observations": 5700,
+  "candidate_refit_allowed": false,
+  "threshold_change_allowed": false,
+  "placements_may_be_pooled": false,
+  "raw_prompt_token_or_generation_content_public": false,
+  "production_deployment_authorized": false
+}
