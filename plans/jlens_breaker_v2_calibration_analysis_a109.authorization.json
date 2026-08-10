@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A109",
+  "status": "v2_calibration_analysis_authorized",
+  "analysis_source_commit": "b422f4ccba7b367386d979ff03945c0911b5007e",
+  "analysis_plan_sha256": "312498a5085f6a6d90d39288a64bbd8ee21a9432b6690d3befdd7c41af3c3058",
+  "bindings": {
+    "private_bundle_sha256": "845e3ee733d5d863416650d130c6bdecf9dc14ee272459082dcaf6a27fed312c",
+    "private_topology_sha256": "3125638c2a3cb568f41f48b9c9e39b47dc2c044967580e7b96480f4187382db8",
+    "frozen_v1_candidate_sha256": "df83a51d734185669d6303fd2673f4caefe5e56e9afaed906ada5923d1918e0a",
+    "receipt_manifest_sha256": "6cf659bd720da8c009b3c54bbb958211258f31230ac3adb1f82c43a13a953212"
+  },
+  "single_invocation": true,
+  "execution_environment": "local CPU from exact detached source commit",
+  "public_output": "results/jlens-breaker-v2-calibration-a109.public.json",
+  "private_threshold_output": "private/jlens-breaker-v2/calibration-thresholds-a109.private.json",
+  "confirmation_open_or_execute_authorized": false,
+  "projection_or_reference_refit_authorized": false,
+  "raw_prompt_or_token_output_authorized": false,
+  "supersedes_invalid_zero_outcome_authorization": "plans/jlens_breaker_v2_calibration_analysis_a108.authorization.json",
+  "zero_outcome_correction_reason": "A108 expanded the correct short commit to a nonexistent full hash; git worktree rejected it before analysis"
+}

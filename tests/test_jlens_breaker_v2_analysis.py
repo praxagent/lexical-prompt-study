@@ -78,16 +78,16 @@ def test_v2_threshold_maximizes_recall_and_allows_at_most_one_false_trip() -> No
     )
 
 
-def test_a108_authorizes_one_local_analysis_without_confirmation() -> None:
+def test_a109_authorizes_one_local_analysis_without_confirmation() -> None:
     authorization = json.loads(
         (
             ROOT
             / "plans"
-            / "jlens_breaker_v2_calibration_analysis_a108.authorization.json"
+            / "jlens_breaker_v2_calibration_analysis_a109.authorization.json"
         ).read_text()
     )
     assert authorization["analysis_source_commit"] == (
-        "b422f4c4e13bb8facd3a6cb1831feebdb4193f67"
+        "b422f4ccba7b367386d979ff03945c0911b5007e"
     )
     assert authorization["analysis_plan_sha256"] == sha256_file(
         ROOT
@@ -97,3 +97,6 @@ def test_a108_authorizes_one_local_analysis_without_confirmation() -> None:
     assert authorization["single_invocation"] is True
     assert authorization["confirmation_open_or_execute_authorized"] is False
     assert authorization["projection_or_reference_refit_authorized"] is False
+    assert authorization["supersedes_invalid_zero_outcome_authorization"].endswith(
+        "a108.authorization.json"
+    )
