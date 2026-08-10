@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A105",
+  "status": "single_task_pod_allocated_no_model_execution",
+  "provider": "RunPod",
+  "pod": {
+    "id": "dmtqbmjit7cxsx",
+    "name": "lexical-jlens-v2-calibration-a105",
+    "last_started_at": "2026-08-10T03:54:28.670Z",
+    "desired_status": "RUNNING",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_display_name": "H100 SXM",
+    "gpu_count": 1,
+    "cost_per_hour_usd": 3.29,
+    "image_name": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "network_volume_id": "u85xfo0aue",
+    "data_center_id": "US-CA-2"
+  },
+  "inventory_after_allocation_count": 1,
+  "model_loaded": false,
+  "target_outcome_exists": false
+}
