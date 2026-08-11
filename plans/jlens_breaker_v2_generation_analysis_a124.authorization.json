@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A124",
+  "status": "v2_generation_calibration_analysis_authorized",
+  "authorized_at": "2026-08-11T22:44:00Z",
+  "score_and_utility_outcome_inspection_authorized": true,
+  "expected_generation_receipts": 2430,
+  "expected_score_receipts": 810,
+  "expected_expanded_placement_rows": 2700,
+  "bindings": {
+    "analysis_source_commit": "b80fdf4bb3699879e29c302311186a4bd10d056d",
+    "analysis_implementation_sha256": "d222126e90323c348955561b744ef82b0deb41efdfa84e1ee1eff53656aa4baa",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "analysis_plan_sha256": "d6d0e123b29291573be6952c0c5a8f4423837d236397e86bbef09656c6267307",
+    "generation_summary_sha256": "4c1034d28e08dffbfa45fcb224624cf11fe40ee04b0d368ce7f55882c6c6de9a",
+    "score_completed_resume_summary_sha256": "4a86e9634b5d1f2b9b8214e939c4e663f9e8ff2b0a04f0766fbb540776bc6317",
+    "score_first_invocation_summary_sha256": "8c907bb1a919e415ac2eb147e062a961be9614456f7cb09eaae3300fd5ec83c3",
+    "generation_receipt_manifest_sha256": "bc61170c9eda8fccd533b3ce9d834e19b45f2d7b3763b31c44a5f85e8499fc68",
+    "score_receipt_manifest_sha256": "f1c97e9d9cb14be5a74bbf84ae2e18ad8ceae7c8388933c2051083331eeee5be",
+    "generation_private_bundle_manifest_sha256": "a8fb711762bdf0f5ebb8e2fffee0f70ab1e44667889f4941f51c2c492f527dac",
+    "score_private_bundle_manifest_sha256": "fc8cf0df60000126464bdb911f06324b19e64ded6bc70c298d06322281501de9",
+    "scoring_public_execution_result_sha256": "2e497a0b7157fbe3ecdc3081630d7ad8f777111eb6a7769c87f3e0630bfb2cdc"
+  },
+  "analysis_rules": {
+    "apply_frozen_detector_decisions_without_refit": true,
+    "placements_separate": true,
+    "placement_pooling_allowed": false,
+    "cell_counts_must_equal_90": true,
+    "paired_bootstrap_choices_frozen_in_analysis_plan": true,
+    "public_output_aggregate_only": true,
+    "private_row_level_derived_receipt_required": true
+  },
+  "sealed_confirmation_opened_or_executed": false,
+  "confirmation_or_deployment_authorized": false,
+  "paid_compute_authorized": false,
+  "stop_rules": [
+    "run only from exact analysis source commit",
+    "stop on any source plan bundle summary receipt manifest topology or score linkage drift",
+    "never refit the detector projection or threshold",
+    "never pool placements",
+    "never expose request prompt token generation or classifier input text",
+    "never open confirmation or authorize deployment from this calibration analysis"
+  ]
+}
