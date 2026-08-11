@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A116",
+  "status": "replacement_inventory_scope_corrected_before_mutation_or_outcome",
+  "created_at": "2026-08-11",
+  "reason": "an unrelated account pod appeared after A115; account-wide emptiness is not the task-owned singularity invariant",
+  "target_outcomes_before_correction": 0,
+  "superseded_rule": "replacement only after empty account pod inventory",
+  "corrected_rules": {
+    "maximum_task_owned_generation_pods": 1,
+    "task_owned_identity": "the lexical-jlens-v2-generation task name and retained lexical-study network volume together",
+    "old_explicitly_authorized_stopped_task_pod_must_be_terminated_before_replacement": true,
+    "zero_task_owned_generation_pods_required_immediately_before_replacement_create": true,
+    "unrelated_account_pods_may_coexist": true,
+    "unrelated_account_pods_may_be_stopped_modified_or_terminated": false,
+    "stop_after_first_successful_task_owned_replacement_allocation": true
+  },
+  "unchanged_bindings": {
+    "a115_public_authorization_sha256": "d23116699517a1bf1a70b4319986247afc98bdbfcab379995014d180e2bbf5d0",
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "run_id": "jlens-breaker-v2-generation-a113-20260810",
+    "expected_observations": 2430,
+    "existing_completed_observations": 0,
+    "credential_persistence_or_logging_allowed": false,
+    "enforcement_enabled": false,
+    "sealed_confirmation_opened_or_executed": false
+  },
+  "budget_and_deadline_unchanged": true,
+  "scientific_protocol_changed": false
+}
