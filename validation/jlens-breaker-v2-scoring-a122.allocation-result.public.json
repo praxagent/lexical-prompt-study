@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A122",
+  "status": "one_scoring_pod_allocated_no_evaluator_execution",
+  "created_at": "2026-08-11T22:23:11.918Z",
+  "public_scoring_authorization_sha256": "4f32fc0c8579f003045795d8cc496e012487d70269c9e7f74220b603a5aa0510",
+  "resource_identity_public": false,
+  "infrastructure": {
+    "provider": "RunPod",
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_count": 1,
+    "cost_per_hour_usd": 3.29,
+    "data_center_id": "US-CA-2",
+    "persistent_network_volume_attached": true,
+    "network_volume_size_gb": 500,
+    "image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404"
+  },
+  "task_owned_scoring_pod_count_after_allocation": 1,
+  "successful_allocations": 1,
+  "maximum_wall_minutes_from_allocation": 30,
+  "maximum_new_compute_usd": 1.645,
+  "evaluator_loaded": false,
+  "score_receipts": 0,
+  "target_generation_executed": false,
+  "raw_generation_or_classifier_input_public": false,
+  "sealed_confirmation_opened_or_executed": false
+}
