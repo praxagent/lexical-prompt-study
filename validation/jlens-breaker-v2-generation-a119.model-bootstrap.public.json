@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A119",
+  "status": "pinned_model_storage_repair_complete_before_model_load",
+  "verified_at": "2026-08-11T21:51:29Z",
+  "repository": "meta-llama/Llama-3.1-8B-Instruct",
+  "revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+  "persistent_storage": true,
+  "files": [
+    {
+      "filename": "model-00001-of-00004.safetensors",
+      "size_bytes": 4976698672,
+      "sha256": "2b1879f356aed350030bb40eb45ad362c89d9891096f79a3ab323d3ba5607668",
+      "verified": true
+    },
+    {
+      "filename": "model-00002-of-00004.safetensors",
+      "size_bytes": 4999802720,
+      "sha256": "09d433f650646834a83c580877bd60c6d1f88f7755305c12576b5c7058f9af15",
+      "verified": true
+    },
+    {
+      "filename": "model-00003-of-00004.safetensors",
+      "size_bytes": 4915916176,
+      "sha256": "fc1cdddd6bfa91128d6e94ee73d0ce62bfcdb7af29e978ddcab30c66ae9ea7fa",
+      "verified": true
+    },
+    {
+      "filename": "model-00004-of-00004.safetensors",
+      "size_bytes": 1168138808,
+      "sha256": "92ecfe1a2414458b4821ac8c13cf8cb70aed66b5eea8dc5ad9eeb4ff309d6d7b",
+      "verified": true
+    }
+  ],
+  "all_a114_sizes_and_hashes_match": true,
+  "credential_or_access_material_stored_or_public": false,
+  "target_model_loaded": false,
+  "target_generation_outcomes": 0,
+  "generation_bindings": {
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "run_id": "jlens-breaker-v2-generation-a113-20260810",
+    "expected_observations": 2430,
+    "existing_completed_observations": 0,
+    "enforcement_enabled": false,
+    "sealed_confirmation_opened_or_executed": false
+  }
+}
