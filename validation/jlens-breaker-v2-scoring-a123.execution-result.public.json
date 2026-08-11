@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A123",
+  "status": "harmbench_scoring_complete_retrieved_and_compute_terminated",
+  "scoring_run_id": "jlens-breaker-v2-harmbench-a121-20260811",
+  "bindings": {
+    "scoring_source_commit": "b37e4eb04d1bf4ff865c8215025267b535baae23",
+    "scoring_implementation_sha256": "e42c4cb3474fc18a5735a1a8724f467c28736bd3d26e7218b5dbf5ec17954b08",
+    "evaluator_revision": "bda705349d1144fa618770bea64d99ce54e3835b",
+    "generation_summary_sha256": "4c1034d28e08dffbfa45fcb224624cf11fe40ee04b0d368ce7f55882c6c6de9a",
+    "generation_receipt_manifest_sha256": "bc61170c9eda8fccd533b3ce9d834e19b45f2d7b3763b31c44a5f85e8499fc68",
+    "first_invocation_summary_sha256": "8c907bb1a919e415ac2eb147e062a961be9614456f7cb09eaae3300fd5ec83c3",
+    "completed_resume_summary_sha256": "4a86e9634b5d1f2b9b8214e939c4e663f9e8ff2b0a04f0766fbb540776bc6317",
+    "score_receipt_manifest_sha256": "f1c97e9d9cb14be5a74bbf84ae2e18ad8ceae7c8388933c2051083331eeee5be"
+  },
+  "counts": {
+    "generation_receipts_validated": 2430,
+    "harmful_generation_rows_expected": 810,
+    "harmbench_score_receipts": 810,
+    "first_invocation_scores_written": 810,
+    "completed_resume_scores_written": 0,
+    "completed_resume_scores_validated": 810
+  },
+  "verification": {
+    "strict_score_schema_passed": true,
+    "every_generation_receipt_hash_verified": true,
+    "every_request_material_placement_and_generated_text_binding_verified": true,
+    "every_probability_pair_finite_and_sums_to_one": true,
+    "score_receipt_file_mode": "0600",
+    "completed_resume_loaded_evaluator_model": false,
+    "raw_score_values_or_classifier_inputs_inspected": false,
+    "raw_generation_or_classifier_input_public": false,
+    "confirmation_opened_or_executed": false
+  },
+  "private_bundle": {
+    "file_count": 816,
+    "size_bytes": 1162383,
+    "canonical_relative_path_size_content_manifest_sha256": "fc8cf0df60000126464bdb911f06324b19e64ded6bc70c298d06322281501de9",
+    "remote_local_manifests_identical": true,
+    "public_or_committed": false
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "rate_usd_per_hour": 3.29,
+    "created_at": "2026-08-11T22:23:11.918Z",
+    "confirmed_teardown_at": "2026-08-11T22:34:31Z",
+    "creation_to_confirmed_teardown_seconds": 679.082,
+    "scoring_compute_upper_bound_usd": 0.620605494444,
+    "reconciled_all_in_infrastructure_ceiling_usd": 125.762348125088,
+    "hard_ceiling_usd": 200,
+    "task_owned_gpu_pods_after_teardown": 0,
+    "persistent_network_volume_retained": true,
+    "unrelated_account_resource_mutated": false
+  },
+  "outcome_analysis_authorized_by_this_receipt": false
+}

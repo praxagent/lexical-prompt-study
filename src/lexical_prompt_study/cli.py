@@ -237,6 +237,33 @@ def main() -> None:
     jlens_breaker_score.add_argument("--output-root", type=Path, required=True)
     jlens_breaker_score.add_argument("--run-id", required=True)
     jlens_breaker_score.add_argument("--batch-size", type=int, default=4)
+    jlens_breaker_generation_analysis = sub.add_parser(
+        "analyze-jlens-breaker-v2-generation-calibration"
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--plan", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--analysis-plan", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--analysis-authorization", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--private-topology", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--generation-root", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--score-root", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--public-out", type=Path, required=True
+    )
+    jlens_breaker_generation_analysis.add_argument(
+        "--private-out", type=Path, required=True
+    )
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -922,6 +949,26 @@ def main() -> None:
                     output_root=args.output_root,
                     scoring_run_id=args.run_id,
                     batch_size=args.batch_size,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "analyze-jlens-breaker-v2-generation-calibration":
+        from .jlens_breaker_v2_generation_analysis import (
+            analyze_jlens_breaker_v2_generation_calibration,
+        )
+
+        print(
+            json.dumps(
+                analyze_jlens_breaker_v2_generation_calibration(
+                    public_plan_path=args.plan,
+                    analysis_plan_path=args.analysis_plan,
+                    analysis_authorization_path=args.analysis_authorization,
+                    private_topology_path=args.private_topology,
+                    generation_root=args.generation_root,
+                    score_root=args.score_root,
+                    public_output_path=args.public_out,
+                    private_output_path=args.private_out,
                 ),
                 sort_keys=True,
             )
