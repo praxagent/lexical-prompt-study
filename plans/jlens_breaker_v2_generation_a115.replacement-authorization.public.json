@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A115",
+  "status": "one_replacement_generation_pod_authorized",
+  "authorized_at": "2026-08-11T21:38:11Z",
+  "explicit_user_approval_recorded_privately": true,
+  "reason": "the singular stopped task pod could not reacquire its host GPU; target generation remains zero",
+  "old_stopped_task_compute_termination_authorized": true,
+  "maximum_replacement_pods": 1,
+  "replacement_only_after_empty_inventory": true,
+  "required_infrastructure": {
+    "cloud_type": "SECURE",
+    "gpu_type_id": "NVIDIA H100 80GB HBM3",
+    "gpu_count": 1,
+    "maximum_rate_usd_per_hour": 3.29,
+    "data_center_id": "US-CA-2",
+    "persistent_network_volume_required": true,
+    "container_image": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404"
+  },
+  "storage_repair_binding": {
+    "public_amendment_sha256": "f9ad9d2414d2b06bf5e132c4a1d7310da66abbd24b7d29aba24bfab9f6ea4ff4",
+    "exact_four_shard_sizes_and_hashes_required_before_model_load": true,
+    "credential_or_access_material_public": false,
+    "credential_persistence_or_logging_allowed": false
+  },
+  "generation_bindings": {
+    "source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "run_id": "jlens-breaker-v2-generation-a113-20260810",
+    "expected_observations": 2430,
+    "existing_completed_observations": 0,
+    "batch_size": 16,
+    "max_new_tokens": 128,
+    "enforcement_enabled": false,
+    "sealed_confirmation_opened_or_executed": false
+  },
+  "budget": {
+    "reconciled_infrastructure_ceiling_before_replacement_usd": 123.731833236,
+    "maximum_replacement_wall_minutes": 120,
+    "maximum_replacement_compute_usd": 6.58,
+    "conservative_postrun_infrastructure_ceiling_usd": 130.311833236,
+    "hard_teardown_at": "2026-08-11T23:55:00Z",
+    "hard_ceiling_usd": 200
+  },
+  "stop_rules": [
+    "never create a replacement while any account pod exists",
+    "stop after the first successful replacement allocation",
+    "reject and terminate the replacement if GPU, cloud, rate, image, data center, or persistent volume differs",
+    "stop before model load unless all four pinned shard hashes match",
+    "stop after 15 minutes without download or receipt progress",
+    "terminate singular task compute at completion, failure, or the hard deadline",
+    "never execute sealed confirmation and never enable enforcement"
+  ]
+}
