@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-breaker-v2",
+  "amendment": "A120",
+  "status": "generation_calibration_complete_retrieved_and_compute_terminated",
+  "run_id": "jlens-breaker-v2-generation-a113-20260810",
+  "stage": "generation_calibration",
+  "bindings": {
+    "generation_source_commit": "5119caaf20ed2bd7174adef6b69001e1d3a46cfb",
+    "public_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "private_generation_topology_sha256": "7ebbe17c25f79b8b2dfbd9ae359d44ee5ae83387dbd81461fd5f07c81b0b69e8",
+    "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "summary_sha256": "4c1034d28e08dffbfa45fcb224624cf11fe40ee04b0d368ce7f55882c6c6de9a",
+    "generation_receipt_manifest_sha256": "bc61170c9eda8fccd533b3ce9d834e19b45f2d7b3763b31c44a5f85e8499fc68"
+  },
+  "counts": {
+    "expected_generation_receipts": 2430,
+    "completed_generation_receipts": 2430,
+    "restricted_generation_artifacts": 2430,
+    "attempt_log_lines": 2430,
+    "failed_first_attempt_generation_receipts": 0,
+    "written_by_successful_invocation": 2430
+  },
+  "verification": {
+    "strict_generation_schema_passed": true,
+    "every_topology_row_binding_verified": true,
+    "every_restricted_artifact_hash_verified": true,
+    "every_generated_text_and_token_id_hash_verified": true,
+    "receipt_and_restricted_file_mode": "0600",
+    "confirmation_opened_or_executed": false,
+    "breaker_enforcement_enabled": false,
+    "raw_prompt_token_or_generation_content_public": false
+  },
+  "private_bundle": {
+    "file_count": 4868,
+    "size_bytes": 21717377,
+    "canonical_relative_path_size_content_manifest_sha256": "a8fb711762bdf0f5ebb8e2fffee0f70ab1e44667889f4941f51c2c492f527dac",
+    "remote_local_manifests_identical": true,
+    "public_or_committed": false
+  },
+  "infrastructure": {
+    "provider": "RunPod",
+    "replacement_gpu": "NVIDIA H100 80GB HBM3",
+    "gpu_count": 1,
+    "rate_usd_per_hour": 3.29,
+    "replacement_created_at": "2026-08-11T21:44:38.242Z",
+    "generation_completed_at_approximately": "2026-08-11T22:04:35Z",
+    "confirmed_teardown_at": "2026-08-11T22:10:21Z",
+    "replacement_creation_to_confirmed_teardown_seconds": 1542.758,
+    "replacement_compute_upper_bound_usd": 1.409909394444,
+    "failed_first_attempt_compute_upper_bound_usd": 0.653742764,
+    "generation_stage_compute_upper_bound_usd": 2.063652158444,
+    "reconciled_all_in_infrastructure_ceiling_usd": 125.141742630644,
+    "hard_ceiling_usd": 200,
+    "task_owned_gpu_pods_after_teardown": 0,
+    "persistent_network_volume_retained": true,
+    "unrelated_account_resource_mutated": false
+  },
+  "next_stage": {
+    "harmful_generation_rows_for_pinned_harmbench_scoring": 810,
+    "ordinary_benign_rows_for_utility_analysis": 810,
+    "minimal_neutral_rows_for_specificity_analysis": 810,
+    "scoring_requires_separate_exact_source_rate_wall_time_and_cost_authorization": true,
+    "confirmation_remains_sealed": true
+  }
+}

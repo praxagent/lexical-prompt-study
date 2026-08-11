@@ -220,6 +220,23 @@ def main() -> None:
     jlens_breaker_generation.add_argument("--output-root", type=Path, required=True)
     jlens_breaker_generation.add_argument("--run-id", required=True)
     jlens_breaker_generation.add_argument("--batch-size", type=int, default=16)
+    jlens_breaker_score = sub.add_parser(
+        "score-jlens-breaker-v2-generation-gpu"
+    )
+    jlens_breaker_score.add_argument("--plan", type=Path, required=True)
+    jlens_breaker_score.add_argument(
+        "--private-topology", type=Path, required=True
+    )
+    jlens_breaker_score.add_argument(
+        "--generation-root", type=Path, required=True
+    )
+    jlens_breaker_score.add_argument(
+        "--authorization", type=Path, required=True
+    )
+    jlens_breaker_score.add_argument("--evaluator-path", required=True)
+    jlens_breaker_score.add_argument("--output-root", type=Path, required=True)
+    jlens_breaker_score.add_argument("--run-id", required=True)
+    jlens_breaker_score.add_argument("--batch-size", type=int, default=4)
     weaponization_prefill = sub.add_parser("run-weaponization-prefill-gpu")
     weaponization_prefill.add_argument(
         "--public-plan",
@@ -884,6 +901,26 @@ def main() -> None:
                     model_path=args.model_path,
                     output_root=args.output_root,
                     run_id=args.run_id,
+                    batch_size=args.batch_size,
+                ),
+                sort_keys=True,
+            )
+        )
+    elif args.command == "score-jlens-breaker-v2-generation-gpu":
+        from .jlens_breaker_v2_scoring import (
+            run_jlens_breaker_v2_harmbench_gpu,
+        )
+
+        print(
+            json.dumps(
+                run_jlens_breaker_v2_harmbench_gpu(
+                    public_plan_path=args.plan,
+                    private_topology_path=args.private_topology,
+                    generation_root=args.generation_root,
+                    authorization_path=args.authorization,
+                    evaluator_path=args.evaluator_path,
+                    output_root=args.output_root,
+                    scoring_run_id=args.run_id,
                     batch_size=args.batch_size,
                 ),
                 sort_keys=True,
