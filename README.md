@@ -14,6 +14,20 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
+**One placement-specific Jacobian-lens breaker candidate has now passed
+generation calibration.** At the frozen 252-token condition, the
+after-request head would have stopped all `55/55` full-scaffold completions
+that the pinned HarmBench classifier judged successfully harmful, while
+canceling `0/450` ordinary-benign requests across no scaffold, inert length,
+harmless structure, structural sham, and the full scaffold. Its one-sided 95%
+capture lower bound is `0.947`. The before-request head also captured every
+successful harmful completion (`59/59`) but would cancel `82/450` benign
+requests, including 30 tasks the model completed correctly, so that placement
+failed. This is a calibration result for one pinned scaffold and one token
+size—not confirmation, family-wide robustness, causal mechanism, or deployment
+authorization. Confirmation remains sealed. See
+[results/jlens-breaker-v2-generation-a124.public.json](results/jlens-breaker-v2-generation-a124.public.json).
+
 **A strong Jacobian-lens attack-attempt signal survived held-out testing, but
 the frozen two-key circuit breaker did not.** The before-request rule detected
 `290/300` held-out attack-plus-harmful prompts, but falsely tripped on `5/300`
