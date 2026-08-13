@@ -11,6 +11,7 @@ from lexical_prompt_study.hashing import (
     sha256_file,
     sha256_text,
 )
+from lexical_prompt_study.jlens_behavior_candidate import _select_threshold
 from lexical_prompt_study.jlens_falsification_result import (
     _detector_metrics,
     _factorial_contrast,
@@ -203,3 +204,22 @@ def test_cross_validation_keeps_all_masks_for_request_in_one_fold() -> None:
             if row["request_id"] == request_id
         }
         assert len(selected) == 1
+
+
+def test_behavior_candidate_threshold_fails_closed_without_gate() -> None:
+    predictions = np.asarray([0.9, 0.8, 0.95, 0.85])
+    positive = np.asarray([True, True, False, False])
+    benign = np.asarray([False, False, True, True])
+    selection = _select_threshold(predictions, positive, benign)
+    assert selection["eligible"] is False
+    assert selection["threshold"] is None
+
+
+def test_behavior_candidate_threshold_selects_eligible_boundary() -> None:
+    predictions = np.asarray([0.9, 0.8, 0.1, 0.2])
+    positive = np.asarray([True, True, False, False])
+    benign = np.asarray([False, False, True, True])
+    selection = _select_threshold(predictions, positive, benign)
+    assert selection["eligible"] is True
+    assert selection["metrics"]["successful_harmful_capture_fraction"] == 1.0
+    assert selection["metrics"]["ordinary_benign_false_trip_fraction"] == 0.0

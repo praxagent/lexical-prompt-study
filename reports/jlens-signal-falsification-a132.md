@@ -59,9 +59,9 @@ At the prospectively frozen operating points, yes on precision, no on completene
 | Learned full-prompt byte-ngram filter | 143 / 319 (44.8%) | 118 / 960 (12.3%) |
 | Exact full-scaffold filter | 37 / 319 (11.6%) | 60 / 960 (6.25%) |
 
-No frozen prompt-only rule matched the J-lens breaker's successful-harm capture with equally low benign false trips. The internal detector therefore showed a genuine precision advantage on this panel.
+No frozen prompt-only rule matched the old J-lens breaker's successful-harm capture with equally low benign false trips. At those previously frozen operating points, the internal detector had a precision advantage.
 
-But that does not settle the broader comparison. A post-outcome threshold search—descriptive only—found that the J-lens score could catch 145 of 319 successes with zero benign trips, versus 67 for the learned full-prompt filter. A request-only content score separated the harmful and benign request sets perfectly on this panel, which is unsurprising and not evidence of an EP detector: it was ineligible under the original calibration because harmful content alone cannot distinguish weaponized from harmless structure.
+But that did not settle the broader comparison. A post-outcome threshold search—descriptive only—found that the old J-lens score could catch 145 of 319 successes with zero benign trips, versus 67 for the old learned full-prompt filter. A request-only content score separated the harmful and benign request sets perfectly on this panel, which is unsurprising and not evidence of an EP detector: it was ineligible under the original calibration because harmful content alone cannot distinguish weaponized from harmless structure.
 
 ![Internal breaker versus prompt filtering](../figures/jlens-falsification-a132/E31-jlens-versus-prompt-filtering.png)
 
@@ -73,13 +73,26 @@ However, a clearly labeled post-outcome cross-validation found more useful infor
 
 This is exploratory, not confirmation. It says the internal states contain behavior-aligned information that the old breaker failed to use well. It does not rescue the frozen breaker.
 
+Then we ran the most direct post-outcome comparison: train every candidate on the same deployment label—successful harmful completion versus every other row—use the same request-grouped cross-validation, and impose the same 80% capture / 2% benign-trip gate.
+
+| Cross-validated candidate | Successful harmful completions caught | Ordinary-benign prompts stopped |
+|---|---:|---:|
+| Prompt text only | 295 / 319 (92.5%) | 0 / 960 |
+| J-lens trajectory only | 256 / 319 (80.3%) | 19 / 960 (1.98%) |
+| Prompt text + J-lens | 296 / 319 (92.8%) | 0 / 960 |
+| Request text only | 319 / 319 (100%) | 0 / 960 |
+
+This is the strongest answer to “why not just filter the prompt?” On the present panel, prompt filtering wins. Adding all 31 J-lens coordinates bought one additional captured completion over full-prompt filtering. The perfect request-only result reveals a benchmark limitation: our harmful and benign request sets are lexically separable. It does not establish a universal content filter, but it prevents this panel from demonstrating a deployment advantage for white-box internals.
+
+The behavior-aligned J-lens-only candidate also failed its separate success-prediction-plus-benign-specificity calibration gate when trained without using benign labels. No paid confirmation was launched.
+
 ## Bottom line
 
-The result survived the weakest debunk and failed the strongest one:
+The result survived the weakest debunk and failed the strongest ones:
 
-- It is not merely an exact-string detector; frozen prompt filters did not match its precision.
+- It is not merely an exact-string detector; at the old frozen thresholds, prompt filters did not match its precision.
 - It is not a robust circuit breaker; one equal-token block replacement preserved substantial harmful success while collapsing capture from 35/37 to 1/26.
 - Feature 6779 is still a scaffold marker, not a harm detector.
-- The full J-lens trajectory contains additional success-predictive information, but that finding is post-outcome and needs a new prospectively frozen candidate and independent requests.
+- The full J-lens trajectory contains success-predictive information among already-known harmful prompts, but prompt filtering dominates the direct deployment endpoint on this panel.
 
-The next defensible experiment is to train a behavior-aligned J-lens head using the mutation panel as discovery—with the block-4 replacement as a mandatory hard negative—and evaluate it once on disjoint requests and mutation variants. Until that succeeds, the breaker belongs in research, not deployment.
+The next defensible experiment is not to confirm the current candidate. It is to build a harder benchmark in which benign and harmful request text cannot be trivially separated, then train a behavior-aligned internal head with the block-4 replacement as a mandatory hard negative. Until that succeeds, the breaker belongs in research, not deployment.
