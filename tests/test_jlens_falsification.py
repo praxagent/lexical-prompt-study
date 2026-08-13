@@ -8,6 +8,7 @@ from lexical_prompt_study.jlens_falsification_result import (
     _factorial_contrast,
     _holm,
 )
+from lexical_prompt_study.jlens_falsification_figures import _validate as validate_figures
 from lexical_prompt_study.jlens_falsification_runner import _validate_receipt
 from lexical_prompt_study.jlens_falsification_topology import _hashed_ngrams
 
@@ -118,3 +119,18 @@ def test_holm_adjustment_is_monotone_in_sorted_p_values() -> None:
     assert adjusted["c"] == pytest.approx(0.09)
     assert adjusted["b"] == pytest.approx(0.09)
     assert adjusted["d"] == pytest.approx(0.2)
+
+
+def test_falsification_figure_guard_rejects_open_confirmation() -> None:
+    result = {
+        "study_id": "lexical-jlens-signal-falsification-v1",
+        "status": "mutation_falsification_analysis_complete",
+        "piecewise_curves": {
+            "harmful_request": {},
+            "ordinary_benign_request": {},
+        },
+        "claim_boundaries": {"unopened_v2_confirmation_opened": True},
+        "raw_prompt_request_token_generation_or_row_level_content_public": False,
+    }
+    with pytest.raises(ValueError, match="figure source boundary"):
+        validate_figures(result)
