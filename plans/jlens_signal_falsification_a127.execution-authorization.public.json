@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-signal-falsification-v1",
+  "amendment": "A127",
+  "status": "exact_task_runtime_frozen_private_topology",
+  "source_commit": "919609c57d89c4a27ca134867d6a56fcd5cd7c0e",
+  "private_execution_authorization_sha256": "c74490d6be695bc16316f50e0cb4eb898605d264e805ceaeca288619ec6540c9",
+  "instrument": {
+    "gpu_family": "NVIDIA H100 80GB",
+    "gpu_count": 1,
+    "cloud_type": "SECURE",
+    "rate_usd_per_hour": 3.29,
+    "persistent_volume_attached": true
+  },
+  "execution": {
+    "prefill_observation_count": 1920,
+    "generation_observation_count": 960,
+    "score_observation_count": 960,
+    "batch_size": 4,
+    "maximum_wall_minutes": 120,
+    "no_progress_timeout_minutes": 15,
+    "maximum_new_compute_usd": 6.58,
+    "single_task_owned_pod_maximum": 1
+  },
+  "bound_public_hashes": {
+    "falsification_plan_sha256": "f4a0d53f07fc09aa9e25ec51bde022d48c2167b7626ade8b1f5fd76d24561581",
+    "public_topology_receipt_sha256": "77cc5b1775d066fcf7c1c01fcff7a3492289e82e277a793505a9a1d7dcab6b1c",
+    "instrument_plan_sha256": "884f41878efb2081425bd9dfeec429262e1a2c1c9f5589285460cc0802b8be18",
+    "probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "runner_sha256": "be5ac135b0c50a729aabb1bbc08381275813f0a8681a5ca002a601de4a8367bf"
+  },
+  "bound_private_hashes": {
+    "mutation_topology_sha256": "27d1f756b96a1c0fcf4fe1099854b8ddbb3b382b84eb656d261c2fe63c43a159",
+    "prompt_baseline_sha256": "2845e74309b0bc7459dadb386f4d3cc066d2b85b8967d7368563848d6a13314d",
+    "threshold_sha256": "095a11729f922083ef857760c75cfaec74f3c41b1f891936989e69f34fd3fd1e",
+    "factorial_material_sha256": "ee899a47ceca1b53e90787c5279174412e8d01e5872db9bba44a486921eba345"
+  },
+  "public_boundary": {
+    "raw_prompt_request_token_generation_classifier_input_or_score_public": false,
+    "infrastructure_topology_public": false,
+    "row_level_receipts_public": false,
+    "unopened_v2_confirmation_opened": false,
+    "enforcement_enabled": false,
+    "deployment_authorized": false
+  }
+}
