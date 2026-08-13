@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-signal-falsification-v1",
+  "amendment": "A130",
+  "status": "score_only_recovery_authorized_after_zero_score_stop",
+  "source_commit": "df7119bbd0e1e82f95c0c1c00b396a81dda52df5",
+  "runner_sha256": "c5cbff3d417d5483ab6c5f51c05bc4d79210d67e6a88a8ced3692f966a15b0ab",
+  "private_authorization_sha256": "7a66c48df3b23a83d718711193673a0a35b8730a6013d78f984fe7aedd783a60",
+  "score_observation_count": 960,
+  "batch_size": 4,
+  "failed_invocation_score_receipt_count": 0,
+  "acquisition_rerun_authorized": false,
+  "acquisition_input_or_receipt_change_authorized": false,
+  "evaluator_or_classifier_input_change_authorized": false,
+  "paid_compute_bound": "inherits the original exact task-pod creation-to-teardown wall and $6.58 maximum",
+  "enforcement_enabled": false,
+  "unopened_v2_confirmation_opened": false,
+  "raw_prompt_generation_score_or_topology_public": false,
+  "outcome_analysis_before_complete_retrieval_authorized": false,
+  "deployment_authorized": false
+}
