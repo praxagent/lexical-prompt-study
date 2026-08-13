@@ -17,6 +17,7 @@ from lexical_prompt_study.jlens_falsification_result import (
     _holm,
 )
 from lexical_prompt_study.jlens_falsification_figures import _validate as validate_figures
+from lexical_prompt_study.jlens_falsification_cv import _folds_by_request
 from lexical_prompt_study.jlens_falsification_runner import (
     _load_scoring_input,
     _validate_receipt,
@@ -182,3 +183,23 @@ def test_scoring_binds_composed_contextual_behavior_separately(tmp_path) -> None
     assert loaded == restricted
     assert behavior_sha256 == sha256_text(observation["request_text"])
     assert behavior_sha256 != observation["request_sha256"]
+
+
+def test_cross_validation_keeps_all_masks_for_request_in_one_fold() -> None:
+    rows = [
+        {
+            "request_id": request_id,
+            "request_sha256": f"{request_index:064x}",
+            "attack_block_mask": mask,
+        }
+        for request_index, request_id in enumerate(("a", "b", "c", "d", "e", "f"))
+        for mask in range(16)
+    ]
+    folds = _folds_by_request(rows)
+    for request_id in ("a", "b", "c", "d", "e", "f"):
+        selected = {
+            int(fold)
+            for row, fold in zip(rows, folds, strict=True)
+            if row["request_id"] == request_id
+        }
+        assert len(selected) == 1

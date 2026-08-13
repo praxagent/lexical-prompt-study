@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -264,12 +266,60 @@ def generate_falsification_figures(result_path: Path, output_dir: Path) -> Mappi
     return {"figure_count": len(index), "index_path": str(index_path)}
 
 
+def verify_falsification_figures(
+    result_path: Path, output_dir: Path
+) -> MappingLike:
+    receipt_names = (
+        "E30-jlens-piecewise-mutation-curve.receipt.json",
+        "E31-jlens-versus-prompt-filtering.receipt.json",
+        "E32-jlens-block-marginal-effects.receipt.json",
+    )
+    comparisons = []
+    verified_utc = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    with tempfile.TemporaryDirectory() as directory:
+        temporary = Path(directory)
+        generate_falsification_figures(result_path, temporary)
+        for name in receipt_names:
+            expected_path = output_dir / name
+            expected = json.loads(expected_path.read_text())
+            actual = json.loads((temporary / name).read_text())
+            rows = []
+            for output_type in ("svg", "png", "pdf"):
+                identical = (
+                    expected["outputs"][output_type]["sha256"]
+                    == actual["outputs"][output_type]["sha256"]
+                )
+                if not identical:
+                    raise ValueError(f"{name}: {output_type} byte verification failed")
+                rows.append({"output_type": output_type, "byte_identical": True})
+                comparisons.append({"receipt": name, **rows[-1]})
+            expected["verification"] = {
+                "status": "verified",
+                "verified_utc": verified_utc,
+                "byte_identity": rows,
+            }
+            write_json_atomic(expected_path, expected)
+        index_path = output_dir / "jlens-falsification-figure-index.json"
+        index = json.loads(index_path.read_text())
+        for row in index["figures"]:
+            row["sha256"] = sha256_file(Path(row["path"]))
+        index["status"] = "figures_verified"
+        write_json_atomic(index_path, index)
+    return {"status": "verified", "comparisons": comparisons}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--result", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(generate_falsification_figures(args.result, args.out)))
+    operation = (
+        verify_falsification_figures(args.result, args.out)
+        if args.verify
+        else generate_falsification_figures(args.result, args.out)
+    )
+    print(json.dumps(operation))
 
 
 if __name__ == "__main__":
