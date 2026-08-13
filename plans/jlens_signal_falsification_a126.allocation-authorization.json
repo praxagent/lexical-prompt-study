@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-signal-falsification-v1",
+  "amendment": "A126",
+  "status": "single_pod_allocation_authorized_no_model_execution",
+  "source_commit": "38a42ff27d32ec0df561bdd0ab9a07bc0ccc4a7e",
+  "provider": "RunPod",
+  "allocation": {
+    "compute_type": "GPU",
+    "cloud_type": "SECURE",
+    "gpu_count": 1,
+    "gpu_type_priority": "custom",
+    "ordered_gpu_type_ids": [
+      "NVIDIA A40",
+      "NVIDIA A100 80GB PCIe",
+      "NVIDIA A100-SXM4-80GB",
+      "NVIDIA H100 PCIe",
+      "NVIDIA H100 80GB HBM3",
+      "NVIDIA B200"
+    ],
+    "maximum_returned_rate_usd_per_hour": 6.79,
+    "data_center_ids": [
+      "US-CA-2"
+    ],
+    "image_name": "runpod/pytorch:1.1.0-cu1290-torch291-ubuntu2404",
+    "network_volume_id": "u85xfo0aue",
+    "volume_mount_path": "/workspace",
+    "container_disk_gb": 50,
+    "ports": [
+      "22/tcp"
+    ],
+    "interruptible": false
+  },
+  "execution_boundary": {
+    "allocation_only": true,
+    "model_load_authorized": false,
+    "target_outcome_authorized": false,
+    "separate_exact_returned_pod_authorization_required": true,
+    "single_task_owned_pod_maximum": 1,
+    "unrelated_pod_id": "zfzgy8ppx92e55",
+    "unrelated_pod_must_not_be_mutated": true,
+    "unopened_v2_confirmation_opened": false
+  },
+  "cost": {
+    "maximum_runtime_after_allocation_hours": 2.0,
+    "maximum_new_compute_usd": 13.58,
+    "user_authorized_new_budget_usd": 50.0,
+    "prior_conservative_all_in_ceiling_usd": 125.762348125088,
+    "conservative_postrun_all_in_ceiling_usd": 139.342348125088,
+    "legacy_hard_ceiling_usd": 200.0
+  },
+  "inventory": {
+    "queried_at_utc": "2026-08-13T03:30:00Z",
+    "account_pod_count": 1,
+    "task_owned_pod_count": 0,
+    "unrelated_pod_count": 1,
+    "retained_network_volume_id": "u85xfo0aue",
+    "retained_network_volume_datacenter": "US-CA-2",
+    "retained_network_volume_size_gb": 500
+  }
+}
