@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-signal-falsification-v1",
+  "amendment": "A131",
+  "status": "one_local_aggregate_analysis_authorized",
+  "analysis_source_commit": "e68f74f69f73a5f61096a02db05f3297e793c92e",
+  "analysis_implementation_sha256": "f7149a37f0d33f99f0d32a18c74796ef714f7fd9004e2ca80230d9bde785bdf2",
+  "analysis_plan_sha256": "bce7d09e2ae0e6c49f275f961d0d7ed91a4050cf8ad01e0f7e26987d11e50749",
+  "private_authorization_sha256": "87885fab80f3957c4b1da75445ce5768723f53eb5a387ad20149b9da18478b44",
+  "complete_bundle_file_count": 3842,
+  "complete_bundle_byte_count": 6939823,
+  "complete_bundle_manifest_sha256": "7fcfed7e7181bc2572b2e1c44eeb8d1bbd8bd6a4fd89c07d25327fc4d7cf0dc7",
+  "task_pod_deleted_before_analysis": true,
+  "post_delete_inventory_empty": true,
+  "unopened_v2_confirmation_opened": false,
+  "enforcement_enabled": false,
+  "aggregate_public_output_only": true,
+  "raw_prompt_request_token_generation_or_row_level_content_public": false,
+  "deployment_authorized": false
+}
