@@ -1,15 +1,26 @@
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pytest
 
+from lexical_prompt_study.hashing import (
+    canonical_json_bytes,
+    sha256_bytes,
+    sha256_file,
+    sha256_text,
+)
 from lexical_prompt_study.jlens_falsification_result import (
     _detector_metrics,
     _factorial_contrast,
     _holm,
 )
 from lexical_prompt_study.jlens_falsification_figures import _validate as validate_figures
-from lexical_prompt_study.jlens_falsification_runner import _validate_receipt
+from lexical_prompt_study.jlens_falsification_runner import (
+    _load_scoring_input,
+    _validate_receipt,
+)
 from lexical_prompt_study.jlens_falsification_topology import _hashed_ngrams
 
 
@@ -134,3 +145,40 @@ def test_falsification_figure_guard_rejects_open_confirmation() -> None:
     }
     with pytest.raises(ValueError, match="figure source boundary"):
         validate_figures(result)
+
+
+def test_scoring_binds_composed_contextual_behavior_separately(tmp_path) -> None:
+    observation = {
+        **_observation(),
+        "request_text": "Context:\nA safe context.\n\nRequest:\nBase request.",
+        "request_sha256": sha256_text("Base request."),
+    }
+    restricted = {
+        "trial_id": "trial",
+        "generated_text": "Synthetic fixture output.",
+        "generated_token_ids": [101, 102],
+    }
+    restricted_root = tmp_path / "restricted"
+    receipt_root = tmp_path / "receipts"
+    restricted_root.mkdir()
+    receipt_root.mkdir()
+    restricted_path = restricted_root / "trial.json"
+    restricted_path.write_bytes(canonical_json_bytes(restricted))
+    receipt = {
+        **_receipt(),
+        "request_sha256": observation["request_sha256"],
+        "generated_text_sha256": sha256_text(restricted["generated_text"]),
+        "generated_token_ids_sha256": sha256_bytes(
+            canonical_json_bytes(restricted["generated_token_ids"])
+        ),
+        "restricted_artifact_sha256": sha256_file(restricted_path),
+    }
+    (receipt_root / "trial.json").write_text(json.dumps(receipt))
+    _, loaded, behavior_sha256 = _load_scoring_input(
+        acquisition_root=tmp_path,
+        trial_id="trial",
+        observation=observation,
+    )
+    assert loaded == restricted
+    assert behavior_sha256 == sha256_text(observation["request_text"])
+    assert behavior_sha256 != observation["request_sha256"]

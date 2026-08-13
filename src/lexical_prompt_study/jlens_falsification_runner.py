@@ -52,6 +52,7 @@ def _authorization(
     topology_sha256: str,
     prompt_baseline_sha256: str,
     threshold_sha256: str,
+    phase: str,
 ) -> dict[str, Any]:
     value = json.loads(path.read_text())
     expected = {
@@ -61,10 +62,14 @@ def _authorization(
         "private_prompt_baseline_sha256": prompt_baseline_sha256,
         "private_threshold_sha256": threshold_sha256,
     }
+    status = value.get("status")
+    status_allowed = status == "mutation_execution_authorized" or (
+        phase == "score" and status == "mutation_scoring_recovery_authorized"
+    )
     if (
         value.get("schema_version") != "1.0"
         or value.get("study_id") != "lexical-jlens-signal-falsification-v1"
-        or value.get("status") != "mutation_execution_authorized"
+        or not status_allowed
         or value.get("paid_compute_authorized") is not True
         or value.get("run_id") != run_id
         or value.get("expected_prefill_observations") != EXPECTED_OBSERVATIONS
@@ -74,6 +79,10 @@ def _authorization(
         or value.get("enforcement_enabled") is not False
         or value.get("unopened_v2_confirmation_opened") is not False
         or any(value.get("bindings", {}).get(key) != item for key, item in expected.items())
+        or (
+            status == "mutation_scoring_recovery_authorized"
+            and value.get("authorized_phase") != "score_only_after_zero_score_stop"
+        )
     ):
         raise ValueError("falsification execution authorization drift")
     return value
@@ -115,6 +124,28 @@ def _validate_receipt(receipt: Mapping[str, Any], observation: Mapping[str, Any]
     generated = receipt.get("generated_text_sha256")
     if observation["generation_required"] != (generated is not None):
         raise ValueError("falsification generation presence drift")
+
+
+def _load_scoring_input(
+    *, acquisition_root: Path, trial_id: str, observation: Mapping[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any], str]:
+    generation_path = acquisition_root / "receipts" / f"{trial_id}.json"
+    restricted_path = acquisition_root / "restricted" / f"{trial_id}.json"
+    generation = json.loads(generation_path.read_text())
+    restricted = json.loads(restricted_path.read_text())
+    _validate_receipt(generation, observation)
+    if (
+        set(restricted) != {"trial_id", "generated_text", "generated_token_ids"}
+        or restricted["trial_id"] != trial_id
+        or generation["restricted_artifact_sha256"] != sha256_file(restricted_path)
+        or sha256_text(restricted["generated_text"])
+        != generation["generated_text_sha256"]
+        or sha256_bytes(canonical_json_bytes(restricted["generated_token_ids"]))
+        != generation["generated_token_ids_sha256"]
+    ):
+        raise ValueError("falsification scoring input drift")
+    behavior_sha256 = sha256_text(str(observation["request_text"]))
+    return generation, restricted, behavior_sha256
 
 
 def _generate(runtime: WeaponizationPrefillRuntime, rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -192,6 +223,7 @@ def run_acquisition(
         topology_sha256=topology_sha256,
         prompt_baseline_sha256=prompt_baseline_sha256,
         threshold_sha256=threshold_sha256,
+        phase="acquire",
     )
     topology = json.loads(topology_path.read_text())
     instrument_plan = json.loads(public_instrument_plan_path.read_text())
@@ -358,6 +390,7 @@ def run_scoring(
         topology_sha256=sha256_file(topology_path),
         prompt_baseline_sha256=sha256_file(prompt_baseline_path),
         threshold_sha256=sha256_file(threshold_path),
+        phase="score",
     )
     topology = json.loads(topology_path.read_text())
     observations = {row["trial_id"]: row for row in topology["observations"]}
@@ -372,19 +405,18 @@ def run_scoring(
         if not row["generation_required"]:
             continue
         generation_path = acquisition_root / "receipts" / f"{trial_id}.json"
-        restricted_path = acquisition_root / "restricted" / f"{trial_id}.json"
-        generation = json.loads(generation_path.read_text())
-        restricted = json.loads(restricted_path.read_text())
-        if (
-            generation["restricted_artifact_sha256"] != sha256_file(restricted_path)
-            or sha256_text(restricted["generated_text"]) != generation["generated_text_sha256"]
-            or sha256_text(row["request_text"]) != generation["request_sha256"]
-        ):
-            raise ValueError("falsification scoring input drift")
+        generation, restricted, behavior_sha256 = _load_scoring_input(
+            acquisition_root=acquisition_root,
+            trial_id=trial_id,
+            observation=row,
+        )
         score_path = trials / f"{trial_id}.json"
         if score_path.exists():
             score = json.loads(score_path.read_text())
-            if score.get("generation_receipt_sha256") != sha256_file(generation_path):
+            if (
+                score.get("generation_receipt_sha256") != sha256_file(generation_path)
+                or score.get("classifier_behavior_sha256") != behavior_sha256
+            ):
                 raise ValueError("falsification scoring resume drift")
             continue
         pending.append(
@@ -394,6 +426,7 @@ def run_scoring(
                 "generation_path": generation_path,
                 "generation": restricted["generated_text"],
                 "generation_hash": generation["generated_text_sha256"],
+                "classifier_behavior_sha256": behavior_sha256,
             }
         )
     executor = HarmBenchExecutor(evaluator_path)
@@ -413,6 +446,7 @@ def run_scoring(
                 "trial_id": trial_id,
                 "generation_receipt_sha256": sha256_file(item["generation_path"]),
                 "generated_text_sha256": item["generation_hash"],
+                "classifier_behavior_sha256": item["classifier_behavior_sha256"],
                 "evaluator_revision": EVALUATOR_REVISION,
                 **{key: value for key, value in result.items() if key not in {"generation_trial_id"}},
             }
