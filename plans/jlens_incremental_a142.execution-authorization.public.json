@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-incremental-value-v1",
+  "amendment": "A142",
+  "status": "exact_task_runtime_frozen_private_topology",
+  "execution_source_commit": "8507cc8e57d987b4c759e0897232f03d44b55b16",
+  "private_execution_authorization_sha256": "b85090684f42d52071e8d6998304dcf8a27671c4985f849c2145535141982f57",
+  "instrument": {
+    "gpu_family": "NVIDIA H100 80GB",
+    "gpu_count": 1,
+    "cloud_type": "SECURE",
+    "rate_usd_per_hour": 3.29,
+    "persistent_volume_attached": true
+  },
+  "execution": {
+    "observation_count": 8880,
+    "generation_count": 8880,
+    "score_count": 8880,
+    "generation_checkpoints": [
+      0,
+      1,
+      4,
+      8
+    ],
+    "batch_size": 4,
+    "maximum_new_tokens": 128,
+    "maximum_wall_minutes": 420,
+    "no_progress_timeout_minutes": 15,
+    "hard_teardown_utc": "2026-08-16T02:25:50Z",
+    "maximum_compute_including_discarded_attempt_usd": 23.304166666667,
+    "single_task_owned_pod_maximum": 1
+  },
+  "bound_hashes": {
+    "plan_sha256": "699e5168034109ad21768db5c37ebaab643e64faca9550a9af687538d8ac07da",
+    "public_topology_receipt_sha256": "b11cbcfd7da99ed95094848f28187f2773836b26bf5e9f22a021cea3b53f6546",
+    "instrument_plan_sha256": "941e0e923d6792981b6d6e769bd40e966fa63a5950842a2ab50af1270e3b9a4b",
+    "probe_plan_sha256": "a2ed9a0542a6953dbbfd775064366e7b88a07a8f9347eb96679b0ba77300a24e",
+    "runner_sha256": "03f1e75f0090312257731e5474dc22031b987730d2810bd6fe7ca232194e8b79",
+    "analysis_sha256": "fc51cb97e61a3cac9a628727cb0894ff9177b6677e17aac598f952e0e1c8c1e1"
+  },
+  "public_boundary": {
+    "raw_prompt_request_token_generation_classifier_input_or_score_public": false,
+    "row_level_receipts_public": false,
+    "infrastructure_topology_public": false,
+    "unopened_v2_confirmation_opened": false,
+    "enforcement_enabled": false,
+    "deployment_authorized": false,
+    "analysis_before_complete_retrieval_and_teardown_authorized": false
+  }
+}
