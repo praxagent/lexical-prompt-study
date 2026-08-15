@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-incremental-value-v1",
+  "amendment": "A141",
+  "status": "replacement_single_pod_allocation_authorized_no_model_execution",
+  "source_commit": "79bf13b662ff6d047b977c724fcc1cc7c4bef033",
+  "private_replacement_authorization_sha256": "168ab581f112919a2a065cf5605636b827a2e2438e824360010e243ee24ea5c8",
+  "first_attempt": {
+    "returned_rate_usd_per_hour": 3.29,
+    "correct_region_and_volume": true,
+    "model_or_restricted_input_loaded": false,
+    "target_outcome_exists": false,
+    "deleted_immediately": true,
+    "post_delete_inventory_count": 0,
+    "failure_class": "response-schema validation path"
+  },
+  "correction": {
+    "change": "recognize the current documented nested GPU identity fields in the allocation response",
+    "allocation_request_unchanged_except_name": true,
+    "scientific_protocol_changed": false,
+    "maximum_returned_rate_usd_per_hour": 6.79
+  },
+  "boundary": {
+    "replacement_allocation_only": true,
+    "model_load_authorized": false,
+    "restricted_input_authorized": false,
+    "target_outcome_authorized": false,
+    "single_task_owned_pod_maximum": 1,
+    "maximum_unbound_pod_minutes": 5,
+    "separate_exact_returned_pod_authorization_required": true,
+    "unopened_v2_confirmation_opened": false,
+    "infrastructure_topology_public": false
+  },
+  "cost": {
+    "conservative_first_attempt_compute_usd": 0.274166666667,
+    "maximum_experiment_compute_usd_including_first_attempt": 25,
+    "legacy_hard_ceiling_usd": 200
+  }
+}
