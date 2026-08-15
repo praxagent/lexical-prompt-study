@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-incremental-value-v1",
+  "amendment": "A140",
+  "status": "single_pod_allocation_authorized_no_model_execution",
+  "source_commit": "8507cc8e57d987b4c759e0897232f03d44b55b16",
+  "private_allocation_authorization_sha256": "b6b4ca74c7355d2561a23344474a3673f1980ed46824cf3b601876f448cbe0d2",
+  "inventory": {
+    "queried_at_utc": "2026-08-15T19:20:58Z",
+    "account_pod_count": 0,
+    "task_owned_pod_count": 0,
+    "retained_task_volume_verified": true,
+    "retained_task_volume_size_gb": 500,
+    "retained_task_volume_region": "US-CA-2"
+  },
+  "allocation": {
+    "provider": "RunPod",
+    "compute_type": "GPU",
+    "cloud_type": "SECURE",
+    "gpu_count": 1,
+    "gpu_selection": "fixed low-to-high compatible NVIDIA list from 48 GB through B200",
+    "maximum_returned_rate_usd_per_hour": 6.79,
+    "persistent_volume_required": true,
+    "interruptible": false
+  },
+  "boundary": {
+    "allocation_only": true,
+    "model_load_authorized": false,
+    "restricted_input_authorized": false,
+    "target_outcome_authorized": false,
+    "single_task_owned_pod_maximum": 1,
+    "maximum_unbound_pod_minutes": 5,
+    "separate_exact_returned_pod_authorization_required": true,
+    "unopened_v2_confirmation_opened": false,
+    "infrastructure_topology_public": false
+  },
+  "cost": {
+    "maximum_experiment_compute_usd": 25,
+    "remaining_user_authorization_before_allocation_usd": 47.743846858333,
+    "conservative_preallocation_all_in_ceiling_usd": 130.4,
+    "conservative_postrun_all_in_ceiling_usd": 155.4,
+    "legacy_hard_ceiling_usd": 200
+  }
+}
