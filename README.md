@@ -14,6 +14,31 @@ review and our point-by-point adjudication are recorded in
 
 ## Current status
 
+**The current circuit breaker has been falsified, and prompt filtering wins on
+the present mutation panel.** Across 16 exact-252-token block masks, the frozen
+J-lens breaker caught `134/319` successful harmful completions with `0/960`
+ordinary-benign trips. But an equal-token replacement of block 4 preserved
+`26/60` successful completions and the breaker caught only `1/26`. Under a
+direct request-grouped comparison trained on the same deployment endpoint,
+prompt text caught `295/319` successes with zero benign trips, J-lens caught
+`256/319` with `19/960` benign trips, and combining them bought one additional
+capture. This rejects the current breaker and exposes lexical separability in
+the old harmful/benign request sets. See
+[the falsification report](reports/jlens-signal-falsification-a132.md).
+
+**A new outcome-blind search round is frozen locally.** A139 reuses each of 60
+restricted harmful request cores under one direct and three safe intent frames,
+so safe and unsafe rows share the same underlying request bytes. It crosses
+those frames with every equal-token four-block mask, the known block-4 bypass,
+a structural sham, a human-approved harmless structured control, and both
+placements. J-lens and SAE readouts are recorded at prefill and after 1, 4, and
+8 generated tokens. An internal candidate must improve successful-harm capture
+over prompt-only filtering by at least five absolute points under the same low
+false-trip constraint, pass the block-4 hard-negative gate, and survive grouped
+uncertainty before the sealed confirmation set can open. No A139 target outcome
+exists yet and deployment remains unauthorized. See
+[the prospective protocol](plans/jlens_incremental_value_a139.public.json).
+
 **One placement-specific Jacobian-lens breaker candidate has now passed
 generation calibration.** At the frozen 252-token condition, the
 after-request head would have stopped all `55/55` full-scaffold completions
