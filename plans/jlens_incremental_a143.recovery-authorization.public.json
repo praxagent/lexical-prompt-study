@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-incremental-value-v1",
+  "amendment": "A143",
+  "status": "recovery_only_authorized",
+  "authorized_at_utc": "2026-08-23T20:37:59Z",
+  "user_authorization": "Proceed with better monitoring under a strict recovery ceiling.",
+  "predecessor_plan_sha256": "699e5168034109ad21768db5c37ebaab643e64faca9550a9af687538d8ac07da",
+  "predecessor_execution_authorization_sha256": "b85090684f42d52071e8d6998304dcf8a27671c4985f849c2145535141982f57",
+  "retained_volume_id_sha256": "37b013d29939d246a59c9ff2b85abadd2151184bbd9b3f7851f5580710303714",
+  "recovery_scope": {
+    "single_task_owned_pod_maximum": 1,
+    "mount_existing_retained_volume": true,
+    "inspect_only_file_counts_summaries_and_hashes": true,
+    "retrieve_surviving_a142_bundle": true,
+    "new_generation_authorized": false,
+    "scoring_authorized": false,
+    "outcome_analysis_authorized": false,
+    "model_load_authorized": false,
+    "raw_content_exposure_to_agent_authorized": false,
+    "deployment_or_enforcement_authorized": false
+  },
+  "cost_controls": {
+    "maximum_additional_recovery_spend_usd": 10.0,
+    "maximum_returned_rate_usd_per_hour": 6.79,
+    "maximum_wall_minutes": 45,
+    "maximum_compute_at_rate_ceiling_usd": 5.0925,
+    "maximum_unbound_allocation_minutes": 2
+  },
+  "watchdog_controls": {
+    "watchdog_must_be_running_before_ssh_or_volume_inspection": true,
+    "watchdog_deadline_minutes_after_allocation": 40,
+    "operator_hard_teardown_minutes_after_allocation": 35,
+    "monitor_interval_seconds": 60,
+    "no_progress_timeout_minutes": 5,
+    "delete_immediately_if_watchdog_cannot_be_verified": true,
+    "delete_immediately_after_verified_retrieval": true,
+    "fresh_zero_task_owned_pod_inventory_required_before_allocation": true,
+    "fresh_zero_task_owned_pod_inventory_required_after_teardown": true,
+    "unrelated_account_pods_excluded_and_never_mutated": true
+  },
+  "publication_boundary": {
+    "raw_prompts_requests_generations_scores_or_topology_public": false,
+    "row_level_receipts_public": false,
+    "sanitized_recovery_status_public": false
+  }
+}
