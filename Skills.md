@@ -58,6 +58,14 @@ tests, analysis preparation, or documentation work. Report the dependency and
 continue what can be done honestly; never fabricate human ratings or new
 experimental outcomes. Keep the user informed of progress and findings.
 
+This is a one-person research company. Use local or appropriately authorized
+API LLM judges for feasible label audits; recruiting human reviewers is not a
+prerequisite to continuing research. Freeze a separate LLM-audit protocol,
+qualify judges on synthetic controls, preserve disagreement and uncertainty,
+and label the outputs as automated judgments rather than human ground truth.
+Preserve the existing human-audit protocol as historical work, not an active
+staffing requirement.
+
 ## Commit and push regularly
 
 The user authorizes regular Git backup of project code. Commit and push after

@@ -6,7 +6,6 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-import torch
 
 from lexical_prompt_study.followup_mechanism_analysis import (
     Candidate,
@@ -153,6 +152,7 @@ def test_bootstrap_seed_is_stable_and_stratum_specific() -> None:
 
 
 def test_state_payload_provenance_fails_closed() -> None:
+    torch = pytest.importorskip("torch")
     receipt = SimpleNamespace(
         trial_id="safe-trial",
         plan_sha256="1" * 64,
