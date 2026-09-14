@@ -25,6 +25,31 @@ data/restricted/
 *.pth
 *.gguf
 
+# Raw outputs and bulk data: prefer ../lexical-prompt-study-data/
+/raw/
+/datasets/
+/outputs/
+/runs/
+/checkpoints/
+*.npy
+*.npz
+*.parquet
+*.arrow
+*.h5
+*.hdf5
+*.bin
+*.sqlite*
+*.db
+*.db-*
+*.bak*
+*.log
+*.jsonl
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
 # Operating-system and editor files
 .DS_Store
 *.swp
