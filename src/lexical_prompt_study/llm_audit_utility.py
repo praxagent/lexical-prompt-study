@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -167,8 +168,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         path = _safe_path(args.feature_export)
         require(path.is_file() and path.stat().st_size <= 256 * 1024**2, "utility_export_size")
-        require(hashlib.sha256(path.read_bytes()).hexdigest() == FEATURE_EXPORT_SHA256, "utility_export_hash")
-        with zipfile.ZipFile(path) as archive:
+        archive_bytes = path.read_bytes()
+        require(hashlib.sha256(archive_bytes).hexdigest() == FEATURE_EXPORT_SHA256, "utility_export_hash")
+        with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
             infos = [info for info in archive.infolist() if info.filename == "metadata.private.json"]
             require(len(infos) == 1 and infos[0].file_size <= 64 * 1024**2, "utility_metadata_size")
             metadata = json.loads(archive.read(infos[0]))

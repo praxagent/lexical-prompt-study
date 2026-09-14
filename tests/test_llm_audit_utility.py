@@ -110,3 +110,36 @@ def test_summary_refuses_different_numeric_provenance_and_incomplete_mapping():
     mapping['rows'].pop()
     with pytest.raises(LLMAuditAnalysisError, match='full_coverage'):
         summarize_utility(mapping, data['numeric_mapping'], [[]])
+
+
+def test_cli_uses_hashed_export_even_if_path_changes_before_zip_read(tmp_path, monkeypatch):
+    import hashlib
+    import json
+    import zipfile
+
+    from lexical_prompt_study import llm_audit_utility as module
+
+    source = tmp_path / 'features.zip'
+    original_zip = zipfile.ZipFile
+    with original_zip(source, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr('metadata.private.json', json.dumps({'utility': [{'version': 1}] * 35520}))
+    monkeypatch.setattr(module, 'FEATURE_EXPORT_SHA256', hashlib.sha256(source.read_bytes()).hexdigest())
+
+    def replace_on_open(value):
+        source.write_bytes(b'replaced after verification')
+        return original_zip(value)
+
+    def capture_join(utility, *args):
+        assert len(utility) == 35520 and all(row == {'version': 1} for row in utility)
+        return {'rows': []}
+
+    monkeypatch.setattr(module.zipfile, 'ZipFile', replace_on_open)
+    monkeypatch.setattr(module, 'read_json', lambda *args: {})
+    monkeypatch.setattr(module, 'build_utility_mapping', capture_join)
+    result = module.main([
+        '--feature-export', str(source), '--aliases', str(tmp_path / 'aliases'),
+        '--aliases-sha256', 'a' * 64, '--numeric-mapping', str(tmp_path / 'numeric'),
+        '--numeric-sha256', 'b' * 64, '--output', str(tmp_path / 'result'),
+    ])
+    assert result == 0
+    assert (tmp_path / 'result').is_file()
