@@ -5,8 +5,9 @@ import json
 import numpy as np
 import pytest
 
-from lexical_prompt_study.hashing import sha256_file, sha256_text
+from lexical_prompt_study import jlens_incremental_analysis as analysis
 from lexical_prompt_study import jlens_incremental_runner as runner
+from lexical_prompt_study.hashing import sha256_file, sha256_text
 from lexical_prompt_study.jlens_incremental_analysis import (
     _candidate_gate,
     _folds,
@@ -143,13 +144,24 @@ def test_threshold_respects_safe_false_trip_constraint() -> None:
     assert selected["safe_negative_false_trip_fraction"] == 0.0
 
 
-def test_nested_candidate_selects_threshold_without_request_leakage() -> None:
+def test_legacy_nested_candidate_records_one_ulp_threshold_limitation(monkeypatch) -> None:
+    # The consumed A145 implementation deliberately remains unchanged. This
+    # controlled fixture documents why exact outer-refit accuracy is not a
+    # portable assertion when the cutoff equals an inner positive score.
     core_ids = [f"core-{index}" for index in range(10) for _ in range(2)]
     core_hashes = [f"{index:064x}" for index in range(10) for _ in range(2)]
     labels = np.asarray([value for _ in range(10) for value in (True, False)])
     safe_negative = ~labels
     matrix = labels.astype(float)[:, None]
     folds = _folds(core_ids, core_hashes, 5)
+
+    def fit_predict(matrix, labels, train, test, available):
+        score = 0.9 if train.sum() == 12 else np.nextafter(0.9, 0.0)
+        predictions = np.full(len(labels), -np.inf)
+        predictions[test & available] = np.where(labels[test & available], score, 0.1)
+        return predictions
+
+    monkeypatch.setattr(analysis, "_fit_predict", fit_predict)
     result = _nested_candidate(
         matrix,
         labels,
@@ -157,7 +169,9 @@ def test_nested_candidate_selects_threshold_without_request_leakage() -> None:
         folds,
         np.ones(len(labels), dtype=bool),
     )
-    assert np.all(result["trips"] == labels)
+    assert set(result["fold_thresholds"].values()) == {0.9}
+    assert np.all(result["predictions"][labels] == np.nextafter(0.9, 0.0))
+    assert not result["trips"].any()
 
 
 def test_incremental_gate_requires_material_prompt_advantage() -> None:
@@ -185,6 +199,45 @@ def test_incremental_gate_requires_material_prompt_advantage() -> None:
         "cluster_bootstrap_95_low": 0.02,
     }
     assert _candidate_gate(metrics, strong)["eligible"] is True
+
+
+def test_analysis_loads_production_yes_probability_schema(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setattr(analysis, "EXPECTED_OBSERVATIONS", 1)
+    observation = {
+        **_observation(),
+        "request_core_text": "synthetic core",
+        "framed_request_text": "synthetic frame",
+        "prompt_text": "synthetic prompt",
+    }
+    receipt = _receipt()
+    acquisition = tmp_path / "acquisition"
+    scoring = tmp_path / "scoring"
+    (acquisition / "receipts").mkdir(parents=True)
+    (scoring / "trials").mkdir(parents=True)
+    receipt_path = acquisition / "receipts" / "trial.json"
+    receipt_path.write_text(json.dumps(receipt))
+    topology = tmp_path / "topology.json"
+    topology.write_text(json.dumps({"observations": [observation]}))
+    score = {
+        "trial_id": "trial",
+        "generation_receipt_sha256": sha256_file(receipt_path),
+        "generated_text_sha256": receipt["generated_text_sha256"],
+        "classifier_behavior_sha256": sha256_text("synthetic core"),
+        "parse_ok": True,
+        "yes_probability": 0.75,
+        "no_probability": 0.25,
+        "binary_prediction": True,
+    }
+    (scoring / "trials" / "trial.json").write_text(json.dumps(score))
+    rows = analysis._load_rows(
+        topology_path=topology,
+        acquisition_root=acquisition,
+        score_root=scoring,
+    )
+    assert rows[0]["harmbench_affirmative_probability"] == 0.75
+    assert rows[0]["harmbench_binary_prediction"] is True
 
 
 def test_authorization_rejects_excess_compute(tmp_path) -> None:

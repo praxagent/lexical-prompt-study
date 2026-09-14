@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "study_id": "lexical-jlens-incremental-value-v1",
+  "amendment": "A144",
+  "status": "score_only_resume_authorized",
+  "authorized_at_utc": "2026-08-23T20:50:32Z",
+  "basis": {
+    "user_instruction": "Proceed with better monitoring and no waste.",
+    "complete_acquisition_receipt_count": 8880,
+    "complete_acquisition_receipt_manifest_sha256": "7beac6a624ad80a7ad35f538817646d2afba2b1113b87de82868f8af21bd314b",
+    "acquisition_summary_sha256": "bc0038ba514598d9c836181f3ccbb41c0437e6b433855e2b0fbcc299757c38fc",
+    "recovery_result_sha256": "1295076e917a50b5fd91962f1e61d25f525e2dae7764a89e5b315f1cd1556ef8",
+    "original_execution_authorization_sha256": "b85090684f42d52071e8d6998304dcf8a27671c4985f849c2145535141982f57"
+  },
+  "scope": {
+    "single_task_owned_pod_maximum": 1,
+    "score_exact_existing_acquisition": true,
+    "expected_score_count": 8880,
+    "new_generation_authorized": false,
+    "acquisition_overwrite_authorized": false,
+    "threshold_fit_authorized": false,
+    "outcome_analysis_before_retrieval_and_teardown_authorized": false,
+    "raw_content_exposure_to_agent_authorized": false,
+    "deployment_or_enforcement_authorized": false
+  },
+  "cost_controls": {
+    "a143_elapsed_rate_cost_upper_bound_usd": 0.2231353,
+    "a144_maximum_returned_rate_usd_per_hour": 3.29,
+    "a144_watchdog_minutes": 50,
+    "a144_maximum_compute_usd": 2.741666666667,
+    "combined_a143_a144_maximum_usd": 2.964801966667,
+    "user_recovery_and_completion_ceiling_usd": 10.0
+  },
+  "monitoring": {
+    "watchdog_must_be_running_before_ssh": true,
+    "operator_teardown_minutes": 45,
+    "watchdog_teardown_minutes": 50,
+    "monitor_interval_seconds": 60,
+    "no_progress_timeout_minutes": 5,
+    "delete_immediately_if_watchdog_cannot_be_verified": true,
+    "delete_immediately_after_complete_score_retrieval": true,
+    "unrelated_account_pods_excluded_and_never_mutated": true
+  },
+  "publication_boundary": {
+    "raw_prompts_requests_generations_classifier_inputs_or_scores_public": false,
+    "row_level_receipts_public": false,
+    "sanitized_aggregate_result_requires_separate_publication_authorization": true
+  }
+}

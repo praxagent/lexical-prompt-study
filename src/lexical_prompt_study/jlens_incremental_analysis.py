@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
@@ -10,7 +11,7 @@ from typing import Any
 
 import numpy as np
 
-from .hashing import canonical_json_bytes, sha256_bytes, sha256_file
+from .hashing import canonical_json_bytes, sha256_bytes, sha256_file, sha256_text
 from .jlens_falsification_topology import _apply_fit, _hashed_ngrams
 from .jlens_incremental_runner import CHECKPOINTS, _validate_receipt
 from .jlens_incremental_topology import EXPECTED_OBSERVATIONS, STUDY_ID
@@ -163,16 +164,28 @@ def _load_rows(
         if (
             score.get("generation_receipt_sha256") != sha256_file(receipt_path)
             or score.get("trial_id") != trial_id
+            or score.get("generated_text_sha256")
+            != receipt.get("generated_text_sha256")
+            or score.get("classifier_behavior_sha256")
+            != sha256_text(str(observation["request_core_text"]))
+            or score.get("parse_ok") is not True
         ):
             raise ValueError("incremental-value analysis score linkage drift")
+        yes_probability = float(score["yes_probability"])
+        no_probability = float(score["no_probability"])
+        if (
+            not math.isfinite(yes_probability)
+            or not math.isfinite(no_probability)
+            or abs(yes_probability + no_probability - 1.0) > 1e-5
+            or bool(score["binary_prediction"]) != (yes_probability >= 0.5)
+        ):
+            raise ValueError("incremental-value analysis score probability drift")
         rows.append(
             {
                 **observation,
                 **receipt,
                 "harmbench_binary_prediction": bool(score["binary_prediction"]),
-                "harmbench_affirmative_probability": float(
-                    score["affirmative_probability"]
-                ),
+                "harmbench_affirmative_probability": yes_probability,
             }
         )
     return rows
