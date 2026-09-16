@@ -18,9 +18,13 @@ from typing import Literal
 SYMBOLS = tuple(f"s{index}" for index in range(8))
 SELECTORS = ("A", "B")
 RENDERERS = ("json", "line_table")
+QUERY_ORDERS = ("AB", "BA")
+TABLE_ORDERS = ("forward", "reverse")
 SCAFFOLD_KINDS = ("full", "sham", "replacement", "inert")
 Selector = Literal["A", "B"]
 Renderer = Literal["json", "line_table"]
+QueryOrder = Literal["AB", "BA"]
+TableOrder = Literal["forward", "reverse"]
 ScoreCategory = Literal["exact", "other_selector", "other_answer", "format"]
 
 
@@ -122,15 +126,73 @@ def oracle(world: LookupWorld, selector: Selector) -> str:
     return value
 
 
-def render_world(world: LookupWorld, renderer: Renderer) -> str:
+def counterbalanced_query_orders(
+    worlds: tuple[LookupWorld, ...], *, seed: int
+) -> dict[str, QueryOrder]:
+    """Assign half AB/BA within each depth, without changing logical identities.
+
+    The cohort owner freezes this assignment before calls. A pilot subset must
+    retain its own depth/order balance; arbitrary prefixes of this list need not.
+    """
+    if type(seed) is not int or not worlds or len({w.world_id for w in worlds}) != len(worlds):
+        raise ValueError("query-order assignment requires a seed and distinct worlds")
+    rng = random.Random(seed)
+    result = {}
+    for depth in (1, 2):
+        identifiers = sorted(w.world_id for w in worlds if w.depth == depth)
+        if len(identifiers) % 2:
+            raise ValueError("each task depth needs an even number of worlds")
+        rng.shuffle(identifiers)
+        for index, identifier in enumerate(identifiers):
+            result[identifier] = "AB" if index < len(identifiers) // 2 else "BA"
+    return result
+
+
+def counterbalanced_presentations(worlds: tuple[LookupWorld, ...], *, seed: int) -> dict[str, dict]:
+    """Balance query order, and its cross with displayed table order at depth two."""
+    if type(seed) is not int or not worlds or len({w.world_id for w in worlds}) != len(worlds):
+        raise ValueError("presentation assignment requires a seed and distinct worlds")
+    rng = random.Random(seed)
+    result = {}
+    for depth in (1, 2):
+        identifiers = sorted(w.world_id for w in worlds if w.depth == depth)
+        combinations = [(query, table) for query in QUERY_ORDERS
+                        for table in (TABLE_ORDERS if depth == 2 else ("forward",))]
+        if len(identifiers) % len(combinations):
+            raise ValueError("depth cohort does not permit exact presentation balance")
+        rng.shuffle(identifiers)
+        for index, identifier in enumerate(identifiers):
+            query, table = combinations[index % len(combinations)]
+            result[identifier] = {"query_order": query, "table_order": table}
+    return result
+
+
+def render_world(
+    world: LookupWorld, renderer: Renderer, *, query_order: QueryOrder = "AB",
+    table_order: TableOrder = "forward",
+) -> str:
     """Render both candidate queries with no active-selector instruction."""
     if type(renderer) is not str or renderer not in RENDERERS:
         raise ValueError("unknown renderer")
+    if type(query_order) is not str or query_order not in QUERY_ORDERS:
+        raise ValueError("query order must be AB or BA")
+    if type(table_order) is not str or table_order not in TABLE_ORDERS:
+        raise ValueError("table order must be forward or reverse")
+    if world.depth == 1 and table_order != "forward":
+        raise ValueError("one-hop worlds have only forward table presentation")
+    queries = {selector: world.query_keys[SELECTORS.index(selector)] for selector in query_order}
+    hops = list(enumerate(world.tables, start=1))
+    if table_order == "reverse":
+        hops.reverse()
     if renderer == "json":
-        return json.dumps(world.payload(), indent=2, sort_keys=True)
-    lines = [f"depth: {world.depth}", f"query A: {world.query_keys[0]}",
-             f"query B: {world.query_keys[1]}"]
-    for hop, table in enumerate(world.tables, start=1):
+        payload = world.payload()
+        payload["queries"] = queries
+        payload["tables"] = {f"table_{hop}": dict(zip(SYMBOLS, table, strict=True))
+                             for hop, table in hops}
+        # Sorting would erase the prospectively assigned presentation order.
+        return json.dumps(payload, indent=2)
+    lines = [f"depth: {world.depth}", *(f"query {key}: {value}" for key, value in queries.items())]
+    for hop, table in hops:
         lines.append(f"table_{hop} (input -> output):")
         lines.extend(f"{key} -> {value}" for key, value in zip(SYMBOLS, table, strict=True))
     return "\n".join(lines)
@@ -157,10 +219,12 @@ class Condition:
     selector: Selector
     system_message: str
     user_message: str
+    query_order: QueryOrder = "AB"
+    table_order: TableOrder = "forward"
 
     @property
     def condition_id(self) -> str:
-        return ":".join((self.world_id, self.renderer, self.scaffold_kind,
+        return ":".join((self.world_id, self.renderer, self.query_order, self.table_order, self.scaffold_kind,
                          self.placement, self.selector))
 
     @property
@@ -172,7 +236,9 @@ class Condition:
 
 
 def build_conditions(
-    world: LookupWorld, *, renderer: Renderer, scaffolds: Mapping[str, str]
+    world: LookupWorld, *, renderer: Renderer, scaffolds: Mapping[str, str],
+    query_order: QueryOrder = "AB",
+    table_order: TableOrder = "forward",
 ) -> tuple[Condition, ...]:
     """Build 18 cells for one renderer, preserving supplied scaffold bytes.
 
@@ -185,7 +251,7 @@ def build_conditions(
         raise ValueError("provide exactly full, sham, replacement, and inert scaffolds")
     if any(type(text) is not str or not text.strip() for text in scaffolds.values()):
         raise ValueError("each supplied scaffold must be a nonempty string")
-    rendered = render_world(world, renderer)
+    rendered = render_world(world, renderer, query_order=query_order, table_order=table_order)
     cells = []
     variants = [("none", "none", rendered)]
     for kind in SCAFFOLD_KINDS:
@@ -197,6 +263,8 @@ def build_conditions(
                 world_id=world.world_id, renderer=renderer, scaffold_kind=kind,
                 placement=placement, selector=selector,
                 system_message=system_instruction(selector), user_message=user,
+                query_order=query_order,
+                table_order=table_order,
             ))
     return tuple(cells)
 

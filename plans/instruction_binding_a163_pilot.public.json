@@ -1,0 +1,36 @@
+{
+  "bindings": {
+    "compiler_sha256": "7bba427e3437eacbc0d913468733a7a6a8e07ed73ee0f06670d13fcdcbb78c52",
+    "generator_sha256": "6dd403bb5e813d015c8bbe878cac59b908beff330a105855d444362c5bde855a",
+    "materials_sha256": "ee899a47ceca1b53e90787c5279174412e8d01e5872db9bba44a486921eba345",
+    "protocol_sha256": "5b94414740075169f8cbee68cb34cbe9a26f4da8ce5380102a898f58d542b960"
+  },
+  "existing_data_outcomes_generated": 0,
+  "inputs": {
+    "pilot": {
+      "sha256": "5bb292741ac05dea963abfc4ef8f8fcfe19c5bd39c70dc16790bf9a50359e166",
+      "stage": "development_pilot",
+      "trial_count": 160,
+      "world_count": 8
+    },
+    "qualification": {
+      "sha256": "0f85303c0549dda5594422ebb6a10e62eeea3d98c515023ff92f50eafa6981d7",
+      "stage": "synthetic_qualification",
+      "trial_count": 16,
+      "world_count": 2
+    }
+  },
+  "pilot_policy": "160calls:144main+16diagnostic;first8developmentworlds;noautomaticretries",
+  "private_data_root": "/data2/PRAX/lexical-prompt-study-data/runs/a163/run-001",
+  "qualification_policy": "16harmlesscalls;8uniqueinputsrepeatedtwice;exactgeneratedtokens;conditionalLLwithin1e-5nats",
+  "raw_payloads_in_git": false,
+  "runtime_config_sha256": "1ed34956372d265be806316676da7f4b899dbe741a00e3b599bc4693c62f3745",
+  "schema_version": "a163-prospective-run-manifest-v1",
+  "source_files": {
+    "instruction_binding_analysis.py": "d7452e505f9e21e1c1d1b4e4022895e63dff54dac157a6fb5fc6509b049aa643",
+    "instruction_binding_plan.py": "7bba427e3437eacbc0d913468733a7a6a8e07ed73ee0f06670d13fcdcbb78c52",
+    "instruction_binding_runtime.py": "007d7dc3aea547e42564fd35295149cdaef7ea360dd43e573904f20c94bdebf2",
+    "instruction_binding_tasks.py": "6dd403bb5e813d015c8bbe878cac59b908beff330a105855d444362c5bde855a"
+  },
+  "status": "outcome_free_before_local_gpu_execution"
+}

@@ -11,6 +11,8 @@ from lexical_prompt_study.instruction_binding_tasks import (
     SYMBOLS,
     LookupWorld,
     build_conditions,
+    counterbalanced_query_orders,
+    counterbalanced_presentations,
     generate_worlds,
     make_world,
     oracle,
@@ -103,6 +105,81 @@ def test_both_renderers_encode_identical_query_and_table_data():
         assert lines[start] == f"table_{hop + 1} (input -> output):"
         recovered = dict(line.split(" -> ") for line in lines[start + 1:start + 9])
         assert recovered == dict(zip(SYMBOLS, table, strict=True))
+
+
+@pytest.mark.parametrize("renderer", RENDERERS)
+def test_query_order_changes_presentation_only_and_all_cells_remain_counterfactual(renderer):
+    world = make_world(seed=6, depth=2)
+    before = world.world_id
+    a = render_world(world, renderer, query_order="AB")
+    b = render_world(world, renderer, query_order="BA")
+    assert a != b and world.world_id == before
+    if renderer == "json":
+        assert json.loads(a) == json.loads(b) == world.payload()
+        assert list(json.loads(a)["queries"]) == ["A", "B"]
+        assert list(json.loads(b)["queries"]) == ["B", "A"]
+    else:
+        assert a.splitlines()[1:3] == list(reversed(b.splitlines()[1:3]))
+        assert a.splitlines()[3:] == b.splitlines()[3:]
+    scaffolds = dict.fromkeys(SCAFFOLD_KINDS, "Harmless synthetic context.")
+    ab = build_conditions(world, renderer=renderer, scaffolds=scaffolds, query_order="AB")
+    ba = build_conditions(world, renderer=renderer, scaffolds=scaffolds, query_order="BA")
+    assert not ({cell.condition_id for cell in ab} & {cell.condition_id for cell in ba})
+    assert {cell.query_order for cell in ba} == {"BA"}
+    for first, second in zip(ba[::2], ba[1::2], strict=True):
+        assert first.user_message == second.user_message
+        assert first.system_message.replace("selector is A", "selector is B") == second.system_message
+
+
+def test_query_order_assignment_balanced_reproducible_and_not_input_order_dependent():
+    worlds = generate_worlds(seed=40, count=8, depth=1) + generate_worlds(seed=41, count=8, depth=2)
+    state = random.getstate()
+    assignments = counterbalanced_query_orders(worlds, seed=16)
+    assert random.getstate() == state
+    assert assignments == counterbalanced_query_orders(tuple(reversed(worlds)), seed=16)
+    for depth in (1, 2):
+        orders = [assignments[world.world_id] for world in worlds if world.depth == depth]
+        assert orders.count("AB") == orders.count("BA") == 4
+    with pytest.raises(ValueError):
+        counterbalanced_query_orders(worlds[:-1], seed=16)
+    with pytest.raises(ValueError):
+        counterbalanced_query_orders(worlds + (worlds[0],), seed=16)
+    with pytest.raises(ValueError):
+        render_world(worlds[0], "json", query_order="AA")
+
+
+@pytest.mark.parametrize("renderer", RENDERERS)
+def test_reversed_table_presentation_preserves_named_composition(renderer):
+    world = make_world(seed=4, depth=2)
+    forward = render_world(world, renderer, table_order="forward")
+    reverse = render_world(world, renderer, table_order="reverse")
+    assert forward.index("table_1") < forward.index("table_2")
+    assert reverse.index("table_2") < reverse.index("table_1")
+    if renderer == "json":
+        assert json.loads(forward) == json.loads(reverse) == world.payload()
+    scaffolds = dict.fromkeys(SCAFFOLD_KINDS, "Harmless synthetic context.")
+    cells = build_conditions(world, renderer=renderer, scaffolds=scaffolds,
+                             query_order="BA", table_order="reverse")
+    assert len(cells) == 18 and all(cell.table_order == "reverse" for cell in cells)
+    assert all("table_1" in cell.system_message and "table_2" in cell.system_message for cell in cells)
+    for a, b in zip(cells[::2], cells[1::2], strict=True):
+        assert a.user_message == b.user_message
+
+
+def test_joint_presentation_assignment_exactly_balances_each_family():
+    worlds = generate_worlds(seed=8, count=8, depth=1) + generate_worlds(seed=9, count=8, depth=2)
+    assignments = counterbalanced_presentations(worlds, seed=10)
+    assert assignments == counterbalanced_presentations(tuple(reversed(worlds)), seed=10)
+    for depth in (1, 2):
+        cells = [tuple(assignments[w.world_id].values()) for w in worlds if w.depth == depth]
+        combinations = {(q, t) for q in ("AB", "BA")
+                        for t in (("forward", "reverse") if depth == 2 else ("forward",))}
+        assert set(cells) == combinations
+        assert all(cells.count(cell) == 8 // len(combinations) for cell in combinations)
+    with pytest.raises(ValueError):
+        counterbalanced_presentations(worlds[:-1], seed=10)
+    with pytest.raises(ValueError):
+        render_world(worlds[0], "json", table_order="reverse")
 
 
 @pytest.mark.parametrize("selector", ["A", "B"])
