@@ -65,6 +65,30 @@ def test_exact_32_reference_lineage_private_results_and_one_shot(prepared):
     assert fake.calls == 32
 
 
+def test_main_captures_text_loader_progress_privately(prepared, monkeypatch, capsys):
+    data, args = prepared
+    original_run = audit.run
+    fake = helpers.FakeRuntime(data["development"])
+    def loader(config, engine):
+        print("private synthetic loader output")
+        sys.stderr.write("\rprivate synthetic loading progress 1/1 \u2588\n")
+        sys.stderr.flush()
+        return fake
+    monkeypatch.setattr(audit, "run", lambda value: original_run(value,
+        source_loader=lambda source: (rt, tasks), model_loader=loader))
+    argv = []
+    for key, value in vars(args).items():
+        argv.extend(["--" + key.replace("_", "-"), str(value)])
+    assert audit.main(argv) == 0
+    assert fake.calls == 32
+    log = (args.output_root / "execution.log").read_text(encoding="utf-8")
+    assert "private synthetic loader output" in log and "loading progress 1/1 \u2588" in log
+    captured = capsys.readouterr()
+    assert "private synthetic" not in captured.out + captured.err
+    assert json.loads(captured.out)["status"] == "complete"
+    assert (args.output_root / "execution.log").stat().st_mode & 0o777 == 0o600
+
+
 @pytest.mark.parametrize("change", ["heldout", "plan_hash", "protocol_hash", "weight_hash", "memory"])
 def test_preflight_failures_before_model_load(prepared, monkeypatch, change):
     data, args = prepared

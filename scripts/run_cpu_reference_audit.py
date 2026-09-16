@@ -351,7 +351,7 @@ def main(argv=None):
     args = arguments(argv)
     args.output_root.mkdir(parents=True, exist_ok=True, mode=0o700)
     try:
-        with (args.output_root / "execution.log").open("xb") as log:
+        with (args.output_root / "execution.log").open("x", encoding="utf-8") as log:
             with contextlib.redirect_stdout(log), contextlib.redirect_stderr(log):
                 result = run(args)
         print(json.dumps({key: result[key] for key in ("status", "planned", "reference_completed",
