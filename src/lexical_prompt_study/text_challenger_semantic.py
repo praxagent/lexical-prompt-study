@@ -149,6 +149,39 @@ def pool_chunks(vectors, lengths):
     return np.asarray(pooled / norm, dtype=np.float32)
 
 
+def validate_bert_layout(tokenizer):
+    """Check the pinned tokenizer's native layout without deprecated helpers."""
+    ids = (tokenizer.cls_token_id, tokenizer.sep_token_id, tokenizer.pad_token_id)
+    require(all(type(value) is int and value >= 0 for value in ids)
+            and len(set(ids)) == 3 and tokenizer.padding_side == "right"
+            and tokenizer.num_special_tokens_to_add(pair=False) == 2, "bert_special_tokens")
+    text = "A short invented sentence."
+    content = tokenizer.encode(text, add_special_tokens=False, truncation=False)
+    require(type(content) is list and bool(content) and len(content) <= 510, "bert_layout_fixture")
+    native = tokenizer(text, add_special_tokens=True, truncation=False,
+                       return_attention_mask=True, return_token_type_ids=True)
+    expected = [ids[0], *content, ids[1]]
+    require(native["input_ids"] == expected and native["attention_mask"] == [1] * len(expected)
+            and native["token_type_ids"] == [0] * len(expected), "bert_native_layout")
+
+
+def bert_batch(tokenizer, chunks, torch):
+    """Build exact CLS/content/SEP inputs, right padding, and zero token types."""
+    require(bool(chunks) and len(chunks) <= 4
+            and all(type(chunk) is list and 1 <= len(chunk) <= 510
+                    and all(type(value) is int and value >= 0 for value in chunk) for chunk in chunks),
+            "bert_batch_chunks")
+    size = max(map(len, chunks)) + 2
+    inputs, masks = [], []
+    for chunk in chunks:
+        row = [tokenizer.cls_token_id, *chunk, tokenizer.sep_token_id]
+        masks.append([1] * len(row) + [0] * (size - len(row)))
+        inputs.append(row + [tokenizer.pad_token_id] * (size - len(row)))
+    return {"input_ids": torch.tensor(inputs, dtype=torch.long),
+            "attention_mask": torch.tensor(masks, dtype=torch.long),
+            "token_type_ids": torch.tensor([[0] * size for _ in chunks], dtype=torch.long)}
+
+
 class FrozenEncoder:
     def __init__(self, config):
         validate_encoder_config(config)
@@ -163,10 +196,11 @@ class FrozenEncoder:
         self.model = AutoModel.from_pretrained(
             config["model_path"], local_files_only=True, trust_remote_code=False,
             use_safetensors=True, dtype=torch.float32, attn_implementation="eager").to("cpu").eval()
-        require(self.model.config.hidden_size == 384 and self.model.config.max_position_embeddings == 512,
+        require(self.model.config.hidden_size == 384 and self.model.config.max_position_embeddings == 512
+                and self.model.config.model_type == "bert" and self.model.config.type_vocab_size == 2
+                and self.model.config.pad_token_id == self.tokenizer.pad_token_id,
                 "model_dimensions")
-        require(self.tokenizer.num_special_tokens_to_add(pair=False) == 2
-                and self.tokenizer.cls_token_id is not None, "special_tokens")
+        validate_bert_layout(self.tokenizer)
         require(not self.model.training and all(p.dtype == torch.float32 and p.device.type == "cpu"
                                                for p in self.model.parameters()), "model_execution")
 
@@ -174,15 +208,7 @@ class FrozenEncoder:
         chunks = content_chunks(self.tokenizer, prompt)
         vectors = []
         for start in range(0, len(chunks), 4):
-            batch = []
-            for chunk in chunks[start:start + 4]:
-                item = self.tokenizer.prepare_for_model(chunk, add_special_tokens=True, padding=False,
-                    truncation=False, return_attention_mask=True, return_token_type_ids=True)
-                require(len(item["input_ids"]) == len(chunk) + 2
-                        and item["input_ids"][0] == self.tokenizer.cls_token_id
-                        and item["input_ids"][1:-1] == chunk, "chunk_special_token_layout")
-                batch.append(item)
-            inputs = self.tokenizer.pad(batch, padding=True, return_tensors="pt")
+            inputs = bert_batch(self.tokenizer, chunks[start:start + 4], self.torch)
             with self.torch.inference_mode():
                 output = self.model(**inputs).last_hidden_state[:, 0, :]
             vectors.extend(output.float().cpu().numpy())

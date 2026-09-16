@@ -1,6 +1,8 @@
 from copy import deepcopy
+from contextlib import nullcontext
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 from unittest.mock import patch
 
@@ -82,6 +84,91 @@ class FakeEncoder:
     def encode(self, prompt):
         self.calls.append(prompt)
         return unit(), [len(prompt)]
+
+
+class ModernBertTokenizer:
+    """Deliberately provides neither prepare_for_model nor tokenizer.pad."""
+    cls_token_id, sep_token_id, pad_token_id = 101, 102, 0
+    padding_side = "right"
+
+    def encode(self, text, *, add_special_tokens, truncation):
+        assert add_special_tokens is False and truncation is False
+        return list(range(200, 200 + len(text.split())))
+
+    def num_special_tokens_to_add(self, pair):
+        assert pair is False
+        return 2
+
+    def __call__(self, text, **kwargs):
+        values = [101, *self.encode(text, add_special_tokens=False, truncation=False), 102]
+        return {"input_ids": values, "attention_mask": [1] * len(values),
+                "token_type_ids": [0] * len(values)}
+
+
+class FakeTorch:
+    long = np.int64
+    tensor = staticmethod(lambda values, dtype: np.asarray(values, dtype=dtype))
+    inference_mode = staticmethod(nullcontext)
+
+
+class FakeTensor:
+    def __init__(self, values):
+        self.values = values
+
+    def __getitem__(self, index):
+        return FakeTensor(self.values[index])
+
+    def float(self):
+        return self
+
+    def cpu(self):
+        return self
+
+    def numpy(self):
+        return self.values
+
+
+def test_modern_tokenizer_native_layout_and_manual_padding_without_removed_helpers():
+    tokenizer = ModernBertTokenizer()
+    sem.validate_bert_layout(tokenizer)
+    batch = sem.bert_batch(tokenizer, [[200, 201], [202]], FakeTorch)
+    np.testing.assert_array_equal(batch["input_ids"], [[101, 200, 201, 102], [101, 202, 102, 0]])
+    np.testing.assert_array_equal(batch["attention_mask"], [[1, 1, 1, 1], [1, 1, 1, 0]])
+    np.testing.assert_array_equal(batch["token_type_ids"], np.zeros((2, 4)))
+
+
+def test_non_native_special_layout_or_left_padding_is_rejected():
+    tokenizer = ModernBertTokenizer()
+    tokenizer.padding_side = "left"
+    with pytest.raises(base.ChallengerError, match="bert_special_tokens"):
+        sem.validate_bert_layout(tokenizer)
+    tokenizer.padding_side = "right"
+    tokenizer.sep_token_id = 103
+    with pytest.raises(base.ChallengerError, match="bert_native_layout"):
+        sem.validate_bert_layout(tokenizer)
+
+
+def test_encoder_full_multichunk_path_uses_cls_and_keeps_every_original_content_token():
+    calls = []
+    def synthetic_forward(**batch):
+        calls.append(batch)
+        ids = batch["input_ids"]
+        values = np.zeros((*ids.shape, 384), dtype=np.float32)
+        values[:, 1:, 0] = 99.  # A wrong mean/last-token pool would pick this sentinel.
+        for row in range(len(ids)):
+            values[row, 0, (int(ids[row, 1]) - 200) // 510 + 1] = 7.
+        return SimpleNamespace(last_hidden_state=FakeTensor(values))
+    encoder = object.__new__(sem.FrozenEncoder)
+    encoder.tokenizer, encoder.torch, encoder.model = ModernBertTokenizer(), FakeTorch, synthetic_forward
+    vector, lengths = encoder.encode(" ".join(["word"] * 1021))
+    expected = unit(1) * 510 + unit(2) * 510 + unit(3)
+    expected /= np.linalg.norm(expected)
+    np.testing.assert_allclose(vector, expected, atol=1e-7)
+    assert lengths == [510, 510, 1] and len(calls) == 1
+    recovered = []
+    for ids, mask in zip(calls[0]["input_ids"], calls[0]["attention_mask"], strict=True):
+        recovered.extend(ids[1:int(mask.sum()) - 1].tolist())
+    assert recovered == list(range(200, 1221))
 
 
 def make_cache(tmp, data, *, benchmark=False):

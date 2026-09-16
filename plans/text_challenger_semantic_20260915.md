@@ -52,7 +52,13 @@ deterministic algorithms, seed 20260915, four torch threads and batch size four.
 
 Tokenize the exact original prompt with no added special tokens and no truncation.
 Split its complete token sequence into contiguous nonoverlapping chunks of at
-most 510 content tokens; add the model's two special tokens to each chunk. Extract
+most 510 content tokens; add the model's two special tokens to each chunk. Construct
+inputs using the pinned BERT layout: CLS, unchanged content IDs, SEP, right-side
+PAD tokens, an exact nonpadding attention mask and zero token-type IDs. Validate
+the tokenizer's token IDs/right-padding convention and compare a fixed short
+synthetic native encoding with this layout before inference. This avoids removed
+tokenizer convenience methods without decoding or retokenizing chunk content.
+Extract
 the final-layer CLS vector for each chunk, L2 normalize each chunk vector, take
 the content-token-count-weighted mean, then L2 normalize that mean. Empty input,
 empty token sequences, unexpected shape, zero vectors or nonfinite values fail;
