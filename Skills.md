@@ -1,6 +1,6 @@
 # Project research and compute skills
 
-Updated 2026-09-14 after migration to Zeta.
+Updated 2026-09-17 after migration to Zeta and persistent Git-worktree recovery.
 
 ## Use the local server first
 
@@ -82,6 +82,12 @@ secrets, restricted data, and oversized files before pushing. A `.gitignore`
 entry does not remove a file already committed in unpublished history. Verify
 the pushed branch's remote commit after each push. A failed push must be
 reported and retried when the underlying authentication/network issue clears.
+
+Keep the isolated code-backup worktree in a persistent directory. The current
+location is `/data2/PRAX/lexical-code-backup`, on branch
+`codex/server-research-continuation`. Do not put this checkout under `/tmp`:
+rebooting removed the earlier temporary worktree. Preserve the root checkout's
+unpublished data history separately and never push it as a shortcut.
 
 Run `python scripts/check_git_payload.py --staged` before committing and
 `python scripts/check_git_payload.py --base origin/main` before publishing a
